@@ -1,8 +1,8 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { RStore } from './p-store.service';
+import { RStore } from './rstore.service';
 
-describe('PStoreService', () => {
+describe('RStore', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [RStore]

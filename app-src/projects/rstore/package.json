@@ -1,5 +1,5 @@
 {
-  "name": "p-store",
+  "name": "rstore",
   "version": "1.0.0",
   "peerDependencies": {
     "rxjs": "^5.0.0"

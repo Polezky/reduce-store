@@ -17,11 +17,11 @@
       "dom"
     ],
     "paths": {
-      "p-store": [
-        "dist/p-store"
+      "rstore": [
+        "dist/rstore"
       ],
-      "p-store/*": [
-        "dist/p-store/*"
+      "rstore/*": [
+        "dist/rstore/*"
       ]
     }
   }

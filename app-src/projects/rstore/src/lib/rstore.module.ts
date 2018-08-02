@@ -1,5 +1,5 @@
 import { NgModule, ModuleWithProviders, Optional, SkipSelf } from '@angular/core';
-import { RStore } from './p-store.service';
+import { RStore } from './rstore.service';
 
 @NgModule({
   imports: [
@@ -7,15 +7,15 @@ import { RStore } from './p-store.service';
   declarations: [],
   exports: []
 })
-export class PStoreModule {
-  constructor(@Optional() @SkipSelf() parentModule: PStoreModule) {
+export class RStoreModule {
+  constructor(@Optional() @SkipSelf() parentModule: RStoreModule) {
     if (parentModule)
-      throw new Error('PStoreModule is already loaded. Import it in the AppModule only');
+      throw new Error('RStoreModule is already loaded. Import it in the AppModule only');
   }
 
   static forRoot(): ModuleWithProviders {
     return {
-      ngModule: PStoreModule,
+      ngModule: RStoreModule,
       providers: [
         RStore
       ]

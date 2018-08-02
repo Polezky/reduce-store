@@ -9,7 +9,7 @@ export class AppComponent {
   title = 'app';
 
   constructor(
-    //store: PStoreService,
+    //store: RStore,
   ) {
   }
 }

@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { PStoreModule } from 'p-store/p-store';
+import { RStoreModule } from 'rstore/rstore';
 
 @NgModule({
   declarations: [
@@ -10,7 +10,7 @@ import { PStoreModule } from 'p-store/p-store';
   ],
   imports: [
     BrowserModule,
-    PStoreModule.forRoot(),
+    RStoreModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent]

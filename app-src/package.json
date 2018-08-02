@@ -1,5 +1,5 @@
 {
-  "name": "pstore-app",
+  "name": "rstore-app",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "build-lib": "ng build --prod p-store-lib"
+    "build-lib": "ng build --prod rstore"
   },
   "private": true,
   "dependencies": {

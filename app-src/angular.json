@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "pstore-app": {
+    "rstore-app": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/pstore-app",
+            "outputPath": "dist/rstore-app",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -50,18 +50,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "pstore-app:build"
+            "browserTarget": "rstore-app:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "pstore-app:build:production"
+              "browserTarget": "rstore-app:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "pstore-app:build"
+            "browserTarget": "rstore-app:build"
           }
         },
         "test": {
@@ -95,7 +95,7 @@
         }
       }
     },
-    "pstore-app-e2e": {
+    "rstore-app-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "architect": {
@@ -103,11 +103,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "pstore-app:serve"
+            "devServerTarget": "rstore-app:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "pstore-app:serve:production"
+              "devServerTarget": "rstore-app:serve:production"
             }
           }
         },
@@ -122,38 +122,38 @@
         }
       }
     },
-    "p-store-lib": {
-      "root": "projects/p-store-lib",
-      "sourceRoot": "projects/p-store-lib/src",
+    "rstore": {
+      "root": "projects/rstore",
+      "sourceRoot": "projects/rstore/src",
       "projectType": "library",
       "prefix": "ps",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
           "options": {
-            "tsConfig": "projects/p-store-lib/tsconfig.lib.json",
-            "project": "projects/p-store-lib/ng-package.json"
+            "tsConfig": "projects/rstore/tsconfig.lib.json",
+            "project": "projects/rstore/ng-package.json"
           },
           "configurations": {
             "production": {
-              "project": "projects/p-store-lib/ng-package.prod.json"
+              "project": "projects/rstore/ng-package.prod.json"
             }
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/p-store-lib/src/test.ts",
-            "tsConfig": "projects/p-store-lib/tsconfig.spec.json",
-            "karmaConfig": "projects/p-store-lib/karma.conf.js"
+            "main": "projects/rstore/src/test.ts",
+            "tsConfig": "projects/rstore/tsconfig.spec.json",
+            "karmaConfig": "projects/rstore/karma.conf.js"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/p-store-lib/tsconfig.lib.json",
-              "projects/p-store-lib/tsconfig.spec.json"
+              "projects/rstore/tsconfig.lib.json",
+              "projects/rstore/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"
@@ -163,5 +163,5 @@
       }
     }
   },
-  "defaultProject": "pstore-app"
+  "defaultProject": "rstore-app"
 }
