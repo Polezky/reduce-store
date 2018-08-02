@@ -1,4 +1,4 @@
-import { IClone, IConstructor, IReducer, IStateGetter, ICollection } from "./public-interfaces";
+import { IClone, IConstructor, IReducer, IStateGetter, ICollection } from "./interfaces";
 
 export class Clone<T> implements IClone<T> {
   constructor(init?: Partial<T>) {

@@ -1,4 +1,5 @@
-import { NgModule } from '@angular/core';
+import { NgModule, ModuleWithProviders, Optional, SkipSelf } from '@angular/core';
+import { PStoreService } from './p-store.service';
 
 @NgModule({
   imports: [
@@ -6,4 +7,18 @@ import { NgModule } from '@angular/core';
   declarations: [],
   exports: []
 })
-export class PStoreLibModule { }
+export class PStoreModule {
+  constructor(@Optional() @SkipSelf() parentModule: PStoreModule) {
+    if (parentModule)
+      throw new Error('PStoreModule is already loaded. Import it in the AppModule only');
+  }
+
+  static forRoot(): ModuleWithProviders {
+    return {
+      ngModule: PStoreModule,
+      providers: [
+        PStoreService
+      ]
+    }
+  }
+}

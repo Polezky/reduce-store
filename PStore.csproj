@@ -112,8 +112,8 @@
     <TypeScriptCompile Include="app-src\projects\p-store-lib\src\lib\private-interfaces.ts" />
     <TypeScriptCompile Include="app-src\projects\p-store-lib\src\lib\p-store.module.ts" />
     <TypeScriptCompile Include="app-src\projects\p-store-lib\src\lib\p-store.service.spec.ts" />
-    <TypeScriptCompile Include="app-src\projects\p-store-lib\src\lib\public-classes.ts" />
-    <TypeScriptCompile Include="app-src\projects\p-store-lib\src\lib\public-interfaces.ts" />
+    <TypeScriptCompile Include="app-src\projects\p-store-lib\src\lib\classes.ts" />
+    <TypeScriptCompile Include="app-src\projects\p-store-lib\src\lib\interfaces.ts" />
     <TypeScriptCompile Include="app-src\projects\p-store-lib\src\lib\p-store.service.ts" />
     <TypeScriptCompile Include="app-src\projects\p-store-lib\src\public_api.ts" />
     <TypeScriptCompile Include="app-src\projects\p-store-lib\src\test.ts" />

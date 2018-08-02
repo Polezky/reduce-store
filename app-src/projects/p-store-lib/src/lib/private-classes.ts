@@ -1,4 +1,4 @@
-import { IClone, IReducer } from "./public-interfaces";
+import { IClone, IReducer } from "./interfaces";
 import { IResolve, IReject } from "./private-interfaces";
 import { Subject } from "rxjs";
 

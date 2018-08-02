@@ -2,7 +2,7 @@ import { TestBed, inject } from '@angular/core/testing';
 
 import { PStoreService } from './p-store.service';
 
-describe('PstoreLibService', () => {
+describe('PStoreService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [PStoreService]
