@@ -1,15 +1,15 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { PStoreService } from './p-store.service';
+import { RStore } from './p-store.service';
 
 describe('PStoreService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [PStoreService]
+      providers: [RStore]
     });
   });
 
-  it('should be created', inject([PStoreService], (service: PStoreService) => {
+  it('should be created', inject([RStore], (service: RStore) => {
     expect(service).toBeTruthy();
   }));
 });

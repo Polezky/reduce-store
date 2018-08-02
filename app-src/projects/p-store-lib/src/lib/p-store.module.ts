@@ -1,5 +1,5 @@
 import { NgModule, ModuleWithProviders, Optional, SkipSelf } from '@angular/core';
-import { PStoreService } from './p-store.service';
+import { RStore } from './p-store.service';
 
 @NgModule({
   imports: [
@@ -17,7 +17,7 @@ export class PStoreModule {
     return {
       ngModule: PStoreModule,
       providers: [
-        PStoreService
+        RStore
       ]
     }
   }

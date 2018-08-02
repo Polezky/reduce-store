@@ -17,11 +17,11 @@
       "dom"
     ],
     "paths": {
-      "p-store-lib": [
-        "dist/p-store-lib"
+      "p-store": [
+        "dist/p-store"
       ],
-      "p-store-lib/*": [
-        "dist/p-store-lib/*"
+      "p-store/*": [
+        "dist/p-store/*"
       ]
     }
   }
