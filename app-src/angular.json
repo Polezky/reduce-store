@@ -126,7 +126,7 @@
       "root": "projects/rstore",
       "sourceRoot": "projects/rstore/src",
       "projectType": "library",
-      "prefix": "ps",
+      "prefix": "rs",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
