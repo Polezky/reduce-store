@@ -13,7 +13,7 @@ export class ReduceStoreModule {
       throw new Error('ReduceStoreModule is already loaded. Import it in the AppModule only');
   }
 
-  static forRoot(): ModuleWithProviders { 
+  static forRoot(): ModuleWithProviders {
     return {
       ngModule: ReduceStoreModule,
       providers: [
