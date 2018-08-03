@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "rstore-app": {
+    "reduce-store-app": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/rstore-app",
+            "outputPath": "dist/reduce-store-app",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -50,18 +50,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "rstore-app:build"
+            "browserTarget": "reduce-store-app:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "rstore-app:build:production"
+              "browserTarget": "reduce-store-app:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "rstore-app:build"
+            "browserTarget": "reduce-store-app:build"
           }
         },
         "test": {
@@ -95,7 +95,7 @@
         }
       }
     },
-    "rstore-app-e2e": {
+    "reduce-store-app-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "architect": {
@@ -103,11 +103,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "rstore-app:serve"
+            "devServerTarget": "reduce-store-app:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "rstore-app:serve:production"
+              "devServerTarget": "reduce-store-app:serve:production"
             }
           }
         },
@@ -122,38 +122,38 @@
         }
       }
     },
-    "rstore": {
-      "root": "projects/rstore",
-      "sourceRoot": "projects/rstore/src",
+    "reduce-store": {
+      "root": "projects/reduce-store",
+      "sourceRoot": "projects/reduce-store/src",
       "projectType": "library",
       "prefix": "rs",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
           "options": {
-            "tsConfig": "projects/rstore/tsconfig.lib.json",
-            "project": "projects/rstore/ng-package.json"
+            "tsConfig": "projects/reduce-store/tsconfig.lib.json",
+            "project": "projects/reduce-store/ng-package.json"
           },
           "configurations": {
             "production": {
-              "project": "projects/rstore/ng-package.prod.json"
+              "project": "projects/reduce-store/ng-package.prod.json"
             }
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/rstore/src/test.ts",
-            "tsConfig": "projects/rstore/tsconfig.spec.json",
-            "karmaConfig": "projects/rstore/karma.conf.js"
+            "main": "projects/reduce-store/src/test.ts",
+            "tsConfig": "projects/reduce-store/tsconfig.spec.json",
+            "karmaConfig": "projects/reduce-store/karma.conf.js"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/rstore/tsconfig.lib.json",
-              "projects/rstore/tsconfig.spec.json"
+              "projects/reduce-store/tsconfig.lib.json",
+              "projects/reduce-store/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"
@@ -163,5 +163,5 @@
       }
     }
   },
-  "defaultProject": "rstore-app"
+  "defaultProject": "reduce-store-app"
 }

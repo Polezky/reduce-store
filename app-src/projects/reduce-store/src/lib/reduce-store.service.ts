@@ -8,7 +8,7 @@ import { IClone, IConstructor, ICollection, IReducer } from './interfaces';
 @Injectable({
   providedIn: 'root'
 })
-export class RStore {
+export class ReduceStore {
   private store = new Map<IConstructor<IClone<any>>, StateData<any>>();
 
   async getCollectionState<T extends IClone<T>>(stateCtor: IConstructor<ICollection<T>>): Promise<T[]> {

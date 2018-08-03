@@ -2,6 +2,6 @@
   "name": "reduce-store",
   "version": "1.0.1",
   "peerDependencies": {
-    "rxjs": "^5.0.0 || ^6.0.0"
+    "rxjs": "^6.0.0"
   }
 }

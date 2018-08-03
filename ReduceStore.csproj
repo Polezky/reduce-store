@@ -13,8 +13,8 @@
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RStore</RootNamespace>
-    <AssemblyName>RStore</AssemblyName>
+    <RootNamespace>ReduceStore</RootNamespace>
+    <AssemblyName>ReduceStore</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
@@ -73,7 +73,7 @@
     <Content Include=".gitignore" />
     <Content Include="app-src\.gitignore" />
     <Content Include="app-src\e2e\tsconfig.e2e.json" />
-    <Content Include="app-src\projects\rstore\karma.conf.js" />
+    <Content Include="app-src\projects\reduce-store\karma.conf.js" />
     <Content Include="app-src\src\app\app.component.css" />
     <Content Include="app-src\src\app\app.component.html" />
     <Content Include="app-src\src\favicon.ico" />
@@ -92,12 +92,12 @@
     <Content Include="app-src\README.md" />
     <Content Include="app-src\tsconfig.json" />
     <Content Include="app-src\tslint.json" />
-    <Content Include="app-src\projects\rstore\ng-package.json" />
-    <Content Include="app-src\projects\rstore\ng-package.prod.json" />
-    <Content Include="app-src\projects\rstore\package.json" />
-    <Content Include="app-src\projects\rstore\tsconfig.lib.json" />
-    <Content Include="app-src\projects\rstore\tsconfig.spec.json" />
-    <Content Include="app-src\projects\rstore\tslint.json" />
+    <Content Include="app-src\projects\reduce-store\ng-package.json" />
+    <Content Include="app-src\projects\reduce-store\ng-package.prod.json" />
+    <Content Include="app-src\projects\reduce-store\package.json" />
+    <Content Include="app-src\projects\reduce-store\tsconfig.lib.json" />
+    <Content Include="app-src\projects\reduce-store\tsconfig.spec.json" />
+    <Content Include="app-src\projects\reduce-store\tslint.json" />
     <None Include="packages.config" />
     <Content Include="README.md" />
   </ItemGroup>
@@ -110,15 +110,15 @@
   <ItemGroup>
     <TypeScriptCompile Include="app-src\e2e\src\app.e2e-spec.ts" />
     <TypeScriptCompile Include="app-src\e2e\src\app.po.ts" />
-    <TypeScriptCompile Include="app-src\projects\rstore\src\lib\private-classes.ts" />
-    <TypeScriptCompile Include="app-src\projects\rstore\src\lib\private-interfaces.ts" />
-    <TypeScriptCompile Include="app-src\projects\rstore\src\lib\rstore.module.ts" />
-    <TypeScriptCompile Include="app-src\projects\rstore\src\lib\rstore.service.spec.ts" />
-    <TypeScriptCompile Include="app-src\projects\rstore\src\lib\classes.ts" />
-    <TypeScriptCompile Include="app-src\projects\rstore\src\lib\interfaces.ts" />
-    <TypeScriptCompile Include="app-src\projects\rstore\src\lib\rstore.service.ts" />
-    <TypeScriptCompile Include="app-src\projects\rstore\src\public_api.ts" />
-    <TypeScriptCompile Include="app-src\projects\rstore\src\test.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-classes.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-interfaces.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.module.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.service.spec.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\classes.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\interfaces.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.service.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\index.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\test.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.component.spec.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.module.ts" />

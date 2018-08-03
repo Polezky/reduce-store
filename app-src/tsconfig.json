@@ -17,11 +17,11 @@
       "dom"
     ],
     "paths": {
-      "rstore": [
-        "dist/rstore"
+      "reduce-store": [
+        "dist/reduce-store"
       ],
-      "rstore/*": [
-        "dist/rstore/*"
+      "reducestore/*": [
+        "dist/reduce-store/*"
       ]
     }
   }

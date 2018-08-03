@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { RStoreModule } from 'rstore/rstore';
+import { ReduceStoreModule } from 'reduce-store';
 
 @NgModule({
   declarations: [
@@ -10,7 +10,7 @@ import { RStoreModule } from 'rstore/rstore';
   ],
   imports: [
     BrowserModule,
-    RStoreModule.forRoot(),
+    ReduceStoreModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,1 +1,1 @@
-# p-store
+# reduce-store
