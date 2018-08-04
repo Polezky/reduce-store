@@ -28,8 +28,11 @@ export class ReduceStore {
   getObservableState<T extends IClone<T>>(stateCtor: IConstructor<T>): Observable<T> {
     const stateData = this.getStateData(stateCtor);
     const subject = new Subject<T>();
-    stateData.subjects.push(subject);
-    this.getState(stateCtor).then(value => subject.next(this.safeClone(value)));
+
+    this.getState(stateCtor).then(value => {
+      subject.next(this.safeClone(value));
+      stateData.subjects.push(subject);
+    });
 
     return subject
       .asObservable()
@@ -76,9 +79,10 @@ export class ReduceStore {
     return stateData;
   }
 
-  private async reduceDeferred<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<void> {
+  private async reduceDeferred<T extends IClone<T>>(stateCtor: IConstructor<T>, isForced: boolean = false): Promise<void> {
     const stateData = this.getStateData(stateCtor);
-    if (stateData.isBusy) return;
+
+    if (stateData.isBusy && !isForced) return;
 
     const deferredReducer = stateData.deferredReducers.shift();
     if (!deferredReducer) return;
@@ -86,7 +90,7 @@ export class ReduceStore {
     stateData.isBusy = true;
 
     const newState = await (deferredReducer.reducer
-      .reduce(stateData.state, this.getState.bind(this))
+      .reduceAsync(stateData.state, this.getState.bind(this))
       .catch(e => {
         deferredReducer.reject();
         return stateData.state;
@@ -97,7 +101,7 @@ export class ReduceStore {
     deferredReducer.resolve();
 
     if (stateData.deferredReducers.length) {
-      this.reduceDeferred(stateCtor);
+      this.reduceDeferred(stateCtor, true);
       return;
     }
 

@@ -13,7 +13,7 @@ export class Clone<T> implements IClone<T> {
 export class SetStateReducer<T extends IClone<T>> implements IReducer<T> {
   constructor(
     public stateCtor: IConstructor<T>,
-    public reduce: (state: T, stateGetter: IStateGetter<any>) => Promise<T>,
+    public reduceAsync: (state: T, stateGetter: IStateGetter<any>) => Promise<T>,
   ) { }
 
   static create<U extends IClone<U>>(stateCtor: IConstructor<U>, newState: U): IReducer<U> {
@@ -27,10 +27,20 @@ export class SetStateReducer<T extends IClone<T>> implements IReducer<T> {
   }
 }
 
+export abstract class AsyncReduce<T extends IClone<T>> implements IReducer<T> {
+  abstract stateCtor: IConstructor<T>;
+
+  abstract reduce(state: T, stateGetter: IStateGetter<any>);
+
+  reduceAsync(state: T, stateGetter: IStateGetter<any>): Promise<T> {
+    return Promise.resolve(this.reduce(state, stateGetter));
+  }
+}
+
 export class SetCollectionStateReducer<T1 extends ICollection<T2>, T2 extends IClone<T2>> implements IReducer<ICollection<T2>> {
   constructor(
     public stateCtor: IConstructor<ICollection<T2>>,
-    public reduce: (state: ICollection<T2>, stateGetter: IStateGetter<any>) => Promise<ICollection<T2>>,
+    public reduceAsync: (state: ICollection<T2>, stateGetter: IStateGetter<any>) => Promise<ICollection<T2>>,
   ) { }
 
   static create<U1 extends ICollection<U2>, U2 extends IClone<U2>>(

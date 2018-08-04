@@ -12,7 +12,7 @@ export interface IStateGetter<T> {
 
 export interface IReducer<T extends IClone<T>> {
   stateCtor: IConstructor<T>;
-  reduce: (state: T, stateGetter: IStateGetter<any>) => Promise<T>;
+  reduceAsync: (state: T, stateGetter: IStateGetter<any>) => Promise<T>;
 }
 
 export interface ICollection<T extends IClone<T>> extends IClone<ICollection<T>> {

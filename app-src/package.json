@@ -8,7 +8,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "build-lib": "ng build --prod reduce-store"
+    "build-lib": "ng build --prod reduce-store",
+    "test-lib": "ng test reduce-store"
   },
   "private": true,
   "dependencies": {
