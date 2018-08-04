@@ -27,7 +27,7 @@ export class SetStateReducer<T extends IClone<T>> implements IReducer<T> {
   }
 }
 
-export abstract class AsyncReduce<T extends IClone<T>> implements IReducer<T> {
+export abstract class AsyncReducer<T extends IClone<T>> implements IReducer<T> {
   abstract stateCtor: IConstructor<T>;
 
   abstract reduce(state: T, stateGetter: IStateGetter<any>);

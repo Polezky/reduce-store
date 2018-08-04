@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { Observable, Subject } from 'rxjs';
-import { finalize, reduce } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { StateData, DeferredGetter, DeferredReducer } from './private-classes';
 import { IClone, IConstructor, ICollection, IReducer } from './interfaces';
 
