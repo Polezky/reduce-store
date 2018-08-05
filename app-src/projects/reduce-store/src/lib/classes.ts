@@ -1,4 +1,4 @@
-import { IClone, IConstructor, IReducer, IStateGetter, ICollection } from "./interfaces";
+import { IClone, IConstructor, IReducer, IStateGetter, ICollection, IReduce } from "./interfaces";
 
 export class Clone<T> implements IClone<T> {
   constructor(init?: Partial<T>) {
@@ -30,10 +30,16 @@ export class SetStateReducer<T extends IClone<T>> implements IReducer<T> {
 export abstract class AsyncReducer<T extends IClone<T>> implements IReducer<T> {
   abstract stateCtor: IConstructor<T>;
 
-  abstract reduce(state: T, stateGetter: IStateGetter<any>);
+  abstract reduce(
+    state: T,
+    stateGetter: IStateGetter<any>,
+    reduce: IReduce);
 
-  reduceAsync(state: T, stateGetter: IStateGetter<any>): Promise<T> {
-    return Promise.resolve(this.reduce(state, stateGetter));
+  reduceAsync(
+    state: T,
+    stateGetter: IStateGetter<any>,
+    reduce: IReduce) {
+    return Promise.resolve(this.reduce(state, stateGetter, reduce));
   }
 }
 

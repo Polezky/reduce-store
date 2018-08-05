@@ -44,14 +44,14 @@ export class ReduceStore {
   }
 
   async lazyReduce<T extends IClone<T>>(reducer: IReducer<T>): Promise<void> {
-    return this.inernalReduce(reducer, true);
+    return this.internalReduce(reducer, true);
   }
 
   async reduce<T extends IClone<T>>(reducer: IReducer<T>): Promise<void> {
-    return this.inernalReduce(reducer, false);
+    return this.internalReduce(reducer, false);
   }
 
-  private async inernalReduce<T extends IClone<T>>(reducer: IReducer<T>, isDeferred: boolean = false): Promise<void> {
+  private async internalReduce<T extends IClone<T>>(reducer: IReducer<T>, isDeferred: boolean = false): Promise<void> {
     const stateData = this.getStateData(reducer.stateCtor);
     return new Promise<void>((resolve, reject) => {
       const deferred = new DeferredReducer(reducer, resolve, reject);
@@ -90,7 +90,7 @@ export class ReduceStore {
     stateData.isBusy = true;
 
     const newState = await (deferredReducer.reducer
-      .reduceAsync(stateData.state, this.getState.bind(this))
+      .reduceAsync(stateData.state, this.getState.bind(this), this.internalReduce.bind(this))
       .catch(e => {
         deferredReducer.reject();
         return stateData.state;

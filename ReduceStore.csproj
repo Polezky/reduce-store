@@ -74,8 +74,6 @@
     <Content Include="app-src\.gitignore" />
     <Content Include="app-src\e2e\tsconfig.e2e.json" />
     <Content Include="app-src\projects\reduce-store\karma.conf.js" />
-    <Content Include="app-src\src\app\app.component.css" />
-    <Content Include="app-src\src\app\app.component.html" />
     <Content Include="app-src\src\favicon.ico" />
     <Content Include="app-src\src\index.html" />
     <Content Include="app-src\src\karma.conf.js" />
@@ -102,6 +100,12 @@
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="app-src\src\app\auth\components\" />
+    <Folder Include="app-src\src\app\auth\effects\" />
+    <Folder Include="app-src\src\app\core\actions\" />
+    <Folder Include="app-src\src\app\core\components\" />
+    <Folder Include="app-src\src\app\core\reducers\" />
+    <Folder Include="app-src\src\app\core\services\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -119,9 +123,16 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.service.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\index.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\test.ts" />
-    <TypeScriptCompile Include="app-src\src\app\app.component.spec.ts" />
-    <TypeScriptCompile Include="app-src\src\app\app.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\app-routing.module.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.module.ts" />
+    <TypeScriptCompile Include="app-src\src\app\auth\models\user.ts" />
+    <TypeScriptCompile Include="app-src\src\app\auth\services\auth-guard.service.ts" />
+    <TypeScriptCompile Include="app-src\src\app\auth\services\auth.service.ts" />
+    <TypeScriptCompile Include="app-src\src\app\auth\containers\login-page.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\auth\services\states.ts" />
+    <TypeScriptCompile Include="app-src\src\app\core\containers\app.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\core\containers\not-found-page.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\core\core.module.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.prod.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.ts" />
     <TypeScriptCompile Include="app-src\src\main.ts" />
