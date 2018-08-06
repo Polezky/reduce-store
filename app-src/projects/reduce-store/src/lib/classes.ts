@@ -33,12 +33,12 @@ export abstract class AsyncReducer<T extends IClone<T>> implements IReducer<T> {
   abstract reduce(
     state: T,
     stateGetter: IStateGetter<any>,
-    reduce: IReduce);
+    reduce: IReduce): T;
 
   reduceAsync(
     state: T,
     stateGetter: IStateGetter<any>,
-    reduce: IReduce) {
+    reduce: IReduce): Promise<T> {
     return Promise.resolve(this.reduce(state, stateGetter, reduce));
   }
 }

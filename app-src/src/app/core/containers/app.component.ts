@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-
-import * as AuthActions from '../../auth/actions/auth.actions';
-import * as fromAuth from '../../auth/reducers';
-import * as fromRoot from '../../reducers';
-import * as LayoutActions from '../actions/layout.actions';
+import { ReduceStore } from 'reduce-store';
+import { LayoutState, ToggleSidebarReducer } from 'src/app/core/containers/states';
+import { map } from 'rxjs/operators';
+import { AuthState, AuthStateLogoutReducer } from 'src/app/auth/states';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'bc-app',
@@ -38,32 +37,24 @@ export class AppComponent {
   showSidenav$: Observable<boolean>;
   loggedIn$: Observable<boolean>;
 
-  constructor(private store: Store<fromRoot.State>) {
-    /**
-     * Selectors can be applied with the `select` operator which passes the state
-     * tree to the provided selector
-     */
-    this.showSidenav$ = this.store.pipe(select(fromRoot.getShowSidenav));
-    this.loggedIn$ = this.store.pipe(select(fromAuth.getLoggedIn));
+  constructor(
+    private store: ReduceStore,
+    private router: Router,
+  ) {
+    this.showSidenav$ = this.store.getObservableState(LayoutState).pipe(map(x => x.showSidenav));
+    this.loggedIn$ = this.store.getObservableState(AuthState).pipe(map(x => x.loggedIn));
   }
 
   closeSidenav() {
-    /**
-     * All state updates are handled through dispatched actions in 'container'
-     * components. This provides a clear, reproducible history of state
-     * updates and user interaction through the life of our
-     * application.
-     */
-    this.store.dispatch(new LayoutActions.CloseSidenav());
+    this.store.reduce(new ToggleSidebarReducer());
   }
 
   openSidenav() {
-    this.store.dispatch(new LayoutActions.OpenSidenav());
+    this.store.reduce(new ToggleSidebarReducer());
   }
 
   logout() {
     this.closeSidenav();
-
-    this.store.dispatch(new AuthActions.Logout());
+    this.store.reduce(new AuthStateLogoutReducer(this.router));
   }
 }

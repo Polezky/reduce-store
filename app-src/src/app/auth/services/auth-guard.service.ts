@@ -3,7 +3,7 @@ import { CanActivate } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { ReduceStore } from 'reduce-store';
-import { AuthState } from 'src/app/auth/services/states';
+import { AuthState } from 'src/app/auth/states';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

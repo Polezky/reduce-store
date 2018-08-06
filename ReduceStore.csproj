@@ -100,11 +100,7 @@
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="app-src\src\app\auth\components\" />
-    <Folder Include="app-src\src\app\auth\effects\" />
-    <Folder Include="app-src\src\app\core\actions\" />
     <Folder Include="app-src\src\app\core\components\" />
-    <Folder Include="app-src\src\app\core\reducers\" />
     <Folder Include="app-src\src\app\core\services\" />
     <Folder Include="Properties\" />
   </ItemGroup>
@@ -125,13 +121,15 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\test.ts" />
     <TypeScriptCompile Include="app-src\src\app\app-routing.module.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.module.ts" />
+    <TypeScriptCompile Include="app-src\src\app\auth\components\login-form.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\auth\models\user.ts" />
     <TypeScriptCompile Include="app-src\src\app\auth\services\auth-guard.service.ts" />
     <TypeScriptCompile Include="app-src\src\app\auth\services\auth.service.ts" />
     <TypeScriptCompile Include="app-src\src\app\auth\containers\login-page.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\auth\services\states.ts" />
+    <TypeScriptCompile Include="app-src\src\app\auth\states.ts" />
     <TypeScriptCompile Include="app-src\src\app\core\containers\app.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\core\containers\not-found-page.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\core\containers\states.ts" />
     <TypeScriptCompile Include="app-src\src\app\core\core.module.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.prod.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.ts" />
