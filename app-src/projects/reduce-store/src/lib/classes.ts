@@ -64,18 +64,20 @@ export class SetCollectionStateReducer<T1 extends ICollection<T2>, T2 extends IC
   }
 }
 
-export class CollectionState<T extends IClone<T>> implements ICollection<T> {
-  items: T[];
-  itemsCtor: IConstructor<T>;
+export class CollectionState<T extends IClone<T>> extends Clone<ICollection<T>> implements ICollection<T> {
+  readonly itemsCtor: IConstructor<T>;
 
-  constructor(init: Partial<CollectionState<T>>, ) {
-    Object.assign(this, init);
+  items: T[];
+
+  constructor(init: Partial<CollectionState<T>>) {
+    super(init);
     this.items = init.items.map(x => new init.itemsCtor(x));
   }
 
-  clone(): CollectionState<T> {
-    const items = this.items.map(x => x.clone());
-    return new CollectionState({ items: items, itemsCtor: this.itemsCtor });
+  clone(): any {
+    const cloneObj = super.clone();
+    cloneObj.items = this.items.map(x => x.clone());
+    return cloneObj;
   }
 
 }

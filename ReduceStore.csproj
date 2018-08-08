@@ -100,8 +100,7 @@
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="app-src\src\app\core\components\" />
-    <Folder Include="app-src\src\app\core\services\" />
+    <Folder Include="app-src\src\app\books\guards\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -121,16 +120,38 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\test.ts" />
     <TypeScriptCompile Include="app-src\src\app\app-routing.module.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.module.ts" />
+    <TypeScriptCompile Include="app-src\src\app\auth\auth-routing.module.ts" />
+    <TypeScriptCompile Include="app-src\src\app\auth\auth.module.ts" />
     <TypeScriptCompile Include="app-src\src\app\auth\components\login-form.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\auth\models\user.ts" />
     <TypeScriptCompile Include="app-src\src\app\auth\services\auth-guard.service.ts" />
     <TypeScriptCompile Include="app-src\src\app\auth\services\auth.service.ts" />
     <TypeScriptCompile Include="app-src\src\app\auth\containers\login-page.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\auth\states.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\books-routing.module.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\books.module.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\components\book-authors.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\components\book-detail.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\components\book-preview-list.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\components\book-preview.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\components\book-search.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\components\index.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\containers\collection-page.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\containers\find-book-page.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\containers\selected-book-page.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\containers\states.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\containers\view-book-page.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\models\book.ts" />
+    <TypeScriptCompile Include="app-src\src\app\core\components\layout.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\core\components\nav-item.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\core\components\sidenav.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\core\components\toolbar.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\core\containers\app.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\core\containers\not-found-page.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\core\containers\states.ts" />
     <TypeScriptCompile Include="app-src\src\app\core\core.module.ts" />
+    <TypeScriptCompile Include="app-src\src\app\core\services\google-books.service.ts" />
+    <TypeScriptCompile Include="app-src\src\app\db.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.prod.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.ts" />
     <TypeScriptCompile Include="app-src\src\main.ts" />
