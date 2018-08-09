@@ -6,7 +6,7 @@ import { Database } from '@ngrx/db';
 
 import { Book } from '../models/book';
 import { ReduceStore } from 'reduce-store';
-import { BookCollectionState, LoadingBookCollectionStateReducer, LoadBookCollectionStateReducer } from 'src/app/books/containers/states';
+import { BookCollectionState, LoadingBookCollectionStateReducer, LoadBookCollectionStateReducer } from 'src/app/books/containers/collection-state';
 
 @Component({
   selector: 'bc-collection-page',

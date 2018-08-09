@@ -43,6 +43,28 @@ export abstract class AsyncReducer<T extends IClone<T>> implements IReducer<T> {
   }
 }
 
+export abstract class DeferredReducerTask<TState extends IClone<TState>, TTaskArgument> {
+  deferredTask: DeferredTask<TTaskArgument, void>;
+  arg: TTaskArgument;
+
+  constructor(
+
+  ) {
+    this.deferredTask = new DeferredTask(this.reduce)
+  }
+
+  abstract reduce(
+    state: TState,
+    stateGetter: IStateGetter<any>,
+    reduce: IReduce): TState;
+
+  execute(arg: TTaskArgument): Promise<void> {
+    this.arg = arg;
+    return this.deferredTask.execute();
+  }
+
+}
+
 export class SetCollectionStateReducer<T1 extends ICollection<T2>, T2 extends IClone<T2>> implements IReducer<ICollection<T2>> {
   constructor(
     public stateCtor: IConstructor<ICollection<T2>>,
@@ -80,4 +102,27 @@ export class CollectionState<T extends IClone<T>> extends Clone<ICollection<T>> 
     return cloneObj;
   }
 
+}
+
+export class DeferredTask<TArgument, TResult> {
+  private cancelToken: any;
+
+  constructor(
+    private jobToDo: (arg: TArgument) => TResult,
+    private taskThisArg: any = null,
+    private delayMilliseconds = 300,
+  ) { }
+
+  execute(taskArg: TArgument): Promise<TResult> {
+    clearTimeout(this.cancelToken);
+
+    return new Promise<TResult>((resolve, reject) => {
+      this.cancelToken = setTimeout(
+        () => {
+          const result = this.jobToDo.call(this.taskThisArg, taskArg);
+          resolve(result);
+        },
+        this.delayMilliseconds);
+    });
+  }
 }

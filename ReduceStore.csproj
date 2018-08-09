@@ -101,6 +101,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app-src\src\app\books\guards\" />
+    <Folder Include="app-src\src\app\material\" />
+    <Folder Include="app-src\src\app\shared\pipes\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -138,8 +140,9 @@
     <TypeScriptCompile Include="app-src\src\app\books\components\index.ts" />
     <TypeScriptCompile Include="app-src\src\app\books\containers\collection-page.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\books\containers\find-book-page.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\containers\search-book-state.ts" />
     <TypeScriptCompile Include="app-src\src\app\books\containers\selected-book-page.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\containers\states.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\containers\collection-state.ts" />
     <TypeScriptCompile Include="app-src\src\app\books\containers\view-book-page.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\books\models\book.ts" />
     <TypeScriptCompile Include="app-src\src\app\core\components\layout.component.ts" />

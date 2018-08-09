@@ -1,10 +1,8 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
 
-import * as fromBooks from '../reducers';
-import * as CollectionActions from '../actions/collection.actions';
 import { Book } from '../models/book';
+import { ReduceStore } from 'reduce-store';
 
 @Component({
   selector: 'bc-selected-book-page',
@@ -22,7 +20,9 @@ export class SelectedBookPageComponent {
   book$: Observable<Book>;
   isSelectedBookInCollection$: Observable<boolean>;
 
-  constructor(private store: Store<fromBooks.State>) {
+  constructor(
+    private store: ReduceStore,
+  ) {
     this.book$ = store.pipe(select(fromBooks.getSelectedBook)) as Observable<
       Book
     >;

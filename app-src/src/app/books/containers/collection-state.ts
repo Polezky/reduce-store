@@ -11,7 +11,7 @@ export class BookCollectionState extends CollectionState<Book>{
     super(init);
   }
 
-  static createSucces(items: Book[]): BookCollectionState {
+  static succes(items: Book[]): BookCollectionState {
     return new BookCollectionState({
       items: items,
       loaded: true,
@@ -20,7 +20,7 @@ export class BookCollectionState extends CollectionState<Book>{
     });
   }
 
-  static createFailed(): BookCollectionState {
+  static failed(): BookCollectionState {
     return new BookCollectionState({
       items: [],
       loaded: true,
@@ -48,8 +48,8 @@ export class LoadBookCollectionStateReducer implements IReducer<BookCollectionSt
 
   async reduceAsync(state: BookCollectionState): Promise<BookCollectionState> {
     return (this.db.query('books').toPromise() as Promise<Book[]>)
-      .then(books => BookCollectionState.createSucces(books))
-      .catch(e => BookCollectionState.createFailed());
+      .then(books => BookCollectionState.succes(books))
+      .catch(e => BookCollectionState.failed());
   }
 }
 
