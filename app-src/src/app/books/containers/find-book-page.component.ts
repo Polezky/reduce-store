@@ -20,7 +20,7 @@ export class FindBookPageComponent {
   books$: Observable<Book[]>;
   loading$: Observable<boolean>;
   error$: Observable<string>;
-  searchTask: ReducerTask<SearchBookState>;
+  searchTask: ReducerTask<SearchBookState, GoogleBooksService, string>;
 
   constructor(
     private googleBooks: GoogleBooksService,
@@ -30,14 +30,10 @@ export class FindBookPageComponent {
     this.books$ = this.store.getObservableState(SearchBookState).pipe(map(x => x.books));
     this.loading$ = this.store.getObservableState(SearchBookState).pipe(map(x => x.loading));
     this.error$ = this.store.getObservableState(SearchBookState).pipe(map(x => x.error));
-    this.searchTask = this.store.createReducerTask((s: GoogleBooksService, q: string) => new StartSearchBookStateReducer(s,q));
+    this.searchTask = this.store.createReducerTask((s, q) => new StartSearchBookStateReducer(s, q));
   }
 
   search(query: string) {
     this.searchTask.execute(this.googleBooks, query);
-  }
-
-  private startSearchBook(query: string): void {
-    this.store.reduce(new StartSearchBookStateReducer(this.googleBooks, query));
   }
 }

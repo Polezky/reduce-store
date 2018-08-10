@@ -133,9 +133,10 @@ export class ReduceStore {
     return this.internalReduce(reducer, false);
   }
 
-  createReducerTask<T extends IClone<T>>(
-    reducerCreator: (...argArray: any[]) => IReducer<T>,
-    delayMilliseconds?: number): ReducerTask<T> {
+  createReducerTask<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+    reducerCreator: (a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6) => IReducer<T>,
+    delayMilliseconds?: number): ReducerTask<T, A1, A2, A3, A4, A5, A6> {
+
     return new ReducerTask(this.reduce.bind(this), reducerCreator);
   }
 
