@@ -43,26 +43,30 @@ export abstract class AsyncReducer<T extends IClone<T>> implements IReducer<T> {
   }
 }
 
-export abstract class DeferredReducerTask<TState extends IClone<TState>, TTaskArgument> {
-  deferredTask: DeferredTask<TTaskArgument, void>;
-  arg: TTaskArgument;
+export class ReducerTask<T extends IClone<T>> {
+  deferredTask: DeferredTask<void>;
 
   constructor(
-
+    private reduce: (reducer: IReducer<T>) => Promise<void>,
+    private reducerCreator: (...argArray: any[]) => IReducer<T>,
+    private delayMilliseconds?: number,
   ) {
-    this.deferredTask = new DeferredTask(this.reduce)
+    this.deferredTask = this.createDeferredTask();
   }
 
-  abstract reduce(
-    state: TState,
-    stateGetter: IStateGetter<any>,
-    reduce: IReduce): TState;
-
-  execute(arg: TTaskArgument): Promise<void> {
-    this.arg = arg;
-    return this.deferredTask.execute();
+  execute(...argArray: any[]): Promise<void> {
+    return this.deferredTask.execute(argArray);
   }
 
+  private createDeferredTask(): DeferredTask<void> {
+    return new DeferredTask(
+      (...argArray: any[]) => {
+        const reducer = this.reducerCreator(argArray);
+        this.reduce(reducer);
+      },
+      null,
+      this.delayMilliseconds);
+  }
 }
 
 export class SetCollectionStateReducer<T1 extends ICollection<T2>, T2 extends IClone<T2>> implements IReducer<ICollection<T2>> {
@@ -104,24 +108,21 @@ export class CollectionState<T extends IClone<T>> extends Clone<ICollection<T>> 
 
 }
 
-export class DeferredTask<TArgument, TResult> {
+export class DeferredTask<TResult> {
   private cancelToken: any;
 
   constructor(
-    private jobToDo: (arg: TArgument) => TResult,
+    private jobToDo: (...argArray: any[]) => TResult,
     private taskThisArg: any = null,
     private delayMilliseconds = 300,
   ) { }
 
-  execute(taskArg: TArgument): Promise<TResult> {
+  execute(...argArray: any[]): Promise<TResult> {
     clearTimeout(this.cancelToken);
 
     return new Promise<TResult>((resolve, reject) => {
       this.cancelToken = setTimeout(
-        () => {
-          const result = this.jobToDo.call(this.taskThisArg, taskArg);
-          resolve(result);
-        },
+        () => resolve(this.jobToDo.apply(this.taskThisArg, argArray)),
         this.delayMilliseconds);
     });
   }

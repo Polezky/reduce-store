@@ -1,8 +1,11 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Book } from '../models/book';
 import { ReduceStore } from 'reduce-store';
+import { SelectedBookState } from 'src/app/books/containers/selected-book-state';
+import { BookCollectionState } from 'src/app/books/containers/collection-state';
 
 @Component({
   selector: 'bc-selected-book-page',
@@ -23,12 +26,11 @@ export class SelectedBookPageComponent {
   constructor(
     private store: ReduceStore,
   ) {
-    this.book$ = store.pipe(select(fromBooks.getSelectedBook)) as Observable<
-      Book
-    >;
-    this.isSelectedBookInCollection$ = store.pipe(
-      select(fromBooks.isSelectedBookInCollection)
-    );
+    this.book$ = this.store.getObservableState(SelectedBookState).pipe(map(x => x.book));
+    this.isSelectedBookInCollection$ = this.store.getObservableStateList(SelectedBookState, BookCollectionState).pipe(
+      map(([selectedBook, collection]) => 
+        !!selectedBook && collection.items.findIndex(x => x.id === selectedBook.book.id) > -1
+      ));
   }
 
   addToCollection(book: Book) {

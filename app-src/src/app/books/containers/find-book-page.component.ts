@@ -3,10 +3,9 @@ import { Observable } from 'rxjs';
 import { take, map } from 'rxjs/operators';
 
 import { Book } from '../models/book';
-import { ReduceStore } from 'reduce-store';
+import { ReduceStore, ReducerTask } from 'reduce-store';
 import { SearchBookState, StartSearchBookStateReducer, } from 'src/app/books/containers/search-book-state';
 import { GoogleBooksService } from 'src/app/core/services/google-books.service';
-import { DeferredTask } from 'src/app/shared/deferred-task';
 
 @Component({
   selector: 'bc-find-book-page',
@@ -21,7 +20,7 @@ export class FindBookPageComponent {
   books$: Observable<Book[]>;
   loading$: Observable<boolean>;
   error$: Observable<string>;
-  searchTask: DeferredTask<string, void>;
+  searchTask: ReducerTask<SearchBookState>;
 
   constructor(
     private googleBooks: GoogleBooksService,
@@ -31,11 +30,11 @@ export class FindBookPageComponent {
     this.books$ = this.store.getObservableState(SearchBookState).pipe(map(x => x.books));
     this.loading$ = this.store.getObservableState(SearchBookState).pipe(map(x => x.loading));
     this.error$ = this.store.getObservableState(SearchBookState).pipe(map(x => x.error));
-    this.searchTask = new DeferredTask(this.startSearchBook, this);
+    this.searchTask = this.store.createReducerTask((s: GoogleBooksService, q: string) => new StartSearchBookStateReducer(s,q));
   }
 
   search(query: string) {
-    this.searchTask.execute(query);
+    this.searchTask.execute(this.googleBooks, query);
   }
 
   private startSearchBook(query: string): void {

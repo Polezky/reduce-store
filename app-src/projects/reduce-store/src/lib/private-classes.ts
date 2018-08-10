@@ -1,9 +1,9 @@
 import { IClone, IReducer } from "./interfaces";
 import { IResolve, IReject } from "./private-interfaces";
-import { Subject } from "rxjs";
+import { Subscriber } from "rxjs";
 
 export class StateData<T extends IClone<T>> {
-  subjects: Array<Subject<T>> = [];
+  subscribers: Array<Subscriber<T>> = [];
   isBusy: boolean = false;
 
   deferredGetters: Array<DeferredGetter<T>> = [];

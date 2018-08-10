@@ -143,6 +143,7 @@
     <TypeScriptCompile Include="app-src\src\app\books\containers\search-book-state.ts" />
     <TypeScriptCompile Include="app-src\src\app\books\containers\selected-book-page.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\books\containers\collection-state.ts" />
+    <TypeScriptCompile Include="app-src\src\app\books\containers\selected-book-state.ts" />
     <TypeScriptCompile Include="app-src\src\app\books\containers\view-book-page.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\books\models\book.ts" />
     <TypeScriptCompile Include="app-src\src\app\core\components\layout.component.ts" />

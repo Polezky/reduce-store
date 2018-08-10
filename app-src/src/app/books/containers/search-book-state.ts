@@ -1,5 +1,3 @@
-import { map } from 'rxjs/operators';
-
 import { Clone, IReducer } from "reduce-store";
 import { Book } from "src/app/books/models/book";
 
