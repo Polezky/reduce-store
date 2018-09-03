@@ -53,3 +53,39 @@ export class LoadBookCollectionStateReducer implements IReducer<BookCollectionSt
   }
 }
 
+export class AddBookReducer implements IReducer<BookCollectionState>{
+  stateCtor = BookCollectionState;
+
+  constructor(
+    private db: Database,
+    private book: Book,
+  ) { }
+
+  async reduceAsync(state: BookCollectionState): Promise<BookCollectionState> {
+    return (this.db.insert('books', [this.book]).toPromise() as Promise<Book[]>)
+      .then(books => {
+        state.items.push(this.book);
+        return state;
+      })
+      .catch(e => state);
+  }
+}
+
+export class RemoveBookReducer implements IReducer<BookCollectionState>{
+  stateCtor = BookCollectionState;
+
+  constructor(
+    private db: Database,
+    private book: Book,
+  ) { }
+
+  async reduceAsync(state: BookCollectionState): Promise<BookCollectionState> {
+    return (this.db.insert('books', [this.book]).toPromise() as Promise<Book[]>)
+      .then(books => {
+        state.items.push(this.book);
+        return state;
+      })
+      .catch(e => state);
+  }
+}
+

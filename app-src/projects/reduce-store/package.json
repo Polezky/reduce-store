@@ -1,6 +1,6 @@
 {
   "name": "reduce-store",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "peerDependencies": {
     "rxjs": "^6.0.0",
     "@angular/common": "^6.0.0",

@@ -62,7 +62,7 @@ export class ReduceStore {
     state5Ctor?: IConstructor<T5>,
     state6Ctor?: IConstructor<T6>,
   )
-    : Observable<[T1, T2, T3, T4, T5,T6]> {
+    : Observable<[T1, T2, T3, T4, T5, T6]> {
 
     const result: [T1, T2, T3, T4, T5, T6] = [
       undefined as T1,
@@ -76,7 +76,7 @@ export class ReduceStore {
     const o1 = this.getObservableState(state1Ctor);
 
     const o2 = this.getObservableState(state2Ctor);
-    if (!state3Ctor) 
+    if (!state3Ctor)
       return o1.pipe(combineLatest(o2, (state1, state2) => {
         result[0] = state1;
         result[1] = state2;
@@ -137,7 +137,7 @@ export class ReduceStore {
     reducerCreator: (a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6) => IReducer<T>,
     delayMilliseconds?: number): ReducerTask<T, A1, A2, A3, A4, A5, A6> {
 
-    return new ReducerTask(this.reduce.bind(this), reducerCreator);
+    return new ReducerTask(this.reduce.bind(this), reducerCreator, delayMilliseconds);
   }
 
   private async internalReduce<T extends IClone<T>>(reducer: IReducer<T>, isDeferred: boolean = false): Promise<void> {
@@ -178,16 +178,16 @@ export class ReduceStore {
 
     stateData.isBusy = true;
 
-    const newState = await (deferredReducer.reducer
-      .reduceAsync(stateData.state, this.getState.bind(this), this.internalReduce.bind(this))
-      .catch(e => {
-        deferredReducer.reject();
-        return stateData.state;
-      })
-    );
+    let newState: T;
+    try {
+      newState = await deferredReducer.reducer
+        .reduceAsync(stateData.state, this.getState.bind(this), this.internalReduce.bind(this));
 
-    stateData.state = this.safeClone(newState);
-    deferredReducer.resolve();
+      stateData.state = this.safeClone(newState);
+      deferredReducer.resolve();
+    } catch (e) {
+      deferredReducer.reject(e);
+    }
 
     if (stateData.deferredReducers.length) {
       this.reduceDeferred(stateCtor, true);

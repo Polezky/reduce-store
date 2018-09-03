@@ -24,6 +24,20 @@ class TestStateReducer implements IReducer<TestState>{
   };
 }
 
+class TestStateErrorReducer implements IReducer<TestState>{
+  stateCtor = TestState;
+
+  constructor(private newValue: number) { }
+
+  reduceAsync(state: TestState, stateGetter): Promise<TestState> {
+    return new Promise((resolve, reject) => {
+      window.setTimeout(() => {
+        reject('Error of TestStateErrorReducer');
+      }, 1000);
+    });
+  };
+}
+
 describe('ReduceStore', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -34,6 +48,7 @@ describe('ReduceStore', () => {
   it('should be created', inject([ReduceStore], (store: ReduceStore) => {
     const r1 = new TestStateReducer(1);
     const r2 = new TestStateReducer(2);
+    const re = new TestStateErrorReducer(-1);
     const r3 = new TestStateReducer(3);
 
     store.lazyReduce(r1);
@@ -48,15 +63,21 @@ describe('ReduceStore', () => {
       console.log('getState 1', x.value);
     });
 
+    store.reduce(re);
+
     store.reduce(r3);
 
     store.getObservableState(TestState).subscribe(x => {
       console.log('getObservableState 2', x.value);
     });
 
-    store.getState(TestState).then(x => {
-      console.log('getState 2', x.value);
-    });
+    store.getState(TestState)
+      .then(x => {
+        console.log('getState 2', x.value);
+      })
+      .catch(e => {
+        console.log('error in getState 2', e);
+      });
 
     expect(store).toBeTruthy();
   }));

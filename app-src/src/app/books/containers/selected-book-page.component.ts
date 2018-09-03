@@ -5,7 +5,8 @@ import { map } from 'rxjs/operators';
 import { Book } from '../models/book';
 import { ReduceStore } from 'reduce-store';
 import { SelectedBookState } from 'src/app/books/containers/selected-book-state';
-import { BookCollectionState } from 'src/app/books/containers/collection-state';
+import { BookCollectionState, AddBookReducer } from 'src/app/books/containers/collection-state';
+import { Database } from '@ngrx/db';
 
 @Component({
   selector: 'bc-selected-book-page',
@@ -24,6 +25,7 @@ export class SelectedBookPageComponent {
   isSelectedBookInCollection$: Observable<boolean>;
 
   constructor(
+    private db: Database,
     private store: ReduceStore,
   ) {
     this.book$ = this.store.getObservableState(SelectedBookState).pipe(map(x => x.book));
@@ -34,7 +36,7 @@ export class SelectedBookPageComponent {
   }
 
   addToCollection(book: Book) {
-    this.store.dispatch(new CollectionActions.AddBook(book));
+    this.store.reduce(new AddBookReducer(this.db, book));
   }
 
   removeFromCollection(book: Book) {
