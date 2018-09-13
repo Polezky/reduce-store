@@ -1,17 +1,19 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 
 import { Observable, Subject, Subscriber } from 'rxjs';
 import { finalize, combineLatest } from 'rxjs/operators';
 
 import { StateData, DeferredGetter, DeferredReducer } from './private-classes';
-import { IClone, IConstructor, ICollection, IReducer } from './interfaces';
+import { IClone, IConstructor, ICollection, IReducer, IReducerConstructor } from './interfaces';
 import { ReducerTask } from './classes';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class ReduceStore {
   private store = new Map<IConstructor<IClone<any>>, StateData<any>>();
+
+  constructor(
+    private injector: Injector,
+  ) {}
 
   async getCollectionState<T extends IClone<T>>(stateCtor: IConstructor<ICollection<T>>): Promise<T[]> {
     return this.getState(stateCtor).then(x => x.items);
@@ -22,7 +24,7 @@ export class ReduceStore {
     return new Promise<T>((resolve, reject) => {
       const deferred = new DeferredGetter(resolve);
       stateData.deferredGetters.push(deferred);
-      this.reduceDeferred(stateCtor);
+      this.reduceDeferred(stateCtor, false);
       if (!stateData.isBusy) this.resolveDefferedGetters(stateCtor);
     });
   }
@@ -125,28 +127,33 @@ export class ReduceStore {
     }));
   }
 
-  async lazyReduce<T extends IClone<T>>(reducer: IReducer<T>): Promise<void> {
-    return this.internalReduce(reducer, true);
+  async lazyReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+    reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
+    return this.internalReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
   }
 
-  async reduce<T extends IClone<T>>(reducer: IReducer<T>): Promise<void> {
-    return this.internalReduce(reducer, false);
+  async reduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+    reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
+    return this.internalReduce(reducerCtor, false, a1, a2, a3, a4, a5, a6);
   }
 
   createReducerTask<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
-    reducerCreator: (a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6) => IReducer<T>,
+    reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>,
     delayMilliseconds?: number): ReducerTask<T, A1, A2, A3, A4, A5, A6> {
 
-    return new ReducerTask(this.reduce.bind(this), reducerCreator, delayMilliseconds);
+    return new ReducerTask(this.reduce.bind(this), reducerCtor, delayMilliseconds);
   }
 
-  private async internalReduce<T extends IClone<T>>(reducer: IReducer<T>, isDeferred: boolean = false): Promise<void> {
+  private async internalReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+    reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
+    const reducer = this.injector.get(reducerCtor);
     const stateData = this.getStateData(reducer.stateCtor);
     return new Promise<void>((resolve, reject) => {
-      const deferred = new DeferredReducer(reducer, resolve, reject);
+      const args = [a1, a2, a3, a4, a5, a6];
+      const deferred = new DeferredReducer(reducer, args, resolve, reject);
       stateData.deferredReducers.push(deferred);
       if (isDeferred) return;
-      this.reduceDeferred(reducer.stateCtor);
+      this.reduceDeferred(reducer.stateCtor, false);
     });
   }
 
@@ -168,7 +175,7 @@ export class ReduceStore {
     return stateData;
   }
 
-  private async reduceDeferred<T extends IClone<T>>(stateCtor: IConstructor<T>, isForced: boolean = false): Promise<void> {
+  private async reduceDeferred<T extends IClone<T>>(stateCtor: IConstructor<T>, isForced: boolean): Promise<void> {
     const stateData = this.getStateData(stateCtor);
 
     if (stateData.isBusy && !isForced) return;
@@ -180,9 +187,8 @@ export class ReduceStore {
 
     let newState: T;
     try {
-      newState = await deferredReducer.reducer
-        .reduceAsync(stateData.state, this.getState.bind(this), this.internalReduce.bind(this));
-
+      const args = deferredReducer.reducerArgs;
+      newState = await deferredReducer.reducer.reduceAsync(stateData.state, ...args);
       stateData.state = this.safeClone(newState);
       deferredReducer.resolve();
     } catch (e) {
