@@ -38,7 +38,7 @@ export class CollectionPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.store.reduce(new LoadingBookCollectionStateReducer());
-    this.store.reduce(new LoadBookCollectionStateReducer(this.db));
+    this.store.reduce(LoadingBookCollectionStateReducer);
+    this.store.reduce(LoadBookCollectionStateReducer);
   }
 }

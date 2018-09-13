@@ -27,16 +27,15 @@ export class StartSearchBookStateReducer implements IReducer<SearchBookState>{
 
   constructor(
     private googleBooks: GoogleBooksService,
-    private query: string,
   ) { }
 
-  async reduceAsync(state: SearchBookState): Promise<SearchBookState> {
-    if (!this.query || !this.query.length) return SearchBookState.empty();
+  async reduceAsync(state: SearchBookState, query: string): Promise<SearchBookState> {
+    if (!query || !query.length) return SearchBookState.empty();
     return this.googleBooks
-      .searchBooks(this.query)
+      .searchBooks(query)
       .toPromise()
-      .then(books => SearchBookState.success(this.query, books))
-      .catch(error => SearchBookState.error(this.query, error));
+      .then(books => SearchBookState.success(query, books))
+      .catch(error => SearchBookState.error(query, error));
   }
 }
 

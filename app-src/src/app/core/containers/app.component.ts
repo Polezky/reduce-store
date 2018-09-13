@@ -46,15 +46,15 @@ export class AppComponent {
   }
 
   closeSidenav() {
-    this.store.reduce(new ToggleSidebarReducer());
+    this.store.reduce(ToggleSidebarReducer);
   }
 
   openSidenav() {
-    this.store.reduce(new ToggleSidebarReducer());
+    this.store.reduce(ToggleSidebarReducer);
   }
 
   logout() {
     this.closeSidenav();
-    this.store.reduce(new AuthStateLogoutReducer(this.router));
+    this.store.reduce(AuthStateLogoutReducer);
   }
 }

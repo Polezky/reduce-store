@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component, Inject, Optional } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { take, map } from 'rxjs/operators';
 
 import { Book } from '../models/book';
 import { ReduceStore, ReducerTask } from 'reduce-store';
 import { SearchBookState, StartSearchBookStateReducer, } from 'src/app/books/containers/search-book-state';
-import { GoogleBooksService } from 'src/app/core/services/google-books.service';
 
 @Component({
   selector: 'bc-find-book-page',
@@ -20,20 +19,19 @@ export class FindBookPageComponent {
   books$: Observable<Book[]>;
   loading$: Observable<boolean>;
   error$: Observable<string>;
-  searchTask: ReducerTask<SearchBookState, GoogleBooksService, string>;
+  searchTask: ReducerTask<SearchBookState, string>;
 
   constructor(
-    private googleBooks: GoogleBooksService,
     private store: ReduceStore,
   ) {
     this.searchQuery$ = this.store.getObservableState(SearchBookState).pipe(map(x => x.query), take(1));
     this.books$ = this.store.getObservableState(SearchBookState).pipe(map(x => x.books));
     this.loading$ = this.store.getObservableState(SearchBookState).pipe(map(x => x.loading));
     this.error$ = this.store.getObservableState(SearchBookState).pipe(map(x => x.error));
-    this.searchTask = this.store.createReducerTask((s, q) => new StartSearchBookStateReducer(s, q));
+    this.searchTask = this.store.createReducerTask(StartSearchBookStateReducer);
   }
 
   search(query: string) {
-    this.searchTask.execute(this.googleBooks, query);
+    this.searchTask.execute(query);
   }
 }

@@ -5,7 +5,7 @@ export class LayoutState extends Clone<LayoutState> {
 }
 
 export class ToggleSidebarReducer extends AsyncReducer<LayoutState>{
-  stateCtor = LayoutState;
+  readonly stateCtor = LayoutState;
 
   reduce(state: LayoutState): LayoutState {
     state.showSidenav = !state.showSidenav;

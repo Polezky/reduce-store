@@ -28,23 +28,6 @@ export abstract class CollectionState<T extends IClone<T>> extends Clone<ICollec
 
 }
 
-export class SetStateReducer<T extends IClone<T>> implements IReducer<T> {
-  constructor(
-    public stateCtor: IConstructor<T>,
-    public reduceAsync: (state: T) => Promise<T>,
-  ) { }
-
-  static create<U extends IClone<U>>(stateCtor: IConstructor<U>, newState: U): IReducer<U> {
-    const reduceAsync = (state: U): Promise<U> => Promise.resolve(newState);
-    return new SetStateReducer(stateCtor, reduceAsync);
-  }
-
-  static createAsync<U extends IClone<U>>(stateCtor: IConstructor<U>, getter: () => Promise<U>): IReducer<U> {
-    const reduceAsync = (state: U): Promise<U> => getter();
-    return new SetStateReducer(stateCtor, reduceAsync);
-  }
-}
-
 export abstract class AsyncReducer<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> implements IReducer<T> {
   abstract readonly stateCtor: IConstructor<T>;
 
@@ -55,29 +38,8 @@ export abstract class AsyncReducer<T extends IClone<T>, A1 = null, A2 = null, A3
   }
 }
 
-export class SetCollectionStateReducer<T1 extends ICollection<T2>, T2 extends IClone<T2>> implements IReducer<ICollection<T2>> {
-  constructor(
-    public stateCtor: IConstructor<ICollection<T2>>,
-    public reduceAsync: (state: ICollection<T2>) => Promise<ICollection<T2>>,
-  ) { }
-
-  static create<U1 extends ICollection<U2>, U2 extends IClone<U2>>(
-    stateCtor: IConstructor<ICollection<U2>>,
-    getter: () => Promise<U2[]>,
-    itemsCtor: IConstructor<U2>
-  )
-    : IReducer<ICollection<U2>> {
-
-    const reduce = async (state: ICollection<U2>): Promise<ICollection<U2>> => {
-      const items = await getter();
-      return new stateCtor({ items, itemsCtor });
-    };
-    return new SetCollectionStateReducer(stateCtor, reduce);
-  }
-}
-
 export class ReducerTask<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
-  deferredTask: DeferredTask<void, A1, A2, A3, A4, A5, A6>;
+  private deferredTask: DeferredTask<void, A1, A2, A3, A4, A5, A6>;
 
   constructor(
     private reduce: (reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6) => Promise<void>,
@@ -89,6 +51,10 @@ export class ReducerTask<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A
 
   execute(a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     return this.deferredTask.execute(a1, a2, a3, a4, a5, a6);
+  }
+
+  typescriptCheck(): T {
+    throw Error('Do not use. It is needed for typescript compile check');
   }
 
   private createDeferredTask(): DeferredTask<void, A1, A2, A3, A4, A5, A6> {

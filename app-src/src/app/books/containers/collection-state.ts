@@ -4,6 +4,7 @@ import { CollectionState, IReducer, AsyncReducer } from 'reduce-store';
 import { Book } from 'src/app/books/models/book';
 
 export class BookCollectionState extends CollectionState<Book>{
+  readonly itemsCtor = Book;
   loaded: boolean;
   loading: boolean;
 
@@ -16,7 +17,6 @@ export class BookCollectionState extends CollectionState<Book>{
       items: items,
       loaded: true,
       loading: false,
-      itemsCtor: Book
     });
   }
 
@@ -25,13 +25,12 @@ export class BookCollectionState extends CollectionState<Book>{
       items: [],
       loaded: true,
       loading: false,
-      itemsCtor: Book
     });
   }
 }
 
 export class LoadingBookCollectionStateReducer extends AsyncReducer<BookCollectionState>{
-  stateCtor = BookCollectionState;
+  readonly stateCtor = BookCollectionState;
 
   reduce(state: BookCollectionState): BookCollectionState {
     state.loading = true;
@@ -40,7 +39,7 @@ export class LoadingBookCollectionStateReducer extends AsyncReducer<BookCollecti
 }
 
 export class LoadBookCollectionStateReducer implements IReducer<BookCollectionState>{
-  stateCtor = BookCollectionState;
+  readonly stateCtor = BookCollectionState;
 
   constructor(
     private db: Database,
@@ -54,17 +53,16 @@ export class LoadBookCollectionStateReducer implements IReducer<BookCollectionSt
 }
 
 export class AddBookReducer implements IReducer<BookCollectionState>{
-  stateCtor = BookCollectionState;
+  readonly stateCtor = BookCollectionState;
 
   constructor(
     private db: Database,
-    private book: Book,
   ) { }
 
-  async reduceAsync(state: BookCollectionState): Promise<BookCollectionState> {
-    return (this.db.insert('books', [this.book]).toPromise() as Promise<Book[]>)
+  async reduceAsync(state: BookCollectionState, book: Book): Promise<BookCollectionState> {
+    return (this.db.insert('books', [book]).toPromise() as Promise<Book[]>)
       .then(books => {
-        state.items.push(this.book);
+        state.items.push(book);
         return state;
       })
       .catch(e => state);
@@ -72,17 +70,16 @@ export class AddBookReducer implements IReducer<BookCollectionState>{
 }
 
 export class RemoveBookReducer implements IReducer<BookCollectionState>{
-  stateCtor = BookCollectionState;
+  readonly stateCtor = BookCollectionState;
 
   constructor(
     private db: Database,
-    private book: Book,
   ) { }
 
-  async reduceAsync(state: BookCollectionState): Promise<BookCollectionState> {
-    return (this.db.insert('books', [this.book]).toPromise() as Promise<Book[]>)
+  async reduceAsync(state: BookCollectionState, book: Book): Promise<BookCollectionState> {
+    return (this.db.insert('books', [book]).toPromise() as Promise<Book[]>)
       .then(books => {
-        state.items.push(this.book);
+        state.items.push(book);
         return state;
       })
       .catch(e => state);

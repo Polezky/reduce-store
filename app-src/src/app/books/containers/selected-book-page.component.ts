@@ -36,7 +36,7 @@ export class SelectedBookPageComponent {
   }
 
   addToCollection(book: Book) {
-    this.store.reduce(new AddBookReducer(this.db, book));
+    this.store.reduce(AddBookReducer, book);
   }
 
   removeFromCollection(book: Book) {

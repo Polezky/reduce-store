@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ReduceStore, SetStateReducer } from 'reduce-store';
-import { LoginState, pendingLoginStateReducer, AuthStateLoginSubmittedReducer } from 'src/app/auth/states';
+import { ReduceStore } from 'reduce-store';
+import { PendingLoginStateReducer, AuthStateLoginSubmittedReducer, AuthState } from 'src/app/auth/states';
 import { Authenticate } from 'src/app/auth/models/user';
-import { AuthService } from 'src/app/auth/services/auth.service';
-import { Router } from '@angular/router';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'bc-login-page',
@@ -17,19 +16,17 @@ import { Router } from '@angular/router';
   styles: [],
 })
 export class LoginPageComponent implements OnInit {
-  pending$ = this.store.getObservableState(LoginState);
-  error$ = this.store.getObservableState(LoginState);
+  pending$ = this.store.getObservableState(AuthState).pipe(map(x => x.pending));
+  error$ = this.store.getObservableState(AuthState).pipe(map(x => x.error));
 
   constructor(
     private store: ReduceStore,
-    private authService: AuthService,
-    private router: Router,
   ) { }
 
   ngOnInit() {}
 
   onSubmit(auth: Authenticate) {
-    this.store.reduce(pendingLoginStateReducer);
-    this.store.reduce(new AuthStateLoginSubmittedReducer(auth, this.authService, this.router));
+    this.store.reduce(PendingLoginStateReducer);
+    this.store.reduce(AuthStateLoginSubmittedReducer, auth);
   }
 }
