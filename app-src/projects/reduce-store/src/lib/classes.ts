@@ -38,6 +38,12 @@ export abstract class AsyncReducer<T extends IClone<T>, A1 = null, A2 = null, A3
   }
 }
 
+export abstract class SetStateReducer<T extends IClone<T>> extends AsyncReducer<T>  {
+  reduce(s: T, newState: T): T {
+    return newState;
+  }
+}
+
 export class ReducerTask<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   private deferredTask: DeferredTask<void, A1, A2, A3, A4, A5, A6>;
 

@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { ReduceStore } from './reduce-store.service';
+import { ReduceStore } from '../lib/reduce-store.service';
 import { Clone, IReducer } from 'reduce-store';
 import { Injectable } from '@angular/core';
 

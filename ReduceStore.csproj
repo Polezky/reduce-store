@@ -96,6 +96,7 @@
     <Content Include="app-src\projects\reduce-store\tsconfig.lib.json" />
     <Content Include="app-src\projects\reduce-store\tsconfig.spec.json" />
     <Content Include="app-src\projects\reduce-store\tslint.json" />
+    <Content Include="app-src\projects\reduce-store\package-lock.json" />
     <None Include="packages.config" />
     <Content Include="README.md" />
   </ItemGroup>
@@ -114,7 +115,8 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-classes.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-interfaces.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.module.ts" />
-    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.service.spec.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\collection.spec.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\general.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\classes.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\interfaces.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.service.ts" />
