@@ -1,6 +1,8 @@
 import { IClone, IReducer } from "./interfaces";
 import { IResolve, IReject } from "./private-interfaces";
 import { Subscriber } from "rxjs";
+import { Injectable } from "@angular/core";
+import { AsyncReducer } from "./classes";
 
 export class StateData<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   subscribers: Array<Subscriber<T>> = [];
@@ -28,5 +30,14 @@ export class DeferredGetter<T extends IClone<T>> {
   constructor(
     public resolve: (value?: T | PromiseLike<T>) => void,
   ) {
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class RemoveStateReducer extends AsyncReducer<any>  {
+  stateCtor = null;
+
+  reduce(s: any): any {
+    return undefined;
   }
 }

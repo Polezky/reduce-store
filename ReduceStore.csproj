@@ -25,7 +25,8 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <TypeScriptToolsVersion>2.9</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
+    <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -45,30 +46,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Web.DynamicData" />
-    <Reference Include="System.Web.Entity" />
-    <Reference Include="System.Web.ApplicationServices" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Web.Services" />
-    <Reference Include="System.EnterpriseServices" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
-      <HintPath>packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="app-src\.gitignore" />
@@ -97,7 +74,6 @@
     <Content Include="app-src\projects\reduce-store\tsconfig.spec.json" />
     <Content Include="app-src\projects\reduce-store\tslint.json" />
     <Content Include="app-src\projects\reduce-store\package-lock.json" />
-    <None Include="packages.config" />
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>
@@ -116,6 +92,7 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-interfaces.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.module.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\collection.spec.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\remove-state-reducer.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\general.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\classes.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\interfaces.ts" />

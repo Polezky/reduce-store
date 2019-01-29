@@ -1,10 +1,10 @@
 import { Injectable, Injector } from '@angular/core';
 
-import { Observable, Subject, Subscriber } from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
 import { finalize, combineLatest } from 'rxjs/operators';
 
-import { StateData, DeferredGetter, DeferredReducer } from './private-classes';
-import { IClone, IConstructor, ICollection, IReducer, IReducerConstructor } from './interfaces';
+import { StateData, DeferredGetter, DeferredReducer, RemoveStateReducer } from './private-classes';
+import { IClone, IConstructor, ICollection, IReducerConstructor, IReducer } from './interfaces';
 import { ReducerTask } from './classes';
 
 @Injectable({ providedIn: 'root' })
@@ -129,12 +129,12 @@ export class ReduceStore {
 
   async lazyReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
-    return this.internalReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
+    return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
   }
 
   async reduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
-    return this.internalReduce(reducerCtor, false, a1, a2, a3, a4, a5, a6);
+    return this.createReducerAndReduce(reducerCtor, false, a1, a2, a3, a4, a5, a6);
   }
 
   createReducerTask<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
@@ -144,9 +144,20 @@ export class ReduceStore {
     return new ReducerTask(this.reduce.bind(this), reducerCtor, delayMilliseconds);
   }
 
-  private async internalReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+  async removeState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<void> {
+    const reducer = new RemoveStateReducer();
+    reducer.stateCtor = stateCtor;
+    return this.internalReduce(reducer, false);
+  }
+
+  private async createReducerAndReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     const reducer = this.injector.get(reducerCtor);
+    return this.internalReduce(reducer, isDeferred, a1, a2, a3, a4, a5, a6);
+  }
+
+  private async internalReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+    reducer: IReducer<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     const stateData = this.getStateData(reducer.stateCtor);
     return new Promise<void>((resolve, reject) => {
       const args = [a1, a2, a3, a4, a5, a6];

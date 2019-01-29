@@ -2,7 +2,7 @@ import { TestBed, inject } from '@angular/core/testing';
 
 import { ReduceStore } from '../lib/reduce-store.service';
 import { IReducer } from '../lib/interfaces';
-import { CollectionState, Clone } from '../lib/classes';
+import { CollectionState } from '../lib/classes';
 import { Injectable } from '@angular/core';
 
 class Base {
@@ -54,7 +54,7 @@ describe('ReduceStore', () => {
       new Derived({ derivedProp1: 2, derivedProp2: '22', baseProp1: '22', baseProp2: 22 }),
       new Derived({ derivedProp1: 3, derivedProp2: '33', baseProp1: '33', baseProp2: 33 }),
     ];
-    const state = new TestState({ items });
+    const state = new TestState({ items, itemsCtor: Derived });
 
     store.reduce(TestStateReducer, state);
 
