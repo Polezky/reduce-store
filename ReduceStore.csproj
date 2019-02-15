@@ -92,6 +92,7 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-interfaces.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.module.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\collection.spec.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\notify-subscribers.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\remove-state-reducer.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\general.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\classes.ts" />

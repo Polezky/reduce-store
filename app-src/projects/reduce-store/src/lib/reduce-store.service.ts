@@ -15,11 +15,11 @@ export class ReduceStore {
     private injector: Injector,
   ) {}
 
-  async getCollectionState<T extends IClone<T>>(stateCtor: IConstructor<ICollection<T>>): Promise<T[]> {
+  getCollectionState<T extends IClone<T>>(stateCtor: IConstructor<ICollection<T>>): Promise<T[]> {
     return this.getState(stateCtor).then(x => x.items);
   }
 
-  async getState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<T> {
+  getState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<T> {
     const stateData = this.getStateData(stateCtor);
     return new Promise<T>((resolve, reject) => {
       const deferred = new DeferredGetter(resolve);
@@ -127,12 +127,12 @@ export class ReduceStore {
     }));
   }
 
-  async lazyReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+  lazyReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
   }
 
-  async reduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+  reduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     return this.createReducerAndReduce(reducerCtor, false, a1, a2, a3, a4, a5, a6);
   }
@@ -150,13 +150,13 @@ export class ReduceStore {
     return this.internalReduce(reducer, false);
   }
 
-  private async createReducerAndReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+  private createReducerAndReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     const reducer = this.injector.get(reducerCtor);
     return this.internalReduce(reducer, isDeferred, a1, a2, a3, a4, a5, a6);
   }
 
-  private async internalReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+  private internalReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducer: IReducer<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     const stateData = this.getStateData(reducer.stateCtor);
     return new Promise<void>((resolve, reject) => {
@@ -168,8 +168,7 @@ export class ReduceStore {
     });
   }
 
-  private async notifySubscribers<T extends IClone<T>>(stateData: StateData<T>): Promise<void> {
-    if (!stateData.subscribers.length) return;
+  private notifySubscribers<T extends IClone<T>>(stateData: StateData<T>): void {
     const value = stateData.state;
     for (let subscriber of stateData.subscribers) {
       const cloneValue = this.safeClone(value);
@@ -213,7 +212,7 @@ export class ReduceStore {
 
     this.resolveDefferedGetters(stateCtor);
 
-    await this.notifySubscribers(stateData);
+    this.notifySubscribers(stateData);
 
     stateData.isBusy = false;
   }
