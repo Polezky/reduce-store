@@ -1,6 +1,6 @@
-import { Injectable, Injector } from '@angular/core';
+import { Injectable, Injector, OnDestroy } from '@angular/core';
 
-import { Observable, Subscriber } from 'rxjs';
+import { Observable, Subscriber, Subscription } from 'rxjs';
 import { finalize, combineLatest } from 'rxjs/operators';
 
 import { StateData, DeferredGetter, DeferredReducer, RemoveStateReducer } from './private-classes';
@@ -10,10 +10,11 @@ import { ReducerTask } from './classes';
 @Injectable({ providedIn: 'root' })
 export class ReduceStore {
   private store = new Map<IConstructor<IClone<any>>, StateData<any>>();
+  private subscriptionStore = new Map<OnDestroy, Subscription>();
 
   constructor(
     private injector: Injector,
-  ) {}
+  ) { }
 
   getCollectionState<T extends IClone<T>>(stateCtor: IConstructor<ICollection<T>>): Promise<T[]> {
     return this.getState(stateCtor).then(x => x.items);
@@ -47,6 +48,22 @@ export class ReduceStore {
       }));
 
     return observable;
+  }
+
+  subscribeToState<T extends IClone<T>>(
+    stateCtor: IConstructor<T>,
+    next: (value: T) => void,
+    componentInstance: OnDestroy): void {
+    const observable = this.getObservableState(stateCtor);
+    const newSubscription = observable.subscribe(next.bind(componentInstance));
+    this.getSubscriptionState(componentInstance).add(newSubscription);
+
+    const originalOnDestroy = componentInstance.ngOnDestroy.bind(componentInstance);
+    componentInstance.ngOnDestroy = (): void => {
+      this.getSubscriptionState(componentInstance).unsubscribe();
+      this.subscriptionStore.delete(componentInstance);
+      originalOnDestroy();
+    };
   }
 
   getObservableStateList<
@@ -229,5 +246,14 @@ export class ReduceStore {
   private safeClone(state: IClone<any> | undefined): any {
     if (state === undefined) return undefined;
     return state.clone();
+  }
+
+  private getSubscriptionState(componentInstance: OnDestroy): Subscription {
+    let subscription = this.subscriptionStore.get(componentInstance);
+    if (subscription) return subscription;
+
+    subscription = new Subscription();
+    this.subscriptionStore.set(componentInstance, subscription);
+    return subscription;
   }
 }

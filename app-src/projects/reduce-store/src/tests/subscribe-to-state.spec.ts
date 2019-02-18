@@ -2,7 +2,7 @@ import { TestBed, inject } from '@angular/core/testing';
 
 import { ReduceStore } from '../lib/reduce-store.service';
 import { Clone, IReducer } from 'reduce-store';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 
 class TestState extends Clone<TestState> {
   value: number;
@@ -13,7 +13,7 @@ class TestStateReducer implements IReducer<TestState>{
   stateCtor = TestState;
 
   reduceAsync(state: TestState, newValue: number): Promise<TestState> {
-    console.log('RemoveStateTest TestStateReducer newValue', newValue);
+    console.log('TestStateReducer newValue', newValue);
     return new Promise((resolve, reject) => {
       window.setTimeout(() => {
         const newState = state || new TestState({ value: newValue });
@@ -24,6 +24,25 @@ class TestStateReducer implements IReducer<TestState>{
   };
 }
 
+class Component implements OnDestroy {
+  private value = 'zzz';
+  private state: TestState;
+
+  constructor(private store: ReduceStore) {
+    this.store.subscribeToState(TestState, this.onStateChanged, this);
+  }
+
+  ngOnDestroy(): void {
+    console.log('origianl OnDestroy exetuted', this);
+  }
+
+  private onStateChanged(s: TestState): void {
+    this.state = s;
+    console.log('Component, this', this);
+  }
+
+}
+
 describe('ReduceStore', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -32,23 +51,14 @@ describe('ReduceStore', () => {
   });
 
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
-    store.lazyReduce(TestStateReducer, 1);
+    const component = new Component(store);
 
-    store.getObservableState(TestState).subscribe(x => {
-      console.log('RemoveStateTest getObservableState 1', x);
-    });
-
+    await store.reduce(TestStateReducer, 1);
     await store.reduce(TestStateReducer, 2);
 
-    await store.getState(TestState).then(x => {
-      console.log('RemoveStateTest getState 1', x);
-    });
+    component.ngOnDestroy();
 
-    await store.removeState(TestState);
-
-    store.getState(TestState).then(x => {
-      console.log('RemoveStateTest getState 2', x);
-    });
+    await store.reduce(TestStateReducer, 3);
 
     expect(store).toBeTruthy();
   }));
