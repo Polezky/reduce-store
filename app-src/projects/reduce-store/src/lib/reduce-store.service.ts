@@ -52,10 +52,16 @@ export class ReduceStore {
 
   subscribeToState<T extends IClone<T>>(
     stateCtor: IConstructor<T>,
+    componentInstance: OnDestroy,
     next: (value: T) => void,
-    componentInstance: OnDestroy): void {
+    error?: (error: any) => void,
+    complete?: () => void): void {
     const observable = this.getObservableState(stateCtor);
-    const newSubscription = observable.subscribe(next.bind(componentInstance));
+    const newSubscription = observable.subscribe(
+      next.bind(componentInstance),
+      error.bind(componentInstance),
+      complete.bind(componentInstance)
+    );
     this.getSubscriptionState(componentInstance).add(newSubscription);
 
     const originalOnDestroy = componentInstance.ngOnDestroy.bind(componentInstance);

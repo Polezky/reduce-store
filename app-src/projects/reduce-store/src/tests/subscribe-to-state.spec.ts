@@ -29,16 +29,16 @@ class Component implements OnDestroy {
   private state: TestState;
 
   constructor(private store: ReduceStore) {
-    this.store.subscribeToState(TestState, this.onStateChanged, this);
+    this.store.subscribeToState(TestState, this, this.onStateChanged);
   }
 
   ngOnDestroy(): void {
-    console.log('origianl OnDestroy exetuted', this);
+    console.log('Component OnDestroy', this);
   }
 
   private onStateChanged(s: TestState): void {
     this.state = s;
-    console.log('Component, this', this);
+    console.log('Component onStateChanged', this);
   }
 
 }
@@ -59,6 +59,10 @@ describe('ReduceStore', () => {
     component.ngOnDestroy();
 
     await store.reduce(TestStateReducer, 3);
+
+    setTimeout(() => {
+      store.reduce(TestStateReducer, 4);
+    }, 1000);
 
     expect(store).toBeTruthy();
   }));
