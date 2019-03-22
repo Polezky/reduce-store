@@ -31,15 +31,20 @@ export class ReduceStore {
   }
 
   getObservableState<T extends IClone<T>>(stateCtor: IConstructor<T>): Observable<T> {
+    const isStateExist = this.isStateExist(stateCtor);
     const stateData = this.getStateData(stateCtor);
     let subscriber: Subscriber<T>;
 
-    const observable = new Observable<T>(observer => {
-      subscriber = observer;
-      this.getState(stateCtor).then(value => {
-        subscriber.next(this.safeClone(value));
-        stateData.subscribers.push(subscriber);
-      });
+    const observable = new Observable<T>(s => {
+      subscriber = s;
+      stateData.subscribers.push(subscriber);
+
+      if (isStateExist) {
+        this.getState(stateCtor).then(value => {
+          subscriber.next(this.safeClone(value));
+          stateData.subscribers.push(subscriber);
+        });
+      } 
     })
       .pipe(finalize(() => {
         const stateData = this.store.get(stateCtor);
@@ -54,8 +59,8 @@ export class ReduceStore {
     stateCtor: IConstructor<T>,
     componentInstance: OnDestroy,
     next: (value: T) => void,
-    error?: (error: any) => void,
-    complete?: () => void): void {
+    error: (error: any) => void = () => { },
+    complete: () => void = () => { }): void {
     const observable = this.getObservableState(stateCtor);
     const newSubscription = observable.subscribe(
       next.bind(componentInstance),
@@ -261,5 +266,9 @@ export class ReduceStore {
     subscription = new Subscription();
     this.subscriptionStore.set(componentInstance, subscription);
     return subscription;
+  }
+
+  private isStateExist<T extends IClone<T>>(stateCtor: IConstructor<T>): boolean {
+    return this.store.has(stateCtor);
   }
 }

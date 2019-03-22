@@ -38,7 +38,7 @@ class Component implements OnDestroy {
 
   private onStateChanged(s: TestState): void {
     this.state = s;
-    console.log('Component onStateChanged', this);
+    console.log('Component onStateChanged', this, this.state && this.state.value);
   }
 
 }
@@ -53,7 +53,7 @@ describe('ReduceStore', () => {
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
     const component = new Component(store);
 
-    await store.reduce(TestStateReducer, 1);
+    store.reduce(TestStateReducer, 1);
     await store.reduce(TestStateReducer, 2);
 
     component.ngOnDestroy();
