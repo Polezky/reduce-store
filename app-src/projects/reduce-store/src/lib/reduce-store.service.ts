@@ -31,15 +31,15 @@ export class ReduceStore {
   }
 
   getObservableState<T extends IClone<T>>(stateCtor: IConstructor<T>): Observable<T> {
-    const isStateCreated = this.isStateCreated(stateCtor);
+    const isNeedToNotifySubcriber = this.isStateCreated(stateCtor);
     const stateData = this.getStateData(stateCtor);
-    const isStateValueCreated = isStateCreated && stateData.isValueCreated;
+
     let subscriber: Subscriber<T>;
 
     const observable = new Observable<T>(s => {
       subscriber = s;
 
-      if (isStateValueCreated) {
+      if (isNeedToNotifySubcriber) {
         this.getState(stateCtor).then(value => {
           subscriber.next(this.safeClone(value));
           stateData.subscribers.push(subscriber);
@@ -230,7 +230,6 @@ export class ReduceStore {
       const args = deferredReducer.reducerArgs;
       newState = await deferredReducer.reducer.reduceAsync(stateData.state, ...args);
       stateData.state = this.safeClone(newState);
-      stateData.isValueCreated = true;
       deferredReducer.resolve();
     } catch (e) {
       deferredReducer.reject(e);

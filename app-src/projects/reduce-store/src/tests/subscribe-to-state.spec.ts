@@ -8,10 +8,6 @@ class TestState extends Clone<TestState> {
   value: number;
 }
 
-class TestState2 extends Clone<TestState2> {
-  value2: number;
-}
-
 @Injectable({ providedIn: 'root' })
 class TestStateReducer implements IReducer<TestState>{
   stateCtor = TestState;
@@ -28,36 +24,16 @@ class TestStateReducer implements IReducer<TestState>{
   };
 }
 
-class ComponentHelper implements OnDestroy  {
-  private state: TestState;
-
-  constructor(private store: ReduceStore) {
-    this.store.subscribeToState(TestState, this, this.onStateChanged);
-  }
-
-  ngOnDestroy(): void {
-    console.log('ComponentHelper OnDestroy', this);
-  }
-
-  private onStateChanged(s: TestState): void {
-    this.state = s;
-    console.log('ComponentHelper onState2Changed', this.state && this.state.value);
-  }
-}
-
 class Component implements OnDestroy {
   private value = 'zzz';
   private state: TestState;
-  private helper: ComponentHelper;
 
   constructor(private store: ReduceStore) {
-    this.helper = new ComponentHelper(this.store);
     this.store.subscribeToState(TestState, this, this.onStateChanged);
   }
 
   ngOnDestroy(): void {
     console.log('Component OnDestroy', this);
-    this.helper.ngOnDestroy();
   }
 
   private onStateChanged(s: TestState): void {
@@ -76,9 +52,11 @@ describe('ReduceStore', () => {
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
     console.log('store', store);
 
+    store.lazyReduce(TestStateReducer, 1);
+
     const component = new Component(store);
 
-    store.reduce(TestStateReducer, 1);
+    await new Promise(r => setTimeout(r, 1000));
 
     await store.reduce(TestStateReducer, 2);
 
