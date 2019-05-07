@@ -3,7 +3,6 @@ import { TestBed, inject } from '@angular/core/testing';
 import { ReduceStore } from '../lib/reduce-store.service';
 import { Clone, IReducer } from 'reduce-store';
 import { Injectable, OnDestroy } from '@angular/core';
-import { LogType } from '../lib/classes';
 
 class TestState extends Clone<TestState> {
   value: number;

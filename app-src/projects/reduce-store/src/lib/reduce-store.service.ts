@@ -26,13 +26,13 @@ export class ReduceStore {
       const deferred = new DeferredGetter(resolve);
       stateData.deferredGetters.push(deferred);
       this.reduceDeferred(stateCtor, false);
-      if (!stateData.isBusy) this.resolveDefferedGetters(stateCtor);
+      if (!stateData.isBusy && !stateData.isStateSuspended) this.resolveDefferedGetters(stateCtor);
     });
   }
 
   getObservableState<T extends IClone<T>>(stateCtor: IConstructor<T>): Observable<T> {
     const stateData = this.getStateData(stateCtor);
-    const isNeedToNotifySubcriber = stateData.isStateCreated;
+    const isNeedToNotifySubcriber = stateData.isStateCreated && !stateData.isStateSuspended;
 
     let subscriber: Subscriber<T>;
 
@@ -190,6 +190,12 @@ export class ReduceStore {
     return this.internalReduce(reducer, false);
   }
 
+  async suspendState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<void> {
+    await this.getState(stateCtor);
+    const stateData = this.getStateData(stateCtor);
+    stateData.isStateSuspended = true;
+  }
+
   private createReducerAndReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     const reducer = this.injector.get(reducerCtor);
@@ -241,6 +247,7 @@ export class ReduceStore {
       const args = deferredReducer.reducerArgs;
       newState = await deferredReducer.reducer.reduceAsync(stateData.state, ...args);
       stateData.state = this.safeClone(newState);
+      stateData.isStateSuspended = false;
       deferredReducer.resolve();
     } catch (e) {
       deferredReducer.reject(e);
@@ -321,3 +328,15 @@ export class Logger {
 
 
 }
+
+/*
+prefix: ReduceStore
+filterByStates
+time, timeEnd
+log, info, warn, trace
+color
+group, groupCollapsed, groupEnd
+
+events: reduce, stateGetter, subscriberNotification, subscriberAdded, subscriberRemoved
+dataDetails: EventName, EventWithData
+*/

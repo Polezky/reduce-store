@@ -10,6 +10,7 @@ export class StateData<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 
   subscribers: Array<Subscriber<T>> = [];
   isBusy: boolean = false;
   isStateCreated: boolean = false;
+  isStateSuspended: boolean = false;
 
   deferredGetters: Array<DeferredGetter<T>> = [];
   deferredReducers: Array<DeferredReducer<T, A1, A2, A3, A4, A5, A6>> = [];
