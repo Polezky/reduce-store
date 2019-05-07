@@ -5,15 +5,24 @@ import { Injectable } from "@angular/core";
 import { AsyncReducer } from "./classes";
 
 export class StateData<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
+  private _state: T;
+
   subscribers: Array<Subscriber<T>> = [];
   isBusy: boolean = false;
+  isStateCreated: boolean = false;
 
   deferredGetters: Array<DeferredGetter<T>> = [];
   deferredReducers: Array<DeferredReducer<T, A1, A2, A3, A4, A5, A6>> = [];
 
-  constructor(
-    public state?: T,
-  ) { }
+  get state(): T {
+    return this._state;
+  }
+
+  set state(value: T) {
+    this.isStateCreated = true;
+    this._state = value;
+  }
+
 }
 
 export class DeferredReducer<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {

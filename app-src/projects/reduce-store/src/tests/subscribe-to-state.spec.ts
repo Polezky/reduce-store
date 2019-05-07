@@ -3,6 +3,7 @@ import { TestBed, inject } from '@angular/core/testing';
 import { ReduceStore } from '../lib/reduce-store.service';
 import { Clone, IReducer } from 'reduce-store';
 import { Injectable, OnDestroy } from '@angular/core';
+import { LogType } from '../lib/classes';
 
 class TestState extends Clone<TestState> {
   value: number;
@@ -28,17 +29,18 @@ class Component implements OnDestroy {
   private value = 'zzz';
   private state: TestState;
 
-  constructor(private store: ReduceStore) {
+  constructor(private store: ReduceStore, value: string) {
     this.store.subscribeToState(TestState, this, this.onStateChanged);
+    this.value = value;
   }
 
   ngOnDestroy(): void {
-    console.log('Component OnDestroy', this);
+    console.log('Component OnDestroy', this.value, this);
   }
 
   private onStateChanged(s: TestState): void {
     this.state = s;
-    console.log('Component onStateChanged', this.state && this.state.value);
+    console.log('Component onStateChanged', this.value, this.state && this.state.value);
   }
 }
 
@@ -52,21 +54,30 @@ describe('ReduceStore', () => {
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
     console.log('store', store);
 
-    store.lazyReduce(TestStateReducer, 1);
+    //store.logType = LogType.Reducer;// | LogType.ReducerData;
 
-    const component = new Component(store);
+    //store.lazyReduce(TestStateReducer, 1);
+
+    const component1 = new Component(store, 'A');
+    const component2 = new Component(store, 'B');
 
     await new Promise(r => setTimeout(r, 1000));
 
     await store.reduce(TestStateReducer, 2);
 
-    component.ngOnDestroy();
+    component1.ngOnDestroy();
 
-    store.reduce(TestStateReducer, 3);
+    await store.reduce(TestStateReducer, 3);
+
+    component2.ngOnDestroy();
 
     setTimeout(() => {
       store.reduce(TestStateReducer, 4);
     }, 1000);
+
+    await new Promise(r => setTimeout(r, 1000));
+
+    console.log('end');
 
     expect(store).toBeTruthy();
   }));

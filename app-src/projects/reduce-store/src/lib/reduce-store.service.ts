@@ -31,8 +31,8 @@ export class ReduceStore {
   }
 
   getObservableState<T extends IClone<T>>(stateCtor: IConstructor<T>): Observable<T> {
-    const isNeedToNotifySubcriber = this.isStateCreated(stateCtor);
     const stateData = this.getStateData(stateCtor);
+    const isNeedToNotifySubcriber = stateData.isStateCreated;
 
     let subscriber: Subscriber<T>;
 
@@ -46,7 +46,7 @@ export class ReduceStore {
         });
       } else {
         stateData.subscribers.push(subscriber);
-      } 
+      }
     })
       .pipe(finalize(() => {
         const stateData = this.store.get(stateCtor);
@@ -162,6 +162,16 @@ export class ReduceStore {
     return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
   }
 
+  /**
+   * Adds reducer to the queue and executes it in case there is only this reducer in the queue.
+   * @param reducerCtor
+   * @param a1
+   * @param a2
+   * @param a3
+   * @param a4
+   * @param a5
+   * @param a6
+   */
   reduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     return this.createReducerAndReduce(reducerCtor, false, a1, a2, a3, a4, a5, a6);
@@ -226,6 +236,7 @@ export class ReduceStore {
     stateData.isBusy = true;
 
     let newState: T;
+    //this.logReducer(deferredReducer, stateData.state);
     try {
       const args = deferredReducer.reducerArgs;
       newState = await deferredReducer.reducer.reduceAsync(stateData.state, ...args);
@@ -270,7 +281,43 @@ export class ReduceStore {
     return subscription;
   }
 
-  private isStateCreated<T extends IClone<T>>(stateCtor: IConstructor<T>): boolean {
-    return this.store.has(stateCtor);
+}
+
+export enum LogType {
+  None = 0,
+  Reducer = 1 << 0,
+  ReducerData = 1 << 1
+}
+
+export class Logger {
+  private logLevelFunction = console.log.bind(window.console);
+
+  logPrefix = 'ReduceStore';
+  logType: LogType;
+  style: 'color: greeen;';
+
+  logReducer(deferredReducer: DeferredReducer<any>, state: any): void {
+    if (!this.logType) return;
+
+    if ((this.logType & LogType.Reducer) > 0) {
+      let logData: any;
+      if ((this.logType & LogType.ReducerData) > 0) {
+        logData = {
+          reducer: deferredReducer.reducer,
+          args: deferredReducer.reducerArgs,
+          state: state
+        };
+      } else {
+        logData = deferredReducer.reducer;
+      }
+
+      this.log(logData);
+    }
   }
+
+  private log(logData: any): void {
+
+  }
+
+
 }
