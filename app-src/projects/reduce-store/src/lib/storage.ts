@@ -4,6 +4,7 @@ import { finalize, combineLatest } from 'rxjs/operators';
 import { StateData, DeferredGetter, DeferredReducer, RemoveStateReducer, SimpleDependecyResolver } from './private-classes';
 import { IClone, IConstructor, ICollection, IReducerConstructor, IReducer, OnDestroy, IDependecyResolver } from './interfaces';
 import { ReducerTask } from './classes';
+import { LogConfig, Logger, EventType } from './logging';
 
 class Storage {
   private static _instance: Storage;
@@ -19,6 +20,7 @@ class Storage {
   private dependecyResolver: IDependecyResolver = SimpleDependecyResolver;
   private store = new Map<IConstructor<IClone<any>>, StateData<any>>();
   private subscriptionStore = new Map<OnDestroy, Subscription>();
+  private logger = new Logger();
 
   private constructor() { }
 
@@ -208,6 +210,10 @@ class Storage {
     stateData.isStateSuspended = true;
   }
 
+  setLogging(config?: Partial<LogConfig>): void {
+    this.logger = new Logger(config);
+  }
+
   private createReducerAndReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     const reducer = this.dependecyResolver.get(reducerCtor);
@@ -254,15 +260,24 @@ class Storage {
     stateData.isBusy = true;
 
     let newState: T;
-    //this.logReducer(deferredReducer, stateData.state);
-    try {
-      const args = deferredReducer.reducerArgs;
-      newState = await deferredReducer.reducer.reduceAsync(stateData.state, ...args);
-      stateData.state = this.safeClone(newState);
-      stateData.isStateSuspended = false;
+    let error;
+    const args = deferredReducer.reducerArgs;
+
+    const promise = this.logger.log(EventType.Reducer, deferredReducer, { args, state: stateData.state },
+      async () => {
+        newState = await deferredReducer.reducer.reduceAsync(stateData.state, ...args);
+      })
+      .catch(e => error = e);
+
+    await promise;
+
+    stateData.state = this.safeClone(newState);
+    stateData.isStateSuspended = false;
+
+    if (error) {
+      deferredReducer.reject(error);
+    } else {
       deferredReducer.resolve();
-    } catch (e) {
-      deferredReducer.reject(e);
     }
 
     if (stateData.deferredReducers.length) {
@@ -309,58 +324,8 @@ class Storage {
 
 }
 
-export enum LogType {
-  None = 0,
-  Reducer = 1 << 0,
-  ReducerData = 1 << 1
-}
-
-export class Logger {
-  private logLevelFunction = console.log.bind(window.console);
-
-  logPrefix = 'ReduceStore';
-  logType: LogType;
-  style: 'color: greeen;';
-
-  logReducer(deferredReducer: DeferredReducer<any>, state: any): void {
-    if (!this.logType) return;
-
-    if ((this.logType & LogType.Reducer) > 0) {
-      let logData: any;
-      if ((this.logType & LogType.ReducerData) > 0) {
-        logData = {
-          reducer: deferredReducer.reducer,
-          args: deferredReducer.reducerArgs,
-          state: state
-        };
-      } else {
-        logData = deferredReducer.reducer;
-      }
-
-      this.log(logData);
-    }
-  }
-
-  private log(logData: any): void {
-
-  }
-
-
-}
-
 export const Store: Storage = Storage.instance;
 
 export function setDependecyResolver(resolver: IDependecyResolver): void {
   Storage.setDependecyResolver(resolver);
 }
-
-/*
-prefix: ReduceStore
-filterByStates
-time, timeEnd
-log, info, warn, trace
-color
-
-events: reduce, stateGetter, subscriberNotification, subscriberAdded, subscriberRemoved
-dataDetails: EventName, EventWithData
-*/

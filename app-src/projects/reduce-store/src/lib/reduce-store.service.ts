@@ -5,6 +5,7 @@ import { Observable} from 'rxjs';
 import { IClone, IConstructor, ICollection, IReducerConstructor } from './interfaces';
 import { ReducerTask } from './classes';
 import { Store, setDependecyResolver } from './storage';
+import { LogConfig } from './logging';
 
 @Injectable({ providedIn: 'root' })
 export class ReduceStore {
@@ -76,6 +77,10 @@ export class ReduceStore {
 
   async suspendState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<void> {
     return Store.suspendState(stateCtor);
+  }
+
+  setLogging(config?: Partial<LogConfig>): void {
+    Store.setLogging(config);
   }
 
 }

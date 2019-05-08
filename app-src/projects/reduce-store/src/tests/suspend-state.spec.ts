@@ -1,7 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { ReduceStore } from '../lib/reduce-store.service';
-import { Clone, IReducer } from 'reduce-store';
+import { Clone, IReducer, ReduceStore, EventType } from 'reduce-store';
 import { Injectable, OnDestroy } from '@angular/core';
 
 class TestState extends Clone<TestState> {
@@ -58,6 +57,8 @@ describe('ReduceStore', () => {
 
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
     console.log('store', store);
+
+    store.setLogging({ eventType: EventType.Reducer, shouldLogData: true, shouldLogTime: true });
 
     const component1 = new Component(store, 'A');
 
