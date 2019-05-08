@@ -1,5 +1,4 @@
 import { IClone, IConstructor, IReducer, ICollection, IReducerConstructor } from "./interfaces";
-import { Storage } from './storage';
 
 export class Clone<T> implements IClone<T> {
   constructor(init?: Partial<T>) {
@@ -93,5 +92,3 @@ export class DeferredTask<TResult, A1 = null, A2 = null, A3 = null, A4 = null, A
     });
   }
 }
-
-export const Store: Storage = Storage.instance;

@@ -31,10 +31,16 @@ class Component implements OnDestroy {
   constructor(private store: ReduceStore, value: string) {
     this.store.subscribeToState(TestState, this, this.onStateChanged);
     this.value = value;
+    console.log('Component constructor', this.value);
+  }
+
+  async updateState(): Promise<void> {
+    const state = await this.store.getState(TestState);
+    console.log('Component updateState', this.value, state && state.value);
   }
 
   ngOnDestroy(): void {
-    console.log('Component OnDestroy', this.value, this);
+    console.log('Component OnDestroy', this.value);
   }
 
   private onStateChanged(s: TestState): void {
@@ -53,26 +59,25 @@ describe('ReduceStore', () => {
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
     console.log('store', store);
 
-    //store.logType = LogType.Reducer;// | LogType.ReducerData;
-
-    //store.lazyReduce(TestStateReducer, 1);
-
     const component1 = new Component(store, 'A');
-    const component2 = new Component(store, 'B');
 
     await new Promise(r => setTimeout(r, 1000));
 
-    await store.reduce(TestStateReducer, 2);
+    await store.reduce(TestStateReducer, 1);
 
-    component1.ngOnDestroy();
+    await store.suspendState(TestState);
+    console.log('suspendState');
 
-    await store.reduce(TestStateReducer, 3);
+    const component2 = new Component(store, 'B');
+    component1.updateState();
 
-    component2.ngOnDestroy();
+    console.log('state is still suspended');
 
     setTimeout(() => {
-      store.reduce(TestStateReducer, 4);
+      store.reduce(TestStateReducer, 2);
     }, 1000);
+
+    console.log('Right after 2');
 
     await new Promise(r => setTimeout(r, 1000));
 

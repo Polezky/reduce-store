@@ -5,7 +5,7 @@ import { StateData, DeferredGetter, DeferredReducer, RemoveStateReducer, SimpleD
 import { IClone, IConstructor, ICollection, IReducerConstructor, IReducer, OnDestroy, IDependecyResolver } from './interfaces';
 import { ReducerTask } from './classes';
 
-export class Storage {
+class Storage {
   private static _instance: Storage;
 
   static get instance(): Storage {
@@ -346,6 +346,12 @@ export class Logger {
   }
 
 
+}
+
+export const Store: Storage = Storage.instance;
+
+export function setDependecyResolver(resolver: IDependecyResolver): void {
+  Storage.setDependecyResolver(resolver);
 }
 
 /*

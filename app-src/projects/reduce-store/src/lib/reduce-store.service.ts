@@ -3,15 +3,15 @@ import { Injectable, Injector, OnDestroy } from '@angular/core';
 import { Observable} from 'rxjs';
 
 import { IClone, IConstructor, ICollection, IReducerConstructor } from './interfaces';
-import { ReducerTask, Store } from './classes';
-import { Storage } from './storage';
+import { ReducerTask } from './classes';
+import { Store, setDependecyResolver } from './storage';
 
 @Injectable({ providedIn: 'root' })
 export class ReduceStore {
   constructor(
     injector: Injector,
   ) {
-    Storage.setDependecyResolver(injector);
+    setDependecyResolver(injector);
   }
 
   getCollectionState<T extends IClone<T>>(stateCtor: IConstructor<ICollection<T>>): Promise<T[]> {
