@@ -88,6 +88,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="app-src\e2e\src\app.e2e-spec.ts" />
     <TypeScriptCompile Include="app-src\e2e\src\app.po.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\logging.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-classes.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-interfaces.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.module.ts" />

@@ -360,7 +360,6 @@ filterByStates
 time, timeEnd
 log, info, warn, trace
 color
-group, groupCollapsed, groupEnd
 
 events: reduce, stateGetter, subscriberNotification, subscriberAdded, subscriberRemoved
 dataDetails: EventName, EventWithData
