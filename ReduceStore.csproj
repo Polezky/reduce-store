@@ -91,7 +91,9 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-classes.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-interfaces.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.module.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\storage.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\collection.spec.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\suspend-state.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\subscribe-to-state.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\remove-state-reducer.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\general.spec.ts" />

@@ -1,4 +1,4 @@
-import { IClone, IReducer } from "./interfaces";
+import { IClone, IReducer, IDependecyResolver, IConstructor } from "./interfaces";
 import { IResolve, IReject } from "./private-interfaces";
 import { Subscriber } from "rxjs";
 import { Injectable } from "@angular/core";
@@ -13,6 +13,7 @@ export class StateData<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 
   isStateSuspended: boolean = false;
 
   deferredGetters: Array<DeferredGetter<T>> = [];
+  suspendedGetters: Array<DeferredGetter<T>> = []; // getters which came after state was suspended
   deferredReducers: Array<DeferredReducer<T, A1, A2, A3, A4, A5, A6>> = [];
 
   get state(): T {
@@ -42,6 +43,13 @@ export class DeferredGetter<T extends IClone<T>> {
   ) {
   }
 }
+
+export const SimpleDependecyResolver: IDependecyResolver = {
+  get<T>(ctor: IConstructor<T>): T {
+    return new ctor();
+  }
+};
+
 
 @Injectable({ providedIn: 'root' })
 export class RemoveStateReducer extends AsyncReducer<any>  {

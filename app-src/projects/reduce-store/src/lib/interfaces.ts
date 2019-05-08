@@ -18,3 +18,11 @@ export interface IReducerConstructor<T extends IClone<T>, A1 = null, A2 = null, 
 export interface ICollection<T extends IClone<T>> extends IClone<ICollection<T>> {
   items: Array<T>;
 }
+
+export interface OnDestroy {
+  ngOnDestroy(): void;
+}
+
+export interface IDependecyResolver {
+  get<T>(ctor: IConstructor<T>): T;
+}
