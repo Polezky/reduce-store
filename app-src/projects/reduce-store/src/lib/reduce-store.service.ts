@@ -3,9 +3,8 @@ import { Injectable, Injector, OnDestroy } from '@angular/core';
 import { Observable} from 'rxjs';
 
 import { IClone, IConstructor, ICollection, IReducerConstructor } from './interfaces';
-import { ReducerTask } from './classes';
+import { ReducerTask, LogConfig, LogEventType } from './classes';
 import { Store, setDependecyResolver } from './storage';
-import { LogConfig } from './logging';
 
 @Injectable({ providedIn: 'root' })
 export class ReduceStore {
@@ -71,16 +70,16 @@ export class ReduceStore {
     return Store.createReducerTask(reducerCtor, delayMilliseconds);
   }
 
-  async removeState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<void> {
-    return Store.removeState(stateCtor);
-  }
-
   async suspendState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<void> {
     return Store.suspendState(stateCtor);
   }
 
-  setLogging(config?: Partial<LogConfig>): void {
-    Store.setLogging(config);
+  configureLogging(eventType: LogEventType, config: Partial<LogConfig> = {}, stateCtors: IConstructor<any>[] = []): void {
+    Store.configureLogging(eventType, config, stateCtors);
+  }
+
+  turnLogging(mode: 'on' | 'off'): void {
+    Store.turnLogging(mode);
   }
 
 }

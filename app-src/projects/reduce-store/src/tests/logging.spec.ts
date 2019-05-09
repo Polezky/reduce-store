@@ -58,6 +58,8 @@ describe('ReduceStore', () => {
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
     console.log('store', store);
 
+    store.setLogging({ eventType: EventType.Reducer, shouldLogData: true, shouldLogTime: true });
+
     const component1 = new Component(store, 'A');
 
     await new Promise(r => setTimeout(r, 1000));

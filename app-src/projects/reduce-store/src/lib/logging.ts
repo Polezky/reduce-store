@@ -1,5 +1,4 @@
-import { IConstructor } from './interfaces';
-import { LogLevel, LogGroupType, LogEventType, KeyValuePair, LogConfig } from './classes';
+import { LogEventType, KeyValuePair, LogConfig } from './classes';
 import { StateData } from './private-classes';
 
 export class Logger {
@@ -16,7 +15,7 @@ export class Logger {
       return action();
     }
 
-    const logFn = this.getLogFunction();
+    const logFn = this.getLogFunction(config);
     const eventTypeName = LogEventType[eventType];
 
     if (config.groupType == 'group') {
@@ -67,8 +66,8 @@ export class Logger {
     return configPair && configPair.value;
   }
 
-  private getLogFunction(): (...args: any[]) => void {
-    const fn = console[this.config.level].bind(window.console, '%c' + this.config.prefix, this.config.css);
+  private getLogFunction(config: LogConfig): (...args: any[]) => void {
+    const fn = console[config.level].bind(window.console, '%c' + config.prefix, config.css);
     return fn;
   }
 }
