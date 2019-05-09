@@ -1,5 +1,13 @@
 import { IClone, IConstructor, IReducer, ICollection, IReducerConstructor } from "./interfaces";
 
+var loggingDefaultPrefix = 'ReduceStore:';
+var loggingDefaultCss = 'background-color: green; color: white;';
+
+export interface KeyValuePair<TKey, TValue> {
+  key: TKey;
+  value: TValue;
+}
+
 export class Clone<T> implements IClone<T> {
   constructor(init?: Partial<T>) {
     Object.assign(this, init);
@@ -35,12 +43,6 @@ export abstract class AsyncReducer<T extends IClone<T>, A1 = null, A2 = null, A3
 
   reduceAsync(state: T, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<T> {
     return Promise.resolve(this.reduce(state, a1, a2, a3, a4, a5, a6));
-  }
-}
-
-export abstract class SetStateReducer<T extends IClone<T>> extends AsyncReducer<T>  {
-  reduce(s: T, newState: T): T {
-    return newState;
   }
 }
 
@@ -92,3 +94,26 @@ export class DeferredTask<TResult, A1 = null, A2 = null, A3 = null, A4 = null, A
     });
   }
 }
+
+export type LogGroupType = 'group' | 'groupCollapsed';
+export type LogLevel = 'log' | 'info' | 'debug' | 'warn' | 'trace';
+export enum LogEventType {
+  StateGetter = 1 << 0,
+  SubscriberNotification = 1 << 1,
+  SubscriberAdded = 1 << 2,
+  SubscriberRemoved = 1 << 3,
+  Reducer = 1 << 4,
+}
+export class LogConfig {
+  prefix?: string = loggingDefaultPrefix;
+  level?: LogLevel = 'log';
+  css?: string = loggingDefaultCss;
+  shouldLogData?: boolean = false;
+  shouldLogTime?: boolean = false;
+  groupType?: LogGroupType;
+
+  constructor(init?: Partial<LogConfig>) {
+    Object.assign(this, init || {});
+  }
+}
+

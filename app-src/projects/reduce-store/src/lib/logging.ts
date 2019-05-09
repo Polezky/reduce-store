@@ -1,52 +1,38 @@
-
-var defaultPrefix = 'ReduceStore:';
-var defaultCss = 'color: green;';
-
-export type LogLevel = 'log' | 'info' | 'debug' | 'warn' | 'trace';
-export enum EventType {
-  StateGetter = 1 << 0,
-  SubscriberNotification = 1 << 1,
-  SubscriberAdded = 1 << 2,
-  SubscriberRemoved = 1 << 3,
-  Reducer = 1 << 4,
-}
-
-export class LogConfig { // todo: add different config for different event types
-  prefix?: string = defaultPrefix;
-  level?: LogLevel = 'log';
-  css?: string = defaultCss;
-  eventType?: EventType;
-  shouldLogData?: boolean = false;
-  shouldLogTime?: boolean = false;
-
-  constructor(init?: Partial<LogConfig>) {
-    Object.assign(this, init || {});
-  }
-}
+import { IConstructor } from './interfaces';
+import { LogLevel, LogGroupType, LogEventType, KeyValuePair, LogConfig } from './classes';
+import { StateData } from './private-classes';
 
 export class Logger {
-  private readonly config: LogConfig;
+  isEnabled: boolean;
+  allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
-  constructor(config?: Partial<LogConfig>) {
-    this.config = new LogConfig(config);
-  }
+  async log<T>(eventType: LogEventType, eventItem, stateData: StateData<any>, args, action: () => Promise<T>): Promise<T> {
+    if (!this.isEnabled) {
+      return action();
+    }
 
-  async log<T>(eventType: EventType, eventItem, data, action: () => Promise<T>): Promise<T> {
-    if ((this.config.eventType & eventType) == 0) {
+    const config = this.getConfig(eventType, stateData);
+    if (!config) {
       return action();
     }
 
     const logFn = this.getLogFunction();
-    const eventTypeName = EventType[eventType];
+    const eventTypeName = LogEventType[eventType];
 
-    if (this.config.shouldLogData) {
-      logFn(eventTypeName, eventItem, data);
+    if (config.groupType == 'group') {
+      console.group();
+    } else if (config.groupType == 'groupCollapsed') {
+      console.groupCollapsed();
+    }
+
+    if (config.shouldLogData) {
+      logFn(eventTypeName, eventItem, { state: stateData.state, args });
     } else {
       logFn(eventTypeName, eventItem);
     }
 
     let start: number;
-    if (this.config.shouldLogTime) {
+    if (config.shouldLogTime) {
       start = performance.now();
     }
 
@@ -58,10 +44,13 @@ export class Logger {
 
     await promise;
 
-    if (this.config.shouldLogTime) {
+    if (config.shouldLogTime) {
       const end = performance.now();
       logFn(eventTypeName, eventItem, 'time, ms:', end - start);
     }
+
+    if (config.groupType)
+      console.groupEnd();
 
     if (error) {
       return Promise.reject(error);
@@ -70,8 +59,49 @@ export class Logger {
     }
   }
 
+  private getConfig(eventType: LogEventType, stateData: StateData<any>): LogConfig {
+    let configPair = stateData.logConfigPairs.find(p => (p.key & eventType) > 0);
+    if (configPair) return configPair.value;
+
+    configPair = this.allStatesConfigPairs.find(p => (p.key & eventType) > 0);
+    return configPair && configPair.value;
+  }
+
   private getLogFunction(): (...args: any[]) => void {
     const fn = console[this.config.level].bind(window.console, '%c' + this.config.prefix, this.config.css);
     return fn;
   }
+}
+
+export function getLogConfigPairs(eventType: LogEventType, config: Partial<LogConfig>): KeyValuePair<LogEventType, LogConfig>[] {
+  const configuration = new LogConfig(config);
+
+  let index = 0;
+  let type: LogEventType = 0;
+  const eventTypes = new Array<LogEventType>();
+  while (type <= LogEventType.Reducer) {
+    type = 1 << index;
+    index++;
+    if ((eventType & type) > 0) continue;
+    eventTypes.push(type);
+  }
+
+  return eventTypes.map(x => { return { key: x, value: configuration } });
+}
+
+export function getUpdatedLogConfigPairs(
+  existingPairs: KeyValuePair<LogEventType, LogConfig>[],
+  newPairs: KeyValuePair<LogEventType, LogConfig>[]): KeyValuePair<LogEventType, LogConfig>[] {
+
+  const updatedPairs = existingPairs.slice();
+  newPairs.forEach(newPair => {
+    const existingPair = updatedPairs.find(x => x.key == newPair.key);
+    if (existingPair) {
+      existingPair.value = newPair.value;
+    } else {
+      updatedPairs.push(newPair);
+    }
+  });
+
+  return updatedPairs;
 }

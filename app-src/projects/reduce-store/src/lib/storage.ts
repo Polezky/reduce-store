@@ -1,10 +1,11 @@
 import { Observable, Subscriber, Subscription } from 'rxjs';
 import { finalize, combineLatest } from 'rxjs/operators';
 
-import { StateData, DeferredGetter, DeferredReducer, RemoveStateReducer, SimpleDependecyResolver } from './private-classes';
+import { StateData, DeferredGetter, DeferredReducer, SimpleDependecyResolver } from './private-classes';
 import { IClone, IConstructor, ICollection, IReducerConstructor, IReducer, OnDestroy, IDependecyResolver } from './interfaces';
 import { ReducerTask } from './classes';
-import { LogConfig, Logger, EventType } from './logging';
+import { LogConfig,  LogEventType } from './classes';
+import * as logging from './logging';
 
 class Storage {
   private static _instance: Storage;
@@ -20,7 +21,7 @@ class Storage {
   private dependecyResolver: IDependecyResolver = SimpleDependecyResolver;
   private store = new Map<IConstructor<IClone<any>>, StateData<any>>();
   private subscriptionStore = new Map<OnDestroy, Subscription>();
-  private logger = new Logger();
+  private readonly logger = new logging.Logger();
 
   private constructor() { }
 
@@ -198,20 +199,26 @@ class Storage {
     return new ReducerTask(this.reduce.bind(this), reducerCtor, delayMilliseconds);
   }
 
-  async removeState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<void> {
-    const reducer = new RemoveStateReducer();
-    reducer.stateCtor = stateCtor;
-    return this.internalReduce(reducer, false);
-  }
-
   async suspendState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<void> {
     await this.getState(stateCtor);
     const stateData = this.getStateData(stateCtor);
     stateData.isStateSuspended = true;
   }
 
-  setLogging(config?: Partial<LogConfig>): void {
-    this.logger = new Logger(config);
+  configureLogging(eventType: LogEventType, config: Partial<LogConfig> = {}, stateCtors: IConstructor<any>[] = []): void {
+    const newPairs = logging.getLogConfigPairs(eventType, config);
+    if (stateCtors.length) {
+      stateCtors.forEach(stateCtor => {
+        const stateData = this.getStateData(stateCtor);
+        stateData.logConfigPairs = logging.getUpdatedLogConfigPairs(stateData.logConfigPairs, newPairs);
+      })
+    } else {
+      this.logger.allStatesConfigPairs = logging.getUpdatedLogConfigPairs(this.logger.allStatesConfigPairs, newPairs);
+    }
+  }
+
+  turnLogging(mode: 'on' | 'off'): void {
+    this.logger.isEnabled = mode == 'on';
   }
 
   private createReducerAndReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
@@ -263,7 +270,7 @@ class Storage {
     let error;
     const args = deferredReducer.reducerArgs;
 
-    const promise = this.logger.log(EventType.Reducer, deferredReducer, { args, state: stateData.state },
+    const promise = this.logger.log(LogEventType.Reducer, deferredReducer, stateData, args,
       async () => {
         newState = await deferredReducer.reducer.reduceAsync(stateData.state, ...args);
       })
