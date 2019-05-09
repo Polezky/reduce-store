@@ -48,7 +48,7 @@ class Storage {
 
   getObservableState<T extends IClone<T>>(stateCtor: IConstructor<T>): Observable<T> {
     const stateData = this.getStateData(stateCtor);
-    const isNeedToNotifySubcriber = stateData.isStateCreated && !stateData.isStateSuspended;
+    const isNeedToNotifySubcriber = stateData.isStateInitiated && !stateData.isStateSuspended;
 
     let subscriber: Subscriber<T>;
 
@@ -223,6 +223,14 @@ class Storage {
     }
   }
 
+  resetLoggingConfiguration(): void {
+    this.logger.allStatesConfigPairs = [];
+    const stateDataList = Array.from(this.store.values());
+    for (let stateData of stateDataList) {
+      stateData.logConfigPairs = [];
+    }
+  }
+
   turnLogging(mode: 'on' | 'off'): void {
     this.logger.isEnabled = mode == 'on';
   }
@@ -236,6 +244,7 @@ class Storage {
   private internalReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducer: IReducer<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     const stateData = this.getStateData(reducer.stateCtor);
+    stateData.isStateInitiated = true;
     return new Promise<void>((resolve, reject) => {
       const args = [a1, a2, a3, a4, a5, a6];
       const deferred = new DeferredReducer(reducer, args, resolve, reject);
