@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { Clone, IReducer, ReduceStore, EventType } from 'reduce-store';
+import { Clone, IReducer, ReduceStore } from 'reduce-store';
 import { Injectable, OnDestroy } from '@angular/core';
 
 class TestState extends Clone<TestState> {

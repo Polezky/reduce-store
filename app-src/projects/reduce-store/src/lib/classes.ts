@@ -1,7 +1,7 @@
 import { IClone, IConstructor, IReducer, ICollection, IReducerConstructor } from "./interfaces";
 
 var loggingDefaultPrefix = 'ReduceStore:';
-var loggingDefaultCss = 'background-color: green; color: white;';
+var loggingDefaultCss = 'background-color: beige; color: green;';
 
 export interface KeyValuePair<TKey, TValue> {
   key: TKey;

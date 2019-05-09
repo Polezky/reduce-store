@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { Clone, IReducer, ReduceStore, EventType } from 'reduce-store';
+import { Clone, IReducer, ReduceStore, LogEventType } from 'reduce-store';
 import { Injectable, OnDestroy } from '@angular/core';
 
 class TestState extends Clone<TestState> {
@@ -58,7 +58,8 @@ describe('ReduceStore', () => {
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
     console.log('store', store);
 
-    store.setLogging({ eventType: EventType.Reducer, shouldLogData: true, shouldLogTime: true });
+    store.configureLogging(LogEventType.Reducer, { groupType: 'group', shouldLogData: true, shouldLogTime: true });
+    store.turnLogging('on');
 
     const component1 = new Component(store, 'A');
 
@@ -72,7 +73,7 @@ describe('ReduceStore', () => {
     const component2 = new Component(store, 'B');
     component1.updateState();
 
-    console.log('state is still suspended');
+    console.log('state is still suspended1');
 
     setTimeout(() => {
       store.reduce(TestStateReducer, 2);

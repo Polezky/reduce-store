@@ -2,7 +2,7 @@ import { LogEventType, KeyValuePair, LogConfig } from './classes';
 import { StateData } from './private-classes';
 
 export class Logger {
-  isEnabled: boolean;
+  isEnabled: boolean = false;
   allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
   async log<T>(eventType: LogEventType, eventItem, stateData: StateData<any>, args, action: () => Promise<T>): Promise<T> {
@@ -19,9 +19,9 @@ export class Logger {
     const eventTypeName = LogEventType[eventType];
 
     if (config.groupType == 'group') {
-      console.group();
+      console.group(eventTypeName);
     } else if (config.groupType == 'groupCollapsed') {
-      console.groupCollapsed();
+      console.groupCollapsed(eventTypeName);
     }
 
     if (config.shouldLogData) {
@@ -45,7 +45,7 @@ export class Logger {
 
     if (config.shouldLogTime) {
       const end = performance.now();
-      logFn(eventTypeName, eventItem, 'time, ms:', end - start);
+      logFn('time, ms:', end - start);
     }
 
     if (config.groupType)
@@ -81,8 +81,9 @@ export function getLogConfigPairs(eventType: LogEventType, config: Partial<LogCo
   while (type <= LogEventType.Reducer) {
     type = 1 << index;
     index++;
-    if ((eventType & type) > 0) continue;
-    eventTypes.push(type);
+    if ((eventType & type) > 0) {
+      eventTypes.push(type);
+    }
   }
 
   return eventTypes.map(x => { return { key: x, value: configuration } });
