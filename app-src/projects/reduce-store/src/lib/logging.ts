@@ -5,7 +5,7 @@ export class Logger {
   isEnabled: boolean = false;
   allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
-  async log<T>(eventType: LogEventType, eventItem, stateData: StateData<any>, args, action: () => Promise<T>): Promise<T> {
+  async log<T>(eventType: LogEventType, eventItem, stateData: StateData<any>, action: () => Promise<T>): Promise<T> {
     if (!this.isEnabled) {
       return action();
     }
@@ -24,11 +24,7 @@ export class Logger {
       console.groupCollapsed(eventTypeName);
     }
 
-    if (config.shouldLogData) {
-      logFn(eventTypeName, eventItem, { state: stateData.state, args });
-    } else {
-      logFn(eventTypeName, eventItem);
-    }
+    logFn(eventTypeName, eventItem, { state: stateData.state });
 
     let start: number;
     if (config.shouldLogTime) {
@@ -77,16 +73,18 @@ export function getLogConfigPairs(eventType: LogEventType, config: Partial<LogCo
 
   let index = 0;
   let type: LogEventType = 0;
-  const eventTypes = new Array<LogEventType>();
-  while (type <= LogEventType.Reducer) {
+  const types = new Array<LogEventType>();
+  const allTypes = Object.keys(LogEventType).filter(x => +x).map(x => +x);
+  const maxType = Math.max(...allTypes);
+  while (type <= maxType) {
     type = 1 << index;
     index++;
     if ((eventType & type) > 0) {
-      eventTypes.push(type);
+      types.push(type);
     }
   }
 
-  return eventTypes.map(x => { return { key: x, value: configuration } });
+  return types.map(x => { return { key: x, value: configuration } });
 }
 
 export function getUpdatedLogConfigPairs(

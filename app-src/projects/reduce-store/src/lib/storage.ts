@@ -31,6 +31,7 @@ class Storage {
 
   getState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<T> {
     const stateData = this.getStateData(stateCtor);
+    this.logger.log(LogEventType.StateGetter, { stateCtor }, stateData, async () => {});
     return new Promise<T>((resolve, reject) => {
       const deferred = new DeferredGetter(resolve);
       if (stateData.isStateSuspended) {
@@ -54,8 +55,11 @@ class Storage {
     const observable = new Observable<T>(s => {
       subscriber = s;
 
+      this.logger.log(LogEventType.SubscriberAdded, { stateCtor }, stateData, async () => { });
+
       if (isNeedToNotifySubcriber) {
         this.getState(stateCtor).then(value => {
+          this.logger.log(LogEventType.SubscriberNotification, { stateCtor }, stateData, async () => { });
           subscriber.next(this.safeClone(value));
           stateData.subscribers.push(subscriber);
         });
@@ -65,6 +69,7 @@ class Storage {
     })
       .pipe(finalize(() => {
         const stateData = this.store.get(stateCtor);
+        this.logger.log(LogEventType.SubscriberRemoved, { stateCtor }, stateData, async () => { });
         const index = stateData.subscribers.findIndex(x => x === subscriber);
         stateData.subscribers.splice(index, 1);
       }));
@@ -203,6 +208,7 @@ class Storage {
     await this.getState(stateCtor);
     const stateData = this.getStateData(stateCtor);
     stateData.isStateSuspended = true;
+    this.logger.log(LogEventType.StateSuspended, { stateCtor }, stateData, async () => { });
   }
 
   configureLogging(eventType: LogEventType, config: Partial<LogConfig> = {}, stateCtors: IConstructor<any>[] = []): void {
@@ -239,10 +245,11 @@ class Storage {
     });
   }
 
-  private notifySubscribers<T extends IClone<T>>(stateData: StateData<T>): void {
+  private notifySubscribers<T extends IClone<T>>(stateCtor: IConstructor<T>, stateData: StateData<T>): void {
     const value = stateData.state;
     for (let subscriber of stateData.subscribers) {
       const cloneValue = this.safeClone(value);
+      this.logger.log(LogEventType.SubscriberNotification, { stateCtor }, stateData, async () => { });
       subscriber.next(cloneValue);
     }
   }
@@ -270,7 +277,7 @@ class Storage {
     let error;
     const args = deferredReducer.reducerArgs;
 
-    const promise = this.logger.log(LogEventType.Reducer, deferredReducer, stateData, args,
+    const promise = this.logger.log(LogEventType.Reducer, deferredReducer, stateData,
       async () => {
         newState = await deferredReducer.reducer.reduceAsync(stateData.state, ...args);
       })
@@ -294,7 +301,7 @@ class Storage {
 
     this.resolveDefferedGetters(stateCtor);
 
-    this.notifySubscribers(stateData);
+    this.notifySubscribers(stateCtor, stateData);
 
     stateData.isBusy = false;
   }
@@ -311,6 +318,7 @@ class Storage {
 
     getters.forEach(g => {
       const cloneState = this.safeClone(stateData.state);
+      this.logger.log(LogEventType.StateGetterResolved, stateCtor, stateData, async () => { });
       g.resolve(cloneState);
     });
   }

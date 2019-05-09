@@ -99,16 +99,24 @@ export type LogGroupType = 'group' | 'groupCollapsed';
 export type LogLevel = 'log' | 'info' | 'debug' | 'warn' | 'trace';
 export enum LogEventType {
   StateGetter = 1 << 0,
-  SubscriberNotification = 1 << 1,
-  SubscriberAdded = 1 << 2,
-  SubscriberRemoved = 1 << 3,
-  Reducer = 1 << 4,
+  StateGetterResolved = 1 << 1,
+  SubscriberNotification = 1 << 2,
+  SubscriberAdded = 1 << 3,
+  SubscriberRemoved = 1 << 4,
+  Reducer = 1 << 5,
+  StateSuspended = 1 << 6,
 }
+export const AllLogEventTypes = LogEventType.StateGetter
+  | LogEventType.SubscriberNotification
+  | LogEventType.SubscriberAdded
+  | LogEventType.SubscriberRemoved
+  | LogEventType.Reducer
+  | LogEventType.StateSuspended
+  ;
 export class LogConfig {
   prefix?: string = loggingDefaultPrefix;
   level?: LogLevel = 'log';
   css?: string = loggingDefaultCss;
-  shouldLogData?: boolean = false;
   shouldLogTime?: boolean = false;
   groupType?: LogGroupType;
 
