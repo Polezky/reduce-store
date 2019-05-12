@@ -3,9 +3,33 @@ import { KeyValuePair, LogEventType, LogConfig } from "./classes";
 import { IResolve, IReject } from "./private-interfaces";
 import { Subscriber } from "rxjs";
 
+export class DurationContainer {
+  private startTime: number;
+  private endTime: number;
+
+  get duration(): number {
+    return (this.endTime || 0) - (this.startTime || 0);
+  }
+
+  start(): void {
+    this.startTime = performance.now();
+  }
+
+  end(): void {
+    this.endTime = performance.now();
+  }
+}
+
+export class StateSubscriber<T extends IClone<T>> {
+  constructor(
+    public readonly callerFn: Function,
+    public readonly subscriber: Subscriber<T>,
+  ) { }
+}
+
 export class StateData<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   state: T;
-  subscribers: Array<Subscriber<T>> = [];
+  subscribers: Array<StateSubscriber<T>> = [];
   isBusy: boolean = false;
   isStateInitiated: boolean = false;
   isStateSuspended: boolean = false;
@@ -16,20 +40,24 @@ export class StateData<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 
   logConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 }
 
-export class DeferredReducer<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
+export class DeferredReducer<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> extends DurationContainer {
   constructor(
-    public reducer: IReducer<T, A1, A2, A3, A4, A5, A6>,
-    public reducerArgs: any[],
-    public resolve: IResolve<void>,
-    public reject: IReject
+    public readonly reducer: IReducer<T, A1, A2, A3, A4, A5, A6>,
+    public readonly reducerArgs: any[],
+    public readonly resolve: IResolve<void>,
+    public readonly reject: IReject,
+    public readonly callerFn: Function,
   ) {
+    super();
   }
 }
 
-export class DeferredGetter<T extends IClone<T>> {
+export class DeferredGetter<T extends IClone<T>> extends DurationContainer {
   constructor(
-    public resolve: (value?: T | PromiseLike<T>) => void,
+    public readonly resolve: (value?: T | PromiseLike<T>) => void,
+    public readonly callerFn: Function,
   ) {
+    super();
   }
 }
 

@@ -85,8 +85,9 @@ describe('ReduceStore', () => {
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
     console.log('store', store);
 
-    store.configureLogging(LogEventType.Reducer, { groupType: 'group', shouldLogTime: true }, [TestState]);
-    store.configureLogging(AllLogEventTypes, { css: 'color: red;' }, [TestState2]);
+    //store.configureLogging(LogEventType.Reducer, { groupType: 'group' }, [TestState]);
+    //store.configureLogging(AllLogEventTypes, { css: 'color: red;' }, [TestState2]);
+    store.configureLogging(AllLogEventTypes);
     store.turnLogging('on');
 
     const component1 = new Component(store, 'A');

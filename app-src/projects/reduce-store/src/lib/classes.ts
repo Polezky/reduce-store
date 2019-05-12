@@ -104,7 +104,8 @@ export enum LogEventType {
   SubscriberAdded = 1 << 3,
   SubscriberRemoved = 1 << 4,
   Reducer = 1 << 5,
-  StateSuspended = 1 << 6,
+  ReducerResolved = 1 << 6,
+  StateSuspended = 1 << 7,
 }
 export const AllLogEventTypes = LogEventType.StateGetter
   | LogEventType.SubscriberNotification
@@ -117,7 +118,6 @@ export class LogConfig {
   prefix?: string = loggingDefaultPrefix;
   level?: LogLevel = 'log';
   css?: string = loggingDefaultCss;
-  shouldLogTime?: boolean = false;
   groupType?: LogGroupType;
 
   constructor(init?: Partial<LogConfig>) {

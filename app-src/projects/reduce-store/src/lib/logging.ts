@@ -1,18 +1,19 @@
 import { LogEventType, KeyValuePair, LogConfig } from './classes';
+import { IConstructor } from './interfaces';
 import { StateData } from './private-classes';
 
 export class Logger {
   isEnabled: boolean = false;
   allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
-  async log<T>(eventType: LogEventType, eventItem, stateData: StateData<any>, action: () => Promise<T>): Promise<T> {
+  log(eventType: LogEventType, stateCtor: IConstructor<any>, caller: Function, stateData: StateData<any>, duration?: number, args?: any[]): void {
     if (!this.isEnabled) {
-      return action();
+      return;
     }
 
     const config = this.getConfig(eventType, stateData);
     if (!config) {
-      return action();
+      return;
     }
 
     const logFn = this.getLogFunction(config);
@@ -24,34 +25,23 @@ export class Logger {
       console.groupCollapsed(eventTypeName);
     }
 
-    logFn(eventTypeName, eventItem, { state: stateData.state });
+    const logData = {
+      eventTypeName,
+      stateCtor,
+      caller,
+      state: stateData.state
+    };
 
-    let start: number;
-    if (config.shouldLogTime) {
-      start = performance.now();
-    }
+    if (duration !== undefined)
+      logData['duration'] = duration;
 
-    let error;
-    let result: T;
-    const promise = action()
-      .then(r => result = r)
-      .catch(e => error = e);
+    if (args)
+      logData['args'] = args;
 
-    await promise;
-
-    if (config.shouldLogTime) {
-      const end = performance.now();
-      logFn('time, ms:', end - start);
-    }
+    logFn(logData);
 
     if (config.groupType)
       console.groupEnd();
-
-    if (error) {
-      return Promise.reject(error);
-    } else {
-      return Promise.resolve(result);
-    }
   }
 
   private getConfig(eventType: LogEventType, stateData: StateData<any>): LogConfig {
