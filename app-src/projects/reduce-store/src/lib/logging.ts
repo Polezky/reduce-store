@@ -6,7 +6,7 @@ export class Logger {
   isEnabled: boolean = false;
   allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
-  log(eventType: LogEventType, stateCtor: IConstructor<any>, caller: Function, stateData: StateData<any>, duration?: number, args?: any[]): void {
+  log(eventType: LogEventType, stateCtor: IConstructor<any>, logError: Error, stateData: StateData<any>, duration?: number, args?: any[]): void {
     if (!this.isEnabled) {
       return;
     }
@@ -16,8 +16,8 @@ export class Logger {
       return;
     }
 
-    const logFn = this.getLogFunction(config);
-    const eventTypeName = LogEventType[eventType];
+    const eventTypeName = this.getEventTypeName(eventType);
+    const logFn = this.getLogFunction(eventTypeName, config);
 
     if (config.groupType == 'group') {
       console.group(eventTypeName);
@@ -26,22 +26,37 @@ export class Logger {
     }
 
     const logData = {
-      eventTypeName,
       stateCtor,
-      caller,
       state: stateData.state
     };
 
+    if (config.level != 'trace')
+      logData['stack'] = this.getCallStack(logError);
+
     if (duration !== undefined)
-      logData['duration'] = duration;
+      logData['duration,ms'] = duration;
 
     if (args)
-      logData['args'] = args;
+      logData['args'] = args.filter(x => x);
 
     logFn(logData);
 
     if (config.groupType)
       console.groupEnd();
+  }
+
+  private getCallStack(logError: Error): string[] {
+    // https://github.com/gabrielnahmias/Console.js
+    // http://www.stacktracejs.com/#!/docs/stacktrace-js
+    // https://stackoverflow.com/questions/591857/how-can-i-get-a-javascript-stack-trace-when-i-throw-an-exception
+    let lines = logError.stack.split('\n').slice(4);
+    return lines;
+  }
+
+  private getEventTypeName(eventType: LogEventType): string {
+    const eventTypeName = LogEventType[eventType];
+    if (!eventTypeName) return '';
+    return eventTypeName.replace(/([A-Z])/g, ' $1').replace(/^\s+/, '');
   }
 
   private getConfig(eventType: LogEventType, stateData: StateData<any>): LogConfig {
@@ -52,8 +67,8 @@ export class Logger {
     return configPair && configPair.value;
   }
 
-  private getLogFunction(config: LogConfig): (...args: any[]) => void {
-    const fn = console[config.level].bind(window.console, '%c' + config.prefix, config.css);
+  private getLogFunction(eventTypeName: string, config: LogConfig): (...args: any[]) => void {
+    const fn = console[config.level].bind(window.console, '%c' + config.prefix + eventTypeName, config.css);
     return fn;
   }
 }

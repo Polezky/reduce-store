@@ -5,24 +5,23 @@ import { Subscriber } from "rxjs";
 
 export class DurationContainer {
   private startTime: number;
-  private endTime: number;
+
+  constructor() {
+    this.start();
+  }
 
   get duration(): number {
-    return (this.endTime || 0) - (this.startTime || 0);
+    return performance.now() - this.startTime;
   }
 
-  start(): void {
+  private start(): void {
     this.startTime = performance.now();
-  }
-
-  end(): void {
-    this.endTime = performance.now();
   }
 }
 
 export class StateSubscriber<T extends IClone<T>> {
   constructor(
-    public readonly callerFn: Function,
+    public readonly logError: Error,
     public readonly subscriber: Subscriber<T>,
   ) { }
 }
@@ -46,7 +45,7 @@ export class DeferredReducer<T extends IClone<T>, A1 = null, A2 = null, A3 = nul
     public readonly reducerArgs: any[],
     public readonly resolve: IResolve<void>,
     public readonly reject: IReject,
-    public readonly callerFn: Function,
+    public readonly logError: Error,
   ) {
     super();
   }
@@ -55,7 +54,7 @@ export class DeferredReducer<T extends IClone<T>, A1 = null, A2 = null, A3 = nul
 export class DeferredGetter<T extends IClone<T>> extends DurationContainer {
   constructor(
     public readonly resolve: (value?: T | PromiseLike<T>) => void,
-    public readonly callerFn: Function,
+    public readonly logError: Error,
   ) {
     super();
   }

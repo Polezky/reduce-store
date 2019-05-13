@@ -1,6 +1,6 @@
 import { IClone, IConstructor, IReducer, ICollection, IReducerConstructor } from "./interfaces";
 
-var loggingDefaultPrefix = 'ReduceStore:';
+var loggingDefaultPrefix = '';
 var loggingDefaultCss = 'background-color: beige; color: green;';
 
 export interface KeyValuePair<TKey, TValue> {
@@ -107,11 +107,14 @@ export enum LogEventType {
   ReducerResolved = 1 << 6,
   StateSuspended = 1 << 7,
 }
-export const AllLogEventTypes = LogEventType.StateGetter
+export const AllLogEventTypes =
+    LogEventType.StateGetter
+  | LogEventType.StateGetterResolved
   | LogEventType.SubscriberNotification
   | LogEventType.SubscriberAdded
   | LogEventType.SubscriberRemoved
   | LogEventType.Reducer
+  | LogEventType.ReducerResolved
   | LogEventType.StateSuspended
   ;
 export class LogConfig {
