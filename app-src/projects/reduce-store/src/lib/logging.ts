@@ -46,11 +46,8 @@ export class Logger {
   }
 
   private getCallStack(logError: Error): string[] {
-    // https://github.com/gabrielnahmias/Console.js
-    // http://www.stacktracejs.com/#!/docs/stacktrace-js
-    // https://stackoverflow.com/questions/591857/how-can-i-get-a-javascript-stack-trace-when-i-throw-an-exception
-    let lines = logError.stack.split('\n').slice(4);
-    return lines;
+    const parser = new ErrorParser(logError);
+    return parser.getCallStack();
   }
 
   private getEventTypeName(eventType: LogEventType): string {
@@ -107,4 +104,28 @@ export function getUpdatedLogConfigPairs(
   });
 
   return updatedPairs;
+}
+
+
+class ErrorParser {
+  //https://github.com/stacktracejs/error-stack-parser/blob/master/dist/error-stack-parser.js
+  // https://github.com/gabrielnahmias/Console.js
+  // http://www.stacktracejs.com/#!/docs/stacktrace-js
+  // https://stackoverflow.com/questions/591857/how-can-i-get-a-javascript-stack-trace-when-i-throw-an-exception
+
+  private readonly error: any;
+
+  constructor(error: Error) {
+    this.error = error as any;
+  }
+
+  getCallStack(): string[] {
+    let lines = [];
+    if (!this.error) return lines;
+
+    const stack = this.error.stack || this.error.stacktrace;
+    lines = stack.split('\n').slice(4);
+    return lines;
+  }
+
 }
