@@ -6,7 +6,13 @@ export class Logger {
   isEnabled: boolean = false;
   allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
-  log(eventType: LogEventType, stateCtor: IConstructor<any>, logError: Error, stateData: StateData<any>, duration?: number, args?: any[]): void {
+  log(
+    eventType: LogEventType,
+    stateCtor: IConstructor<any>,
+    logError: Error,
+    stateData: StateData<any>,
+    duration?: number,
+    args?: any[]): void {
     if (!this.isEnabled) {
       return;
     }
@@ -19,19 +25,12 @@ export class Logger {
     const eventTypeName = this.getEventTypeName(eventType);
     const logFn = this.getLogFunction(eventTypeName, config);
 
-    if (config.groupType == 'group') {
-      console.group(eventTypeName);
-    } else if (config.groupType == 'groupCollapsed') {
-      console.groupCollapsed(eventTypeName);
-    }
-
     const logData = {
       stateCtor,
       state: stateData.state
     };
 
-    if (config.level != 'trace')
-      logData['stack'] = this.getCallStack(logError);
+    logData['stack'] = this.getCallStack(logError);
 
     if (duration !== undefined)
       logData['duration,ms'] = duration;
@@ -40,9 +39,6 @@ export class Logger {
       logData['args'] = args.filter(x => x);
 
     logFn(logData);
-
-    if (config.groupType)
-      console.groupEnd();
   }
 
   private getCallStack(logError: Error): string[] {
@@ -112,6 +108,14 @@ class ErrorParser {
   // https://github.com/gabrielnahmias/Console.js
   // http://www.stacktracejs.com/#!/docs/stacktrace-js
   // https://stackoverflow.com/questions/591857/how-can-i-get-a-javascript-stack-trace-when-i-throw-an-exception
+/*
+ * var log = function(){
+        args = [].slice.call(arguments);
+        args.unshift(console);
+        return console.log.bind.apply(console.log, args)
+    }
+    log("message")()
+ */
 
   private readonly error: any;
 
@@ -123,7 +127,7 @@ class ErrorParser {
     let lines = [];
     if (!this.error) return lines;
 
-    const stack = this.error.stack || this.error.stacktrace;
+    const stack = this.error.stack || this.error.stacktrace || [];
     lines = stack.split('\n').slice(4);
     return lines;
   }

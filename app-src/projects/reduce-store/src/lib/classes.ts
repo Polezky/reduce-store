@@ -95,8 +95,7 @@ export class DeferredTask<TResult, A1 = null, A2 = null, A3 = null, A4 = null, A
   }
 }
 
-export type LogGroupType = 'group' | 'groupCollapsed';
-export type LogLevel = 'log' | 'info' | 'debug' | 'warn' | 'trace';
+export type LogLevel = 'log' | 'info' | 'debug' | 'warn';
 export enum LogEventType {
   StateGetter = 1 << 0,
   StateGetterResolved = 1 << 1,
@@ -104,8 +103,9 @@ export enum LogEventType {
   SubscriberAdded = 1 << 3,
   SubscriberRemoved = 1 << 4,
   Reducer = 1 << 5,
-  ReducerResolved = 1 << 6,
-  StateSuspended = 1 << 7,
+  LazyReducer = 1 << 6,
+  ReducerResolved = 1 << 7,
+  StateSuspended = 1 << 8,
 }
 export const AllLogEventTypes =
     LogEventType.StateGetter
@@ -114,6 +114,7 @@ export const AllLogEventTypes =
   | LogEventType.SubscriberAdded
   | LogEventType.SubscriberRemoved
   | LogEventType.Reducer
+  | LogEventType.LazyReducer
   | LogEventType.ReducerResolved
   | LogEventType.StateSuspended
   ;
@@ -121,7 +122,6 @@ export class LogConfig {
   prefix?: string = loggingDefaultPrefix;
   level?: LogLevel = 'log';
   css?: string = loggingDefaultCss;
-  groupType?: LogGroupType;
 
   constructor(init?: Partial<LogConfig>) {
     Object.assign(this, init || {});
