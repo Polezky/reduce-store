@@ -85,11 +85,10 @@ describe('ReduceStore', () => {
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
     console.log('store', store);
 
-    //store.configureLogging(LogEventType.Reducer, { groupType: 'group' }, [TestState]);
-    //store.configureLogging(AllLogEventTypes, { css: 'color: red;' }, [TestState2]);
     store.configureLogging(AllLogEventTypes);
     store.turnLogging('on');
 
+    store.lazyReduce(TestStateReducer, 0);
     const component1 = new Component(store, 'A');
 
     await new Promise(r => setTimeout(r, 1000));
@@ -97,11 +96,12 @@ describe('ReduceStore', () => {
     await store.reduce(TestStateReducer, 1);
     await store.reduce(TestState2Reducer, 101);
 
+    const component2 = new Component(store, 'B');
+    store.getState(TestState);
+
     await store.suspendState(TestState2);
     console.log('TestState2 suspendState');
 
-    const component2 = new Component(store, 'B');
-    store.getState(TestState);
     store.getState(TestState2);
     component1.updateState();
 
@@ -116,7 +116,12 @@ describe('ReduceStore', () => {
 
     await new Promise(r => setTimeout(r, 1000));
 
+    component1.ngOnDestroy();
+    component2.ngOnDestroy();
+
     console.log('end');
+
+    console.log(store.getEntries());
 
     expect(store).toBeTruthy();
   }));

@@ -4,18 +4,131 @@ import { IResolve, IReject } from "./private-interfaces";
 import { Subscriber } from "rxjs";
 
 export class DurationContainer {
-  private startTime: number;
+  private mainStartTime: number;
+  private runStartTime: number;
+  runDuration: number;
 
   constructor() {
-    this.start();
+    this.mainStartTime = performance.now();
   }
 
-  get duration(): number {
-    return performance.now() - this.startTime;
+  get fullDuration(): number {
+    return performance.now() - this.mainStartTime;
   }
 
-  private start(): void {
-    this.startTime = performance.now();
+  startRunTimer(): void {
+    this.runStartTime = performance.now();
+  }
+
+  endRunTimer(): void {
+    this.runDuration = performance.now() - this.runStartTime;
+  }
+}
+
+export class LogData {
+  eventType: LogEventType;
+  stateCtor: IConstructor<any>;
+  logError: Error;
+  stateData: StateData<any>;
+  state: any;
+  durationFull?: number;
+  durationRun?: number;
+  args?: any[];
+  stack: string[];
+
+  constructor(init: Partial<LogData>) {
+    Object.assign(this, init);
+  }
+
+  getLoggingData(): LogData {
+    const clone = new LogData(this);
+    delete clone.eventType;
+    delete clone.logError;
+    delete clone.stateData;
+    return clone;
+  }
+
+  static createReducerResolved<T extends IClone<T>>(
+    stateCtor: IConstructor<T>,
+    deferredReducer: DeferredReducer<T>,
+    stateData: StateData<T>): LogData {
+
+    return new LogData({
+      eventType: LogEventType.ReducerResolved,
+      stateCtor,
+      logError: deferredReducer.logError,
+      stateData,
+      state: stateData.state,
+      durationFull: deferredReducer.fullDuration,
+      durationRun: deferredReducer.runDuration,
+      args: deferredReducer.reducerArgs
+    });
+  }
+  
+  static createStateGetterResolved<T extends IClone<T>>(
+    stateCtor: IConstructor<T>,
+    deferredGetter: DeferredGetter<T>,
+    stateData: StateData<T>): LogData {
+
+    return new LogData({
+      eventType: LogEventType.StateGetterResolved,
+      stateCtor,
+      logError: deferredGetter.logError,
+      stateData,
+      state: stateData.state,
+      durationFull: deferredGetter.fullDuration,
+    });
+  }
+
+  static createReducer<T extends IClone<T>>(
+    eventType: LogEventType,
+    stateCtor: IConstructor<T>,
+    stateData: StateData<T>,
+    logError: Error,
+    args: any[]
+  ): LogData {
+
+    return new LogData({
+      eventType,
+      stateCtor,
+      logError,
+      stateData,
+      state: stateData.state,
+      args
+    });
+  }
+
+  static createStateSuspended<T extends IClone<T>>(
+    stateCtor: IConstructor<T>,
+    stateData: StateData<T>,
+    logError: Error,
+    durationContainer: DurationContainer
+  ): LogData {
+
+    return new LogData({
+      eventType: LogEventType.StateSuspended,
+      stateCtor,
+      logError,
+      stateData,
+      state: stateData.state,
+      durationFull: durationContainer.fullDuration
+    });
+  }
+
+  static create<T extends IClone<T>>(
+    eventType: LogEventType,
+    stateCtor: IConstructor<T>,
+    stateData: StateData<T>,
+    logError: Error,
+  ): LogData {
+
+    return new LogData({
+      eventType,
+      stateCtor,
+      stateData,
+      state: stateData.state,
+      logError,
+    });
   }
 }
 

@@ -1,44 +1,27 @@
 import { LogEventType, KeyValuePair, LogConfig } from './classes';
 import { IConstructor } from './interfaces';
-import { StateData } from './private-classes';
+import { StateData, LogData } from './private-classes';
 
 export class Logger {
   isEnabled: boolean = false;
   allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
-  log(
-    eventType: LogEventType,
-    stateCtor: IConstructor<any>,
-    logError: Error,
-    stateData: StateData<any>,
-    duration?: number,
-    args?: any[]): void {
+  log(logData: LogData): void {
     if (!this.isEnabled) {
       return;
     }
 
-    const config = this.getConfig(eventType, stateData);
+    const config = this.getConfig(logData.eventType, logData.stateData);
     if (!config) {
       return;
     }
 
-    const eventTypeName = this.getEventTypeName(eventType);
+    const eventTypeName = this.getEventTypeName(logData.eventType);
     const logFn = this.getLogFunction(eventTypeName, config);
 
-    const logData = {
-      stateCtor,
-      state: stateData.state
-    };
+    logData.stack = this.getCallStack(logData.logError);
 
-    logData['stack'] = this.getCallStack(logError);
-
-    if (duration !== undefined)
-      logData['duration,ms'] = duration;
-
-    if (args)
-      logData['args'] = args.filter(x => x);
-
-    logFn(logData);
+    logFn(logData.getLoggingData());
   }
 
   private getCallStack(logError: Error): string[] {
@@ -104,19 +87,6 @@ export function getUpdatedLogConfigPairs(
 
 
 class ErrorParser {
-  //https://github.com/stacktracejs/error-stack-parser/blob/master/dist/error-stack-parser.js
-  // https://github.com/gabrielnahmias/Console.js
-  // http://www.stacktracejs.com/#!/docs/stacktrace-js
-  // https://stackoverflow.com/questions/591857/how-can-i-get-a-javascript-stack-trace-when-i-throw-an-exception
-/*
- * var log = function(){
-        args = [].slice.call(arguments);
-        args.unshift(console);
-        return console.log.bind.apply(console.log, args)
-    }
-    log("message")()
- */
-
   private readonly error: any;
 
   constructor(error: Error) {
@@ -127,8 +97,22 @@ class ErrorParser {
     let lines = [];
     if (!this.error) return lines;
 
-    const stack = this.error.stack || this.error.stacktrace || [];
-    lines = stack.split('\n').slice(4);
+    let stack: string = this.error.stack || this.error.stacktrace;
+
+    if (!stack) {
+      try {
+        throw this.error;
+      } catch (e) {
+        stack = e.stack || '';
+      }
+    }
+
+    stack = stack.trim();
+
+    const skipLinesCount = stack.indexOf('Error') == 0 ? 4 : 3;
+    lines = stack.split('\n')
+      .slice(skipLinesCount)
+      .map(x => x.trim());
     return lines;
   }
 

@@ -14,6 +14,10 @@ export class ReduceStore {
     setDependecyResolver(injector);
   }
 
+  getEntries(): [IConstructor<IClone<any>>, any][] {
+    return Store.getEntries();
+  }
+
   getCollectionState<T extends IClone<T>>(stateCtor: IConstructor<ICollection<T>>): Promise<T[]> {
     return Store.getCollectionState(stateCtor);
   }

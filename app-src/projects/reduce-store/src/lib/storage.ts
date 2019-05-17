@@ -1,7 +1,7 @@
 import { Observable, Subscriber, Subscription } from 'rxjs';
 import { finalize, combineLatest } from 'rxjs/operators';
 
-import { StateData, DeferredGetter, DeferredReducer, SimpleDependecyResolver, DurationContainer, StateSubscriber } from './private-classes';
+import { StateData, DeferredGetter, DeferredReducer, SimpleDependecyResolver, DurationContainer, StateSubscriber, LogData } from './private-classes';
 import { IClone, IConstructor, ICollection, IReducerConstructor, IReducer, OnDestroy, IDependecyResolver } from './interfaces';
 import { ReducerTask } from './classes';
 import { LogConfig, LogEventType } from './classes';
@@ -25,8 +25,8 @@ class Storage {
 
   private constructor() { }
 
-  get fn(): Function {
-    return () => { };
+  getEntries(): [IConstructor<IClone<any>>, StateData<any>][] {
+    return Array.from(this.store.entries());
   }
 
   getCollectionState<T extends IClone<T>>(stateCtor: IConstructor<ICollection<T>>): Promise<T[]> {
@@ -36,7 +36,8 @@ class Storage {
   getState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<T> {
     const stateData = this.getStateData(stateCtor);
     const logError = this.getLogError();
-    this.logger.log(LogEventType.StateGetter, stateCtor, logError, stateData);
+    const logData = LogData.create(LogEventType.StateGetter, stateCtor, stateData, logError);
+    this.logger.log(logData);
     return this.internalGetState(stateCtor, logError);
   }
 
@@ -182,7 +183,8 @@ class Storage {
     return this.internalGetState(stateCtor).then(() => {
       const stateData = this.getStateData(stateCtor);
       stateData.isStateSuspended = true;
-      this.logger.log(LogEventType.StateSuspended, stateCtor, logError, stateData, durationContainer.duration);
+      const logData = LogData.createStateSuspended(stateCtor, stateData, logError, durationContainer)
+      this.logger.log(logData);
     });
   }
 
@@ -235,11 +237,13 @@ class Storage {
     const observable = new Observable<T>(s => {
       subscriber = s;
 
-      this.logger.log(LogEventType.SubscriberAdded, stateCtor, logError, stateData);
+      const logData = LogData.create(LogEventType.SubscriberAdded, stateCtor, stateData, logError);
+      this.logger.log(logData);
 
       if (isNeedToNotifySubcriber) {
         this.internalGetState(stateCtor).then(value => {
-          this.logger.log(LogEventType.SubscriberNotification, stateCtor, logError, stateData);
+          const logData = LogData.create(LogEventType.SubscriberNotification, stateCtor, stateData, logError);
+          this.logger.log(logData);
           subscriber.next(this.safeClone(value));
           stateData.subscribers.push(new StateSubscriber(logError, subscriber));
         });
@@ -249,7 +253,8 @@ class Storage {
     })
       .pipe(finalize(() => {
         const stateData = this.store.get(stateCtor);
-        this.logger.log(LogEventType.SubscriberRemoved, stateCtor, undefined, stateData);
+        const logData = LogData.create(LogEventType.SubscriberRemoved, stateCtor, stateData, logError);
+        this.logger.log(logData);
         const index = stateData.subscribers.findIndex(x => x.subscriber === subscriber);
         stateData.subscribers.splice(index, 1);
       }));
@@ -271,10 +276,13 @@ class Storage {
       const args = [a1, a2, a3, a4, a5, a6];
       const deferred = new DeferredReducer(reducer, args, resolve, reject, logError);
       stateData.deferredReducers.push(deferred);
+
       if (isDeferred) {
-        this.logger.log(LogEventType.LazyReducer, reducer.stateCtor, logError, stateData, undefined, args);
+        const logData = LogData.createReducer(LogEventType.LazyReducer, reducer.stateCtor, stateData, logError, args);
+        this.logger.log(logData);
       } else {
-        this.logger.log(LogEventType.Reducer, reducer.stateCtor, logError, stateData, undefined, args);
+        const logData = LogData.createReducer(LogEventType.Reducer, reducer.stateCtor, stateData, logError, args);
+        this.logger.log(logData);
         this.reduceDeferred(reducer.stateCtor, false);
       }
     });
@@ -284,7 +292,8 @@ class Storage {
     const value = stateData.state;
     for (let subscriber of stateData.subscribers) {
       const cloneValue = this.safeClone(value);
-      this.logger.log(LogEventType.SubscriberNotification, stateCtor, subscriber.logError, stateData);
+      const logData = LogData.create(LogEventType.SubscriberNotification, stateCtor, stateData, subscriber.logError);
+      this.logger.log(logData);
       subscriber.subscriber.next(cloneValue);
     }
   }
@@ -317,11 +326,14 @@ class Storage {
       .then(x => newState = x)
       .catch(e => error = e);
 
+    deferredReducer.startRunTimer();
     await promise;
+    deferredReducer.endRunTimer();
 
     stateData.isStateSuspended = false;
     stateData.state = this.safeClone(newState);
-    this.logger.log(LogEventType.ReducerResolved, stateCtor, deferredReducer.logError, stateData, deferredReducer.duration, args);
+    const logData = LogData.createReducerResolved(stateCtor, deferredReducer, stateData);
+    this.logger.log(logData);
 
     if (error) {
       deferredReducer.reject(error);
@@ -353,8 +365,11 @@ class Storage {
 
     getters.forEach(g => {
       const cloneState = this.safeClone(stateData.state);
-      if (g.logError)
-        this.logger.log(LogEventType.StateGetterResolved, stateCtor, g.logError, stateData, g.duration);
+      if (g.logError) {
+        const logData = LogData.createStateGetterResolved(stateCtor, g, stateData);
+        this.logger.log(logData);
+      }
+
       g.resolve(cloneState);
     });
   }
