@@ -185,3 +185,88 @@ class ErrorParser {
   }
 
 }
+
+/*
+ static createReducerResolved<T extends IClone<T>>(
+    stateCtor: IConstructor<T>,
+    deferredReducer: DeferredReducer<T>,
+    stateData: StateData<T>): Logger {
+
+    return new Logger({
+      eventType: LogEventType.ReducerResolved,
+      stateCtor,
+      logError: deferredReducer.logError,
+      stateData,
+      state: stateData.state,
+      durationFull: deferredReducer.fullDuration,
+      durationRun: deferredReducer.runDuration,
+      args: deferredReducer.reducerArgs
+    });
+  }
+
+  static createStateGetterResolved<T extends IClone<T>>(
+    stateCtor: IConstructor<T>,
+    deferredGetter: DeferredGetter<T>,
+    stateData: StateData<T>): Logger {
+
+    return new Logger({
+      eventType: LogEventType.StateGetterResolved,
+      stateCtor,
+      logError: deferredGetter.logError,
+      stateData,
+      state: stateData.state,
+      durationFull: deferredGetter.fullDuration,
+    });
+  }
+
+  static createReducer<T extends IClone<T>>(
+    eventType: LogEventType,
+    stateCtor: IConstructor<T>,
+    stateData: StateData<T>,
+    logError: Error,
+    args: any[]
+  ): Logger {
+
+    return new Logger({
+      eventType,
+      stateCtor,
+      logError,
+      stateData,
+      state: stateData.state,
+      args
+    });
+  }
+
+  static createStateSuspended<T extends IClone<T>>(
+    stateCtor: IConstructor<T>,
+    stateData: StateData<T>,
+    logError: Error,
+    durationContainer: StopWatch
+  ): Logger {
+
+    return new Logger({
+      eventType: LogEventType.StateSuspended,
+      stateCtor,
+      logError,
+      stateData,
+      state: stateData.state,
+      durationFull: durationContainer.fullDuration
+    });
+  }
+
+  static create<T extends IClone<T>>(
+    eventType: LogEventType,
+    stateCtor: IConstructor<T>,
+    stateData: StateData<T>,
+    logError: Error,
+  ): Logger {
+
+    return new Logger({
+      eventType,
+      stateCtor,
+      stateData,
+      state: stateData.state,
+      logError,
+    });
+  }
+ */
