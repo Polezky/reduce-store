@@ -1,4 +1,4 @@
-import { LogEventType, KeyValuePair, LogConfig } from './classes';
+import { LogEventType, KeyValuePair, LogConfig, LogLevel } from './classes';
 import { StateData } from "./StateData";
 import { IClone, IConstructor } from "./interfaces";
 
@@ -6,29 +6,28 @@ export class LogManager {
   isEnabled: boolean = false;
   allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
-  getLogger<T extends IClone<T>>(eventType: LogEventType, stateCtor: IConstructor<T>, stateData: StateData<T>): Logger {
-    const emptyLogger = new Logger({ baseLog: () => { } });
+  getLogger<T extends IClone<T>>(stateCtor: IConstructor<T>, stateData: StateData<T>, eventType?: LogEventType): Logger {
+    const emptyLogger = new Logger();
     if (!this.isEnabled) return emptyLogger;
 
     const config = this.getConfig(eventType, stateData);
     if (!config) return emptyLogger;
 
-    const baseLog = this.getBaseLogFunction(eventType, config, stateCtor);
+    const baseLog = this.getBaseLogFunction(config.level);
     const stack = this.getCallStack();
 
-    return new Logger({ baseLog, stack });
+    return new Logger({ isEnabled: true, baseLog, stack, config, stateCtor, eventType });
+  }
+
+  getLoggerWithDuration<T extends IClone<T>>(stateCtor: IConstructor<T>, stateData: StateData<T>, eventType?: LogEventType): LoggerWithDuration {
+    const logger = this.getLogger(stateCtor, stateData, eventType);
+    return new LoggerWithDuration(logger);
   }
 
   private getCallStack(): string[] {
     const logError = new Error();
     const parser = new ErrorParser(logError);
     return parser.getCallStack();
-  }
-
-  private getEventTypeName(eventType: LogEventType): string {
-    const eventTypeName = LogEventType[eventType];
-    if (!eventTypeName) return '';
-    return eventTypeName.replace(/([A-Z])/g, ' $1').replace(/^\s+/, '');
   }
 
   private getConfig(eventType: LogEventType, stateData: StateData<any>): LogConfig {
@@ -39,10 +38,9 @@ export class LogManager {
     return configPair && configPair.value;
   }
 
-  private getBaseLogFunction(eventType: LogEventType, config: LogConfig, stateCtor: IConstructor<any>): ILog {
-    const eventTypeName = this.getEventTypeName(eventType);
-    const logFn = console[config.level];
-    const fn = logFn.bind(logFn, '%c' + config.prefix + eventTypeName, config.css, stateCtor);
+  private getBaseLogFunction(logLevel: LogLevel): ILog {
+    const logFn = console[logLevel];
+    const fn = logFn.bind(logFn);
     return fn;
   }
 }
@@ -76,14 +74,24 @@ export class StopWatch {
     this._isStopped = true;
     this.endTime = performance.now();
   }
+
+  clone(): StopWatch {
+    const copy = new StopWatch();
+    copy.startTime = this.startTime;
+    copy.endTime = this.endTime;
+    copy._isStarted = this._isStarted;
+    copy._isStopped = this._isStopped;
+    return copy;
+  }
 }
 
 export class Logger {
-  private shouldLogDuration: boolean;
-  private readonly stopWatch = new StopWatch();
-
+  readonly isEnabled: boolean = false;
   readonly baseLog: ILog = (...args: any[]) => void {};
   readonly stack: string[];
+  readonly config: LogConfig;
+  readonly stateCtor: IConstructor<any>;
+  readonly eventType: LogEventType;
 
   //state: any;
   //durationFull?: number;
@@ -94,27 +102,61 @@ export class Logger {
     Object.assign(this, init);
   }
 
-  startStopWatch(): void {
-    this.shouldLogDuration = true;
-    this.stopWatch.start();
-  }
-
-  stopStopWatch(): void {
-    this.stopWatch.stop();
-  }
-
   log(state: any): void {
-    const logData = {
-      state,
-      stask: this.stack
-    };
-
-    if (this.shouldLogDuration) {
-      logData['duration,ms'] = this.stopWatch.duration;
-    }
-    this.baseLog(logData);
+    if (!this.isEnabled) return;
+    const logData = this.getLogData(state);
+    this.writeLogData(logData);
   };
 
+  //logWithArgs(state: any, args: any[]): void {
+  //  if (!this.isEnabled) return;
+  //  const logData = this.getLogData(state);
+  //  if (args)
+  //    logData['args'] = args.filter(x => x !== undefined);
+
+  //  this.writeLogData(logData);
+  //};
+
+  clone(newEventType: LogEventType): Logger {
+    let copy = Object.assign({}, this, { eventType: newEventType }) as Logger;
+    copy = new Logger(copy);
+    //copy.watches = this.watches.clone();
+    return copy;
+  }
+
+  protected getLogData(state: any): any {
+    const logData = { state };
+
+    if (this.stack && this.stack.length) {
+      logData['stack'] = this.stack;
+    }
+  };
+
+  private writeLogData(data: any): void {
+    const eventTypeName = this.getEventTypeName(this.eventType);
+    this.baseLog('%c' + this.config.prefix + eventTypeName, this.config.css, this.stateCtor, data);
+  }
+
+  private getEventTypeName(eventType: LogEventType): string {
+    const eventTypeName = LogEventType[eventType];
+    if (!eventTypeName) return '';
+    return eventTypeName.replace(/([A-Z])/g, ' $1').replace(/^\s+/, '');
+  }
+}
+
+export class LoggerWithDuration extends Logger {
+  private watches = new StopWatch();
+
+  constructor(init?: Partial<Logger>) {
+    super(init);
+    this.watches.start();
+  }
+
+  protected getLogData(state: any): any {
+    const logData = super.getLogData(state);
+    logData['duration,ms'] = this.watches.duration;
+    return logData;
+  };
 }
 
 export function getLogConfigPairs(eventType: LogEventType, config: Partial<LogConfig>): KeyValuePair<LogEventType, LogConfig>[] {
