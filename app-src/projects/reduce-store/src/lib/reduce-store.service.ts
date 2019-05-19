@@ -1,6 +1,6 @@
 import { Injectable, Injector, OnDestroy } from '@angular/core';
 
-import { Observable} from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { IClone, IConstructor, ICollection, IReducerConstructor } from './interfaces';
 import { ReducerTask, LogConfig, LogEventType } from './classes';
@@ -14,7 +14,7 @@ export class ReduceStore {
     setDependecyResolver(injector);
   }
 
-  getEntries(): [IConstructor<IClone<any>>, any][] {
+  getEntries(): { stateCtor: IConstructor<IClone<any>>, stateData: any }[] {
     return Store.getEntries();
   }
 

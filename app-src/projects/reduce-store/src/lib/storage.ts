@@ -22,11 +22,10 @@ class Storage {
   private dependecyResolver: IDependecyResolver = SimpleDependecyResolver;
   private store = new Map<IConstructor<IClone<any>>, StateData<any>>();
   private subscriptionStore = new Map<OnDestroy, Subscription>();
-  private readonly logManager = new logging.LogManager();
 
   private constructor() { }
 
-  getEntries(): { stateCtor: IConstructor<IClone<any>>, stateData: StateData<any>}[] {
+  getEntries(): { stateCtor: IConstructor<IClone<any>>, stateData: StateData<any> }[] {
     return Array.from(this.store.entries()).map(x => {
       return {
         stateCtor: x[0],
@@ -41,11 +40,11 @@ class Storage {
 
   getState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<T> {
     const stateData = this.getStateData(stateCtor);
-    this.logManager
+    logging.LogManager 
       .getLogger(stateCtor, stateData, LogEventType.StateGetter)
-      .log(stateData.state);
+      .log({ state: stateData.state });
 
-    const logger = this.logManager.getLoggerWithDuration(stateCtor, stateData);
+    const logger = logging.LogManager.getDurationLogger(stateCtor, stateData);
     return this.internalGetState(stateCtor, logger);
   }
 
@@ -185,12 +184,12 @@ class Storage {
   async suspendState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<void> {
     const stateData = this.getStateData(stateCtor);
 
-    const logger = this.logManager.getLoggerWithDuration(stateCtor, stateData, LogEventType.StateSuspended);
+    const logger = logging.LogManager.getDurationLogger(stateCtor, stateData, LogEventType.StateSuspended);
 
     const state = await this.internalGetState(stateCtor);
     stateData.isStateSuspended = true;
 
-    logger.log(state);
+    logger.log({ state: state });
   }
 
   configureLogging(eventType: LogEventType, config: Partial<LogConfig> = {}, stateCtors: IConstructor<any>[] = []): void {
@@ -201,12 +200,12 @@ class Storage {
         stateData.logConfigPairs = logging.getUpdatedLogConfigPairs(stateData.logConfigPairs, newPairs);
       })
     } else {
-      this.logManager.allStatesConfigPairs = logging.getUpdatedLogConfigPairs(this.logManager.allStatesConfigPairs, newPairs);
+      logging.LogManager.allStatesConfigPairs = logging.getUpdatedLogConfigPairs(logging.LogManager.allStatesConfigPairs, newPairs);
     }
   }
 
   resetLoggingConfiguration(): void {
-    this.logManager.allStatesConfigPairs = [];
+    logging.LogManager.allStatesConfigPairs = [];
     const stateDataList = Array.from(this.store.values());
     for (let stateData of stateDataList) {
       stateData.logConfigPairs = [];
@@ -214,10 +213,10 @@ class Storage {
   }
 
   turnLogging(mode: 'on' | 'off'): void {
-    this.logManager.isEnabled = mode == 'on';
+    logging.LogManager.isEnabled = mode == 'on';
   }
 
-  private internalGetState<T extends IClone<T>>(stateCtor: IConstructor<T>, logger?: logging.Logger): Promise<T> {
+  private internalGetState<T extends IClone<T>>(stateCtor: IConstructor<T>, logger?: logging.DurationLogger): Promise<T> {
     const stateData = this.getStateData(stateCtor);
     return new Promise<T>((resolve, reject) => {
       const deferred = new DeferredGetter(resolve, logger);
@@ -242,13 +241,11 @@ class Storage {
     const observable = new Observable<T>(s => {
       subscriber = s;
 
-      logger.eventType = LogEventType.SubscriberAdded;
-      logger.log(stateData);
+      logger.clone(LogEventType.SubscriberAdded).log({ state: stateData });
 
       if (isNeedToNotifySubcriber) {
         this.internalGetState(stateCtor).then(value => {
-          logger.eventType = LogEventType.SubscriberNotification;
-          logger.log(stateData);
+          logger.clone(LogEventType.SubscriberNotification).log({ state: stateData });
 
           subscriber.next(this.safeClone(value));
           stateData.subscribers.push(new StateSubscriber(subscriber, logger));
@@ -259,8 +256,7 @@ class Storage {
     })
       .pipe(finalize(() => {
         const stateData = this.store.get(stateCtor);
-        logger.eventType = LogEventType.SubscriberRemoved;
-        logger.log(stateData);
+        logger.clone(LogEventType.SubscriberRemoved).log({ state: stateData });
 
         const index = stateData.subscribers.findIndex(x => x.subscriber === subscriber);
         stateData.subscribers.splice(index, 1);
@@ -278,30 +274,31 @@ class Storage {
   private internalReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducer: IReducer<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     const stateData = this.getStateData(reducer.stateCtor);
-    const logger = this.logManager.getLogger(reducer.stateCtor, stateData);
+    const logger = logging.LogManager.getLogger(reducer.stateCtor, stateData);
+    const reducerLogger = logging.LogManager.getReducerLogger(reducer.stateCtor, stateData);
     stateData.isStateInitiated = true;
     return new Promise<void>((resolve, reject) => {
       const args = [a1, a2, a3, a4, a5, a6];
-      const deferred = new DeferredReducer(reducer, args, resolve, reject, logger);
+      const deferred = new DeferredReducer(reducer, args, resolve, reject, reducerLogger);
       stateData.deferredReducers.push(deferred);
 
       if (isDeferred) {
-        logger.clone(LogEventType.LazyReducer).logWithArgs(stateData, args);
+        logger.clone(LogEventType.LazyReducer).log({ state: stateData.state, args });
       } else {
-        logger.clone(LogEventType.Reducer).logWithArgs(stateData, args);
+        logger.clone(LogEventType.Reducer).log({ state: stateData.state, args });
         this.reduceDeferred(reducer.stateCtor, false);
       }
     });
   }
 
-  private notifySubscribers<T extends IClone<T>>(stateCtor: IConstructor<T>, stateData: StateData<T>): void {
+  private notifySubscribers<T extends IClone<T>>(stateData: StateData<T>): void {
     const value = stateData.state;
     for (let subscriber of stateData.subscribers) {
       const cloneValue = this.safeClone(value) as T;
 
       subscriber.logger
         .clone(LogEventType.SubscriberNotification)
-        .log(cloneValue);
+        .log({ state: cloneValue });
 
       subscriber.subscriber.next(cloneValue);
     }
@@ -335,18 +332,24 @@ class Storage {
       .then(x => newState = x)
       .catch(e => error = e);
 
-    deferredReducer.startRunTimer();
+    deferredReducer.logger.startRunWatches();
     await promise;
-    deferredReducer.endRunTimer();
+    deferredReducer.logger.stopRunWatches();
 
     stateData.isStateSuspended = false;
     stateData.state = this.safeClone(newState);
-    const logData = Logger.createReducerResolved(stateCtor, deferredReducer, stateData);
-    this.logManager.log(logData);
 
     if (error) {
+      deferredReducer.logger
+        .clone(LogEventType.ReducerRejected)
+        .log({ state: stateData.state, args: deferredReducer.reducerArgs })
+
       deferredReducer.reject(error);
     } else {
+      deferredReducer.logger
+        .clone(LogEventType.ReducerResolved)
+        .log({ state: stateData.state, args: deferredReducer.reducerArgs })
+
       deferredReducer.resolve();
     }
 
@@ -357,7 +360,7 @@ class Storage {
 
     this.resolveDefferedGetters(stateCtor);
 
-    this.notifySubscribers(stateCtor, stateData);
+    this.notifySubscribers(stateData);
 
     stateData.isBusy = false;
   }
@@ -377,7 +380,7 @@ class Storage {
       if (g.logger) {
         g.logger
           .clone(LogEventType.StateGetterResolved)
-          .log(cloneState);
+          .log({ state: cloneState});
       }
 
       g.resolve(cloneState);
@@ -400,7 +403,7 @@ class Storage {
 
   private getLogger<T extends IClone<T>>(stateCtor: IConstructor<T>, eventType?: LogEventType): logging.Logger {
     const stateData = this.getStateData(stateCtor);
-    const logger = this.logManager.getLogger(stateCtor, stateData, eventType);
+    const logger = logging.LogManager.getLogger(stateCtor, stateData, eventType);
     return logger;
   }
 

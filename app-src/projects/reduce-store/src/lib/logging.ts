@@ -2,7 +2,15 @@ import { LogEventType, KeyValuePair, LogConfig, LogLevel } from './classes';
 import { StateData } from "./StateData";
 import { IClone, IConstructor } from "./interfaces";
 
-export class LogManager {
+class Manager {
+  private static _instance: Manager;
+
+  static get instance(): Manager {
+    return Manager._instance || (Manager._instance = new Manager());
+  }
+
+  private constructor() { }
+
   isEnabled: boolean = false;
   allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
@@ -16,12 +24,17 @@ export class LogManager {
     const baseLog = this.getBaseLogFunction(config.level);
     const stack = this.getCallStack();
 
-    return new Logger({ isEnabled: true, baseLog, stack, config, stateCtor, eventType });
+    return new Logger({ baseLog, stack, config, stateCtor, eventType });
   }
 
-  getLoggerWithDuration<T extends IClone<T>>(stateCtor: IConstructor<T>, stateData: StateData<T>, eventType?: LogEventType): LoggerWithDuration {
+  getDurationLogger<T extends IClone<T>>(stateCtor: IConstructor<T>, stateData: StateData<T>, eventType?: LogEventType): DurationLogger {
     const logger = this.getLogger(stateCtor, stateData, eventType);
-    return new LoggerWithDuration(logger);
+    return new DurationLogger(logger);
+  }
+
+  getReducerLogger<T extends IClone<T>>(stateCtor: IConstructor<T>, stateData: StateData<T>, eventType?: LogEventType): ReducerLogger {
+    const logger = this.getLogger(stateCtor, stateData, eventType);
+    return new ReducerLogger(logger);
   }
 
   private getCallStack(): string[] {
@@ -45,8 +58,19 @@ export class LogManager {
   }
 }
 
+export const LogManager: Manager = Manager.instance;
+
 export interface ILog {
   (...args: any[]): void;
+}
+
+export interface ILogData {
+  state: any;
+  args?: any[];
+  stack?: string[];
+  'duration,ms'?: string;
+  'durationFull,ms'?: string;
+  'durationRun,ms'?: string;
 }
 
 export class StopWatch {
@@ -86,53 +110,41 @@ export class StopWatch {
 }
 
 export class Logger {
-  readonly isEnabled: boolean = false;
   readonly baseLog: ILog = (...args: any[]) => void {};
   readonly stack: string[];
   readonly config: LogConfig;
   readonly stateCtor: IConstructor<any>;
   readonly eventType: LogEventType;
 
-  //state: any;
-  //durationFull?: number;
-  //durationRun?: number;
-  //args?: any[];
-
   constructor(init?: Partial<Logger>) {
     Object.assign(this, init);
   }
 
-  log(state: any): void {
-    if (!this.isEnabled) return;
-    const logData = this.getLogData(state);
+  log(data: ILogData): void {
+    if (!LogManager.isEnabled) return;
+    const logData = this.getLogData(data);
     this.writeLogData(logData);
   };
-
-  //logWithArgs(state: any, args: any[]): void {
-  //  if (!this.isEnabled) return;
-  //  const logData = this.getLogData(state);
-  //  if (args)
-  //    logData['args'] = args.filter(x => x !== undefined);
-
-  //  this.writeLogData(logData);
-  //};
 
   clone(newEventType: LogEventType): Logger {
     let copy = Object.assign({}, this, { eventType: newEventType }) as Logger;
     copy = new Logger(copy);
-    //copy.watches = this.watches.clone();
     return copy;
   }
 
-  protected getLogData(state: any): any {
-    const logData = { state };
+  protected getLogData(data: ILogData): ILogData {
+    const logData = Object.assign({}, data);
+
+    if (data.args)
+      logData.args = data.args.filter(x => x !== undefined);
 
     if (this.stack && this.stack.length) {
-      logData['stack'] = this.stack;
+      logData.stack = this.stack;
     }
+    return logData;
   };
 
-  private writeLogData(data: any): void {
+  private writeLogData(data: ILogData): void {
     const eventTypeName = this.getEventTypeName(this.eventType);
     this.baseLog('%c' + this.config.prefix + eventTypeName, this.config.css, this.stateCtor, data);
   }
@@ -144,7 +156,7 @@ export class Logger {
   }
 }
 
-export class LoggerWithDuration extends Logger {
+export class DurationLogger extends Logger {
   private watches = new StopWatch();
 
   constructor(init?: Partial<Logger>) {
@@ -152,9 +164,40 @@ export class LoggerWithDuration extends Logger {
     this.watches.start();
   }
 
-  protected getLogData(state: any): any {
+  protected getLogData(state: any): ILogData {
     const logData = super.getLogData(state);
-    logData['duration,ms'] = this.watches.duration;
+    logData['duration,ms'] = this.watches.duration.toString();
+    return logData;
+  };
+
+  clone(newEventType: LogEventType): Logger {
+    let copy = new DurationLogger(super.clone(newEventType));
+    copy.watches = this.watches.clone();
+    return copy;
+  }
+}
+
+export class ReducerLogger extends Logger {
+  private watches = new StopWatch();
+  private runWatches = new StopWatch();
+
+  constructor(init?: Partial<Logger>) {
+    super(init);
+    this.watches.start();
+  }
+
+  startRunWatches(): void {
+    this.runWatches.start();
+  }
+
+  stopRunWatches(): void {
+    this.runWatches.stop();
+  }
+
+  protected getLogData(state: any): ILogData {
+    const logData = super.getLogData(state);
+    logData['durationFull,ms'] = this.watches.duration.toString();
+    logData['durationRun,ms'] = this.watches.duration.toString();
     return logData;
   };
 }
@@ -227,88 +270,3 @@ class ErrorParser {
   }
 
 }
-
-/*
- static createReducerResolved<T extends IClone<T>>(
-    stateCtor: IConstructor<T>,
-    deferredReducer: DeferredReducer<T>,
-    stateData: StateData<T>): Logger {
-
-    return new Logger({
-      eventType: LogEventType.ReducerResolved,
-      stateCtor,
-      logError: deferredReducer.logError,
-      stateData,
-      state: stateData.state,
-      durationFull: deferredReducer.fullDuration,
-      durationRun: deferredReducer.runDuration,
-      args: deferredReducer.reducerArgs
-    });
-  }
-
-  static createStateGetterResolved<T extends IClone<T>>(
-    stateCtor: IConstructor<T>,
-    deferredGetter: DeferredGetter<T>,
-    stateData: StateData<T>): Logger {
-
-    return new Logger({
-      eventType: LogEventType.StateGetterResolved,
-      stateCtor,
-      logError: deferredGetter.logError,
-      stateData,
-      state: stateData.state,
-      durationFull: deferredGetter.fullDuration,
-    });
-  }
-
-  static createReducer<T extends IClone<T>>(
-    eventType: LogEventType,
-    stateCtor: IConstructor<T>,
-    stateData: StateData<T>,
-    logError: Error,
-    args: any[]
-  ): Logger {
-
-    return new Logger({
-      eventType,
-      stateCtor,
-      logError,
-      stateData,
-      state: stateData.state,
-      args
-    });
-  }
-
-  static createStateSuspended<T extends IClone<T>>(
-    stateCtor: IConstructor<T>,
-    stateData: StateData<T>,
-    logError: Error,
-    durationContainer: StopWatch
-  ): Logger {
-
-    return new Logger({
-      eventType: LogEventType.StateSuspended,
-      stateCtor,
-      logError,
-      stateData,
-      state: stateData.state,
-      durationFull: durationContainer.fullDuration
-    });
-  }
-
-  static create<T extends IClone<T>>(
-    eventType: LogEventType,
-    stateCtor: IConstructor<T>,
-    stateData: StateData<T>,
-    logError: Error,
-  ): Logger {
-
-    return new Logger({
-      eventType,
-      stateCtor,
-      stateData,
-      state: stateData.state,
-      logError,
-    });
-  }
- */

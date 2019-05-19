@@ -16,7 +16,7 @@ export class DeferredReducer<T extends IClone<T>, A1 = null, A2 = null, A3 = nul
     public readonly reducerArgs: any[],
     public readonly resolve: IResolve<void>,
     public readonly reject: IReject,
-    public readonly logger: logging.Logger,
+    public readonly logger: logging.ReducerLogger,
   ) {
   }
 }
@@ -24,7 +24,7 @@ export class DeferredReducer<T extends IClone<T>, A1 = null, A2 = null, A3 = nul
 export class DeferredGetter<T extends IClone<T>>{
   constructor(
     public readonly resolve: (value?: T | PromiseLike<T>) => void,
-    public readonly logger: logging.Logger,
+    public readonly logger: logging.DurationLogger,
   ) {
   }
 }

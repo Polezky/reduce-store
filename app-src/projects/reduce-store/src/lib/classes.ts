@@ -105,7 +105,8 @@ export enum LogEventType {
   Reducer = 1 << 5,
   LazyReducer = 1 << 6,
   ReducerResolved = 1 << 7,
-  StateSuspended = 1 << 8,
+  ReducerRejected = 1 << 8,
+  StateSuspended = 1 << 9,
 }
 export const AllLogEventTypes =
     LogEventType.StateGetter
@@ -116,6 +117,7 @@ export const AllLogEventTypes =
   | LogEventType.Reducer
   | LogEventType.LazyReducer
   | LogEventType.ReducerResolved
+  | LogEventType.ReducerRejected
   | LogEventType.StateSuspended
   ;
 export class LogConfig {
