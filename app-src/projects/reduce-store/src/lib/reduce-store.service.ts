@@ -3,7 +3,7 @@ import { Injectable, Injector, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { IClone, IConstructor, ICollection, IReducerConstructor } from './interfaces';
-import { ReducerTask, LogConfig, LogEventType } from './classes';
+import { ReducerTask, LogConfig, LogEventType, AllLogEventTypes } from './classes';
 import { Store, setDependecyResolver } from './storage';
 
 @Injectable({ providedIn: 'root' })
@@ -78,8 +78,8 @@ export class ReduceStore {
     return Store.suspendState(stateCtor);
   }
 
-  configureLogging(eventType: LogEventType, config: Partial<LogConfig> = {}, stateCtors: IConstructor<any>[] = []): void {
-    Store.configureLogging(eventType, config, stateCtors);
+  configureLogging(stateCtors: IConstructor<any>[], eventType: LogEventType = AllLogEventTypes, config: Partial<LogConfig> = {}): void {
+    Store.configureLogging(stateCtors, eventType, config);
   }
 
   turnLogging(mode: 'on' | 'off'): void {

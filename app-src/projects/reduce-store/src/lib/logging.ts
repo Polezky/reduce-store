@@ -78,7 +78,7 @@ export class StopWatch {
 
 export class Logger<T extends IClone<T>> {
   private readonly baseFnList = this.getBaseLogFunctions();
-  private readonly logError: Error = new Error();
+  private readonly logError: Error = LogManager.isEnabled ? new Error() : undefined;
 
   constructor(
     protected readonly stateCtor: IConstructor<T>
@@ -187,7 +187,7 @@ export class ReducerLogger<T extends IClone<T>> extends Logger<T> {
   protected getLogData(state: any): ILogData<T> {
     const logData = super.getLogData(state);
     logData['durationFull,ms'] = this.watches.duration;
-    logData['durationRun,ms'] = this.watches.duration;
+    logData['durationRun,ms'] = this.runWatches.duration;
     return logData;
   };
 }

@@ -32,7 +32,7 @@ class TestState2Reducer implements IReducer<TestState2>{
   stateCtor = TestState2;
 
   reduceAsync(state: TestState2, newValue: number): Promise<TestState2> {
-    console.log('TestState2Reducer newValue', newValue);
+    //console.log('TestState2Reducer newValue', newValue);
     return new Promise((resolve, reject) => {
       window.setTimeout(() => {
         const newState = state || new TestState2({ value: newValue });
@@ -85,7 +85,7 @@ describe('ReduceStore', () => {
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
     console.log('store', store);
 
-    store.configureLogging(AllLogEventTypes);
+    store.configureLogging([TestState]);
     store.turnLogging('on');
 
     store.lazyReduce(TestStateReducer, 0);
@@ -93,7 +93,8 @@ describe('ReduceStore', () => {
 
     await new Promise(r => setTimeout(r, 1000));
 
-    await store.reduce(TestStateReducer, 1);
+    store.reduce(TestStateReducer, 1);
+    store.reduce(TestStateReducer, 1.5);
     await store.reduce(TestState2Reducer, 101);
 
     const component2 = new Component(store, 'B');

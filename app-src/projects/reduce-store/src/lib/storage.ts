@@ -4,7 +4,7 @@ import { finalize, combineLatest } from 'rxjs/operators';
 import { DeferredGetter, DeferredReducer, SimpleDependecyResolver, StateSubscriber } from './private-classes';
 import { StateData } from "./StateData";
 import { IClone, IConstructor, ICollection, IReducerConstructor, IReducer, OnDestroy, IDependecyResolver } from './interfaces';
-import { ReducerTask } from './classes';
+import { ReducerTask, AllLogEventTypes } from './classes';
 import { LogConfig, LogEventType } from './classes';
 import * as logging from './logging';
 
@@ -190,7 +190,7 @@ class Storage {
     logger.log(LogEventType.StateSuspended, stateData, { state: state });
   }
 
-  configureLogging(eventType: LogEventType, config: Partial<LogConfig> = {}, stateCtors: IConstructor<any>[] = []): void {
+  configureLogging(stateCtors: IConstructor<any>[], eventType: LogEventType = AllLogEventTypes, config: Partial<LogConfig> = {}): void {
     const newPairs = logging.getLogConfigPairs(eventType, config);
     if (stateCtors.length) {
       stateCtors.forEach(stateCtor => {
