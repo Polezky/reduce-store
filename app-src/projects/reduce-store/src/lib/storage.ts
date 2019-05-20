@@ -40,16 +40,14 @@ class Storage {
 
   getState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<T> {
     const stateData = this.getStateData(stateCtor);
-    logging.LogManager 
-      .getLogger(stateCtor, stateData, LogEventType.StateGetter)
-      .log({ state: stateData.state });
+    logging.LogManager.log(stateCtor, LogEventType.StateGetter, stateData, { state: stateData.state });
 
-    const logger = logging.LogManager.getDurationLogger(stateCtor, stateData);
+    const logger = new logging.DurationLogger(stateCtor);
     return this.internalGetState(stateCtor, logger);
   }
 
   getObservableState<T extends IClone<T>>(stateCtor: IConstructor<T>): Observable<T> {
-    const logger = this.getLogger(stateCtor);
+    const logger = new logging.Logger(stateCtor);
     return this.internalGetObservableState(stateCtor, logger);
   }
 
@@ -59,7 +57,7 @@ class Storage {
     next: (value: T) => void,
     error: (error: any) => void = () => { },
     complete: () => void = () => { }): void {
-    const logger = this.getLogger(stateCtor);
+    const logger = new logging.Logger(stateCtor);
     const observable = this.internalGetObservableState(stateCtor, logger);
     const newSubscription = observable.subscribe(
       next.bind(componentInstance),
@@ -102,9 +100,9 @@ class Storage {
       undefined as T6,
     ];
 
-    const o1 = this.internalGetObservableState(state1Ctor, this.getLogger(state1Ctor));
+    const o1 = this.internalGetObservableState(state1Ctor, new logging.Logger(state1Ctor));
 
-    const o2 = this.internalGetObservableState(state2Ctor, this.getLogger(state2Ctor));
+    const o2 = this.internalGetObservableState(state2Ctor, new logging.Logger(state2Ctor));
     if (!state3Ctor)
       return o1.pipe(combineLatest(o2, (state1, state2) => {
         result[0] = state1;
@@ -112,7 +110,7 @@ class Storage {
         return result;
       }));
 
-    const o3 = this.internalGetObservableState(state3Ctor, this.getLogger(state3Ctor));
+    const o3 = this.internalGetObservableState(state3Ctor, new logging.Logger(state3Ctor));
     if (!state4Ctor)
       return o1.pipe(combineLatest(o2, o3, (state1, state2, state3) => {
         result[0] = state1;
@@ -121,7 +119,7 @@ class Storage {
         return result;
       }));
 
-    const o4 = this.internalGetObservableState(state4Ctor, this.getLogger(state4Ctor));
+    const o4 = this.internalGetObservableState(state4Ctor, new logging.Logger(state4Ctor));
     if (!state5Ctor)
       return o1.pipe(combineLatest(o2, o3, o4, (state1, state2, state3, state4) => {
         result[0] = state1;
@@ -131,7 +129,7 @@ class Storage {
         return result;
       }));
 
-    const o5 = this.internalGetObservableState(state5Ctor, this.getLogger(state5Ctor));
+    const o5 = this.internalGetObservableState(state5Ctor, new logging.Logger(state5Ctor));
     if (!state6Ctor)
       return o1.pipe(combineLatest(o2, o3, o4, o5, (state1, state2, state3, state4, state5) => {
         result[0] = state1;
@@ -142,7 +140,7 @@ class Storage {
         return result;
       }));
 
-    const o6 = this.internalGetObservableState(state6Ctor, this.getLogger(state6Ctor));
+    const o6 = this.internalGetObservableState(state6Ctor, new logging.Logger(state6Ctor));
     return o1.pipe(combineLatest(o2, o3, o4, o5, o6, (state1, state2, state3, state4, state5, state6) => {
       result[0] = state1;
       result[1] = state2;
@@ -184,12 +182,12 @@ class Storage {
   async suspendState<T extends IClone<T>>(stateCtor: IConstructor<T>): Promise<void> {
     const stateData = this.getStateData(stateCtor);
 
-    const logger = logging.LogManager.getDurationLogger(stateCtor, stateData, LogEventType.StateSuspended);
+    const logger = new logging.Logger(stateCtor);
 
     const state = await this.internalGetState(stateCtor);
     stateData.isStateSuspended = true;
 
-    logger.log({ state: state });
+    logger.log(LogEventType.StateSuspended, stateData, { state: state });
   }
 
   configureLogging(eventType: LogEventType, config: Partial<LogConfig> = {}, stateCtors: IConstructor<any>[] = []): void {
@@ -216,7 +214,7 @@ class Storage {
     logging.LogManager.isEnabled = mode == 'on';
   }
 
-  private internalGetState<T extends IClone<T>>(stateCtor: IConstructor<T>, logger?: logging.DurationLogger): Promise<T> {
+  private internalGetState<T extends IClone<T>>(stateCtor: IConstructor<T>, logger?: logging.DurationLogger<T>): Promise<T> {
     const stateData = this.getStateData(stateCtor);
     return new Promise<T>((resolve, reject) => {
       const deferred = new DeferredGetter(resolve, logger);
@@ -232,7 +230,7 @@ class Storage {
     });
   }
 
-  private internalGetObservableState<T extends IClone<T>>(stateCtor: IConstructor<T>, logger: logging.Logger): Observable<T> {
+  private internalGetObservableState<T extends IClone<T>>(stateCtor: IConstructor<T>, logger: logging.Logger<T>): Observable<T> {
     const stateData = this.getStateData(stateCtor);
     const isNeedToNotifySubcriber = stateData.isStateInitiated && !stateData.isStateSuspended;
 
@@ -241,11 +239,11 @@ class Storage {
     const observable = new Observable<T>(s => {
       subscriber = s;
 
-      logger.clone(LogEventType.SubscriberAdded).log({ state: stateData });
+      logger.log(LogEventType.SubscriberAdded, stateData, { state: stateData.state });
 
       if (isNeedToNotifySubcriber) {
         this.internalGetState(stateCtor).then(value => {
-          logger.clone(LogEventType.SubscriberNotification).log({ state: stateData });
+          logger.log(LogEventType.SubscriberNotification, stateData, { state: stateData.state });
 
           subscriber.next(this.safeClone(value));
           stateData.subscribers.push(new StateSubscriber(subscriber, logger));
@@ -256,7 +254,7 @@ class Storage {
     })
       .pipe(finalize(() => {
         const stateData = this.store.get(stateCtor);
-        logger.clone(LogEventType.SubscriberRemoved).log({ state: stateData });
+        logger.log(LogEventType.SubscriberRemoved, stateData, { state: stateData.state });
 
         const index = stateData.subscribers.findIndex(x => x.subscriber === subscriber);
         stateData.subscribers.splice(index, 1);
@@ -268,14 +266,14 @@ class Storage {
   private createReducerAndReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     const reducer = this.dependecyResolver.get(reducerCtor);
-    return this.internalReduce(reducer, isDeferred, a1, a2, a3, a4, a5, a6);
+    const logger = new logging.Logger(reducer.stateCtor);
+    return this.internalReduce(reducer, isDeferred, logger, a1, a2, a3, a4, a5, a6);
   }
 
   private internalReduce<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
-    reducer: IReducer<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
+    reducer: IReducer<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, logger: logging.Logger<T>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     const stateData = this.getStateData(reducer.stateCtor);
-    const logger = logging.LogManager.getLogger(reducer.stateCtor, stateData);
-    const reducerLogger = logging.LogManager.getReducerLogger(reducer.stateCtor, stateData);
+    const reducerLogger = new logging.ReducerLogger(reducer.stateCtor);
     stateData.isStateInitiated = true;
     return new Promise<void>((resolve, reject) => {
       const args = [a1, a2, a3, a4, a5, a6];
@@ -283,9 +281,9 @@ class Storage {
       stateData.deferredReducers.push(deferred);
 
       if (isDeferred) {
-        logger.clone(LogEventType.LazyReducer).log({ state: stateData.state, args });
+        logger.log(LogEventType.LazyReducer, stateData, { state: stateData.state, args });
       } else {
-        logger.clone(LogEventType.Reducer).log({ state: stateData.state, args });
+        logger.log(LogEventType.Reducer, stateData, { state: stateData.state, args });
         this.reduceDeferred(reducer.stateCtor, false);
       }
     });
@@ -295,11 +293,7 @@ class Storage {
     const value = stateData.state;
     for (let subscriber of stateData.subscribers) {
       const cloneValue = this.safeClone(value) as T;
-
-      subscriber.logger
-        .clone(LogEventType.SubscriberNotification)
-        .log({ state: cloneValue });
-
+      subscriber.logger.log(LogEventType.SubscriberNotification, stateData, { state: cloneValue })
       subscriber.subscriber.next(cloneValue);
     }
   }
@@ -340,16 +334,10 @@ class Storage {
     stateData.state = this.safeClone(newState);
 
     if (error) {
-      deferredReducer.logger
-        .clone(LogEventType.ReducerRejected)
-        .log({ state: stateData.state, args: deferredReducer.reducerArgs })
-
+      deferredReducer.logger.log(LogEventType.ReducerRejected, stateData, { state: stateData.state, args: deferredReducer.reducerArgs })
       deferredReducer.reject(error);
     } else {
-      deferredReducer.logger
-        .clone(LogEventType.ReducerResolved)
-        .log({ state: stateData.state, args: deferredReducer.reducerArgs })
-
+      deferredReducer.logger.log(LogEventType.ReducerResolved, stateData, { state: stateData.state, args: deferredReducer.reducerArgs })
       deferredReducer.resolve();
     }
 
@@ -378,9 +366,7 @@ class Storage {
     getters.forEach(g => {
       const cloneState = this.safeClone(stateData.state) as T;
       if (g.logger) {
-        g.logger
-          .clone(LogEventType.StateGetterResolved)
-          .log({ state: cloneState});
+        g.logger.log(LogEventType.StateGetterResolved, stateData, { state: cloneState})
       }
 
       g.resolve(cloneState);
@@ -400,13 +386,6 @@ class Storage {
     this.subscriptionStore.set(componentInstance, subscription);
     return subscription;
   }
-
-  private getLogger<T extends IClone<T>>(stateCtor: IConstructor<T>, eventType?: LogEventType): logging.Logger {
-    const stateData = this.getStateData(stateCtor);
-    const logger = logging.LogManager.getLogger(stateCtor, stateData, eventType);
-    return logger;
-  }
-
 }
 
 export const Store: Storage = Storage.instance;

@@ -95,7 +95,13 @@ export class DeferredTask<TResult, A1 = null, A2 = null, A3 = null, A4 = null, A
   }
 }
 
-export type LogLevel = 'log' | 'info' | 'debug' | 'warn';
+export enum LogLevel {
+  Log = 1,
+  Info = 2,
+  Debug = 3,
+  Warn = 4
+};
+
 export enum LogEventType {
   StateGetter = 1 << 0,
   StateGetterResolved = 1 << 1,
@@ -122,7 +128,7 @@ export const AllLogEventTypes =
   ;
 export class LogConfig {
   prefix?: string = loggingDefaultPrefix;
-  level?: LogLevel = 'log';
+  level?: LogLevel = LogLevel.Log;
   css?: string = loggingDefaultCss;
 
   constructor(init?: Partial<LogConfig>) {

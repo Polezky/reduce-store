@@ -14,47 +14,13 @@ class Manager {
   isEnabled: boolean = false;
   allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
-  getLogger<T extends IClone<T>>(stateCtor: IConstructor<T>, stateData: StateData<T>, eventType?: LogEventType): Logger {
-    const emptyLogger = new Logger();
-    if (!this.isEnabled) return emptyLogger;
+  log<T extends IClone<T>>(
+    stateCtor: IConstructor<T>,
+    eventType: LogEventType,
+    stateData: StateData<T>,
+    logData: ILogData<T>): void {
 
-    const config = this.getConfig(eventType, stateData);
-    if (!config) return emptyLogger;
-
-    const baseLog = this.getBaseLogFunction(config.level);
-    const stack = this.getCallStack();
-
-    return new Logger({ baseLog, stack, config, stateCtor, eventType });
-  }
-
-  getDurationLogger<T extends IClone<T>>(stateCtor: IConstructor<T>, stateData: StateData<T>, eventType?: LogEventType): DurationLogger {
-    const logger = this.getLogger(stateCtor, stateData, eventType);
-    return new DurationLogger(logger);
-  }
-
-  getReducerLogger<T extends IClone<T>>(stateCtor: IConstructor<T>, stateData: StateData<T>, eventType?: LogEventType): ReducerLogger {
-    const logger = this.getLogger(stateCtor, stateData, eventType);
-    return new ReducerLogger(logger);
-  }
-
-  private getCallStack(): string[] {
-    const logError = new Error();
-    const parser = new ErrorParser(logError);
-    return parser.getCallStack();
-  }
-
-  private getConfig(eventType: LogEventType, stateData: StateData<any>): LogConfig {
-    let configPair = stateData.logConfigPairs.find(p => (p.key & eventType) > 0);
-    if (configPair) return configPair.value;
-
-    configPair = this.allStatesConfigPairs.find(p => (p.key & eventType) > 0);
-    return configPair && configPair.value;
-  }
-
-  private getBaseLogFunction(logLevel: LogLevel): ILog {
-    const logFn = console[logLevel];
-    const fn = logFn.bind(logFn);
-    return fn;
+    new Logger(stateCtor).log(eventType, stateData, logData);
   }
 }
 
@@ -64,13 +30,14 @@ export interface ILog {
   (...args: any[]): void;
 }
 
-export interface ILogData {
-  state: any;
+export interface ILogData<T extends IClone<T>> {
+  state: T;
+  stateCtor?: IConstructor<T>;
   args?: any[];
   stack?: string[];
-  'duration,ms'?: string;
-  'durationFull,ms'?: string;
-  'durationRun,ms'?: string;
+  'duration,ms'?: number;
+  'durationFull,ms'?: number;
+  'durationRun,ms'?: number;
 }
 
 export class StopWatch {
@@ -109,44 +76,50 @@ export class StopWatch {
   }
 }
 
-export class Logger {
-  readonly baseLog: ILog = (...args: any[]) => void {};
-  readonly stack: string[];
-  readonly config: LogConfig;
-  readonly stateCtor: IConstructor<any>;
-  readonly eventType: LogEventType;
+export class Logger<T extends IClone<T>> {
+  private readonly baseFnList = this.getBaseLogFunctions();
+  private readonly logError: Error = new Error();
 
-  constructor(init?: Partial<Logger>) {
-    Object.assign(this, init);
-  }
+  constructor(
+    protected readonly stateCtor: IConstructor<T>
+  ) {}
 
-  log(data: ILogData): void {
+  log(eventType: LogEventType, stateData: StateData<T>, logData: ILogData<T>): void {
     if (!LogManager.isEnabled) return;
-    const logData = this.getLogData(data);
-    this.writeLogData(logData);
+
+    const config = this.getConfig(eventType, stateData);
+    if (!config) return;
+
+    const data = this.getLogData(logData);
+    this.writeLogData(eventType, config, data);
   };
 
-  clone(newEventType: LogEventType): Logger {
-    let copy = Object.assign({}, this, { eventType: newEventType }) as Logger;
-    copy = new Logger(copy);
-    return copy;
-  }
+  protected getLogData(data: ILogData<T>): ILogData<T> {
+    const logData = Object.assign({}, data) as ILogData<T>;
 
-  protected getLogData(data: ILogData): ILogData {
-    const logData = Object.assign({}, data);
+    logData.stateCtor = this.stateCtor;
 
     if (data.args)
       logData.args = data.args.filter(x => x !== undefined);
 
-    if (this.stack && this.stack.length) {
-      logData.stack = this.stack;
+    if (this.logError) {
+      logData.stack = this.getCallStack();
     }
     return logData;
   };
 
-  private writeLogData(data: ILogData): void {
-    const eventTypeName = this.getEventTypeName(this.eventType);
-    this.baseLog('%c' + this.config.prefix + eventTypeName, this.config.css, this.stateCtor, data);
+  private getConfig(eventType: LogEventType, stateData: StateData<T>): LogConfig {
+    let configPair = stateData.logConfigPairs.find(p => (p.key & eventType) > 0);
+    if (configPair) return configPair.value;
+
+    configPair = LogManager.allStatesConfigPairs.find(p => (p.key & eventType) > 0);
+    return configPair && configPair.value;
+  }
+
+  private writeLogData(eventType: LogEventType, config: LogConfig, data: ILogData<T>): void {
+    const baseLog = this.baseFnList.find(x => x.key == config.level).value;
+    const eventTypeName = this.getEventTypeName(eventType);
+    baseLog('%c' + config.prefix + eventTypeName, config.css, data);
   }
 
   private getEventTypeName(eventType: LogEventType): string {
@@ -154,35 +127,52 @@ export class Logger {
     if (!eventTypeName) return '';
     return eventTypeName.replace(/([A-Z])/g, ' $1').replace(/^\s+/, '');
   }
+
+  private getCallStack(): string[] {
+    const parser = new ErrorParser(this.logError);
+    return parser.getCallStack();
+  }
+
+  private getBaseLogFunctions(): KeyValuePair<LogLevel, ILog>[] {
+    const levels = Object.keys(LogLevel)
+      .filter(x => isNaN(+x))
+      .map(x => x);
+    const fnList = Object.keys(console)
+      .map(f => {
+        const level = levels.find(l => l.toLowerCase() == f);
+        if (!level) return undefined;
+        return {
+          key: LogLevel[level],
+          value: console[f].bind(console) as ILog
+        };
+      })
+      .filter(pair => pair);
+
+    return fnList;
+  }
 }
 
-export class DurationLogger extends Logger {
+export class DurationLogger<T extends IClone<T>> extends Logger<T> {
   private watches = new StopWatch();
 
-  constructor(init?: Partial<Logger>) {
-    super(init);
+  constructor(stateCtor: IConstructor<T>) {
+    super(stateCtor);
     this.watches.start();
   }
 
-  protected getLogData(state: any): ILogData {
+  protected getLogData(state: any): ILogData<T> {
     const logData = super.getLogData(state);
-    logData['duration,ms'] = this.watches.duration.toString();
+    logData['duration,ms'] = this.watches.duration;
     return logData;
   };
-
-  clone(newEventType: LogEventType): Logger {
-    let copy = new DurationLogger(super.clone(newEventType));
-    copy.watches = this.watches.clone();
-    return copy;
-  }
 }
 
-export class ReducerLogger extends Logger {
+export class ReducerLogger<T extends IClone<T>> extends Logger<T> {
   private watches = new StopWatch();
   private runWatches = new StopWatch();
 
-  constructor(init?: Partial<Logger>) {
-    super(init);
+  constructor(stateCtor: IConstructor<T>) {
+    super(stateCtor);
     this.watches.start();
   }
 
@@ -194,10 +184,10 @@ export class ReducerLogger extends Logger {
     this.runWatches.stop();
   }
 
-  protected getLogData(state: any): ILogData {
+  protected getLogData(state: any): ILogData<T> {
     const logData = super.getLogData(state);
-    logData['durationFull,ms'] = this.watches.duration.toString();
-    logData['durationRun,ms'] = this.watches.duration.toString();
+    logData['durationFull,ms'] = this.watches.duration;
+    logData['durationRun,ms'] = this.watches.duration;
     return logData;
   };
 }

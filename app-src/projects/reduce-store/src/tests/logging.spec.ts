@@ -114,9 +114,10 @@ describe('ReduceStore', () => {
 
     console.log('Right after 2');
 
+    component1.ngOnDestroy();
+
     await new Promise(r => setTimeout(r, 1000));
 
-    component1.ngOnDestroy();
     component2.ngOnDestroy();
 
     console.log('end');
