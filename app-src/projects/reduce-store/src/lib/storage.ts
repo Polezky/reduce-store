@@ -27,7 +27,7 @@ class Storage {
   private constructor() { }
 
   configureStore(config: StoreConfig): void {
-    this.config = config;
+    this.config = new StoreConfig(config);
   }
 
   getEntries(): { stateCtor: IConstructor<any>, stateData: StateData<any> }[] {
@@ -333,7 +333,7 @@ class Storage {
     getters.forEach(g => {
       const cloneState = this.safeClone(stateData.state) as T;
       if (g.logger) {
-        g.logger.log(LogEventType.StateGetterResolved, stateData, { state: cloneState})
+        g.logger.log(LogEventType.StateGetterResolved, stateData, { state: cloneState })
       }
 
       g.resolve(cloneState);
