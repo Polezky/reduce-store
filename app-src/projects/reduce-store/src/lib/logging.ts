@@ -1,6 +1,7 @@
-import { LogEventType, KeyValuePair, LogConfig, LogLevel } from './classes';
+import { LogEventType, LogConfig, LogLevel } from './classes';
 import { StateData } from "./StateData";
-import { IClone, IConstructor } from "./interfaces";
+import { IConstructor } from "./interfaces";
+import { KeyValuePair } from "./private-interfaces";
 
 class Manager {
   private static _instance: Manager;
@@ -14,7 +15,7 @@ class Manager {
   isEnabled: boolean = false;
   allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
-  log<T extends IClone<T>>(
+  log<T>(
     stateCtor: IConstructor<T>,
     eventType: LogEventType,
     stateData: StateData<T>,
@@ -30,7 +31,7 @@ export interface ILog {
   (...args: any[]): void;
 }
 
-export interface ILogData<T extends IClone<T>> {
+export interface ILogData<T> {
   state: T;
   stateCtor?: IConstructor<T>;
   args?: any[];
@@ -76,7 +77,7 @@ export class StopWatch {
   }
 }
 
-export class Logger<T extends IClone<T>> {
+export class Logger<T> {
   private readonly baseFnList = this.getBaseLogFunctions();
   private readonly logError: Error = LogManager.isEnabled ? new Error() : undefined;
 
@@ -152,7 +153,7 @@ export class Logger<T extends IClone<T>> {
   }
 }
 
-export class DurationLogger<T extends IClone<T>> extends Logger<T> {
+export class DurationLogger<T> extends Logger<T> {
   private watches = new StopWatch();
 
   constructor(stateCtor: IConstructor<T>) {
@@ -167,7 +168,7 @@ export class DurationLogger<T extends IClone<T>> extends Logger<T> {
   };
 }
 
-export class ReducerLogger<T extends IClone<T>> extends Logger<T> {
+export class ReducerLogger<T> extends Logger<T> {
   private watches = new StopWatch();
   private runWatches = new StopWatch();
 

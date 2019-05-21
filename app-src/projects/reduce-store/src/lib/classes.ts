@@ -1,14 +1,18 @@
-import { IClone, IConstructor, IReducer, ICollection, IReducerConstructor } from "./interfaces";
+import { IReducerConstructor } from "./interfaces";
 
 var loggingDefaultPrefix = '';
 var loggingDefaultCss = 'background-color: beige; color: green;';
 
-export interface KeyValuePair<TKey, TValue> {
-  key: TKey;
-  value: TValue;
+export class StoreConfig {
+  cloneMethodName?: string;
+  disposeMethodName?: string = 'dispose';
+
+  constructor(init?: StoreConfig) {
+    Object.assign(this, init);
+  }
 }
 
-export class Clone<T> implements IClone<T> {
+export class Clone<T> {
   constructor(init?: Partial<T>) {
     Object.assign(this, init);
   }
@@ -18,35 +22,7 @@ export class Clone<T> implements IClone<T> {
   }
 }
 
-export abstract class CollectionState<T extends IClone<T>> extends Clone<ICollection<T>> implements ICollection<T> {
-  abstract readonly itemsCtor: IConstructor<T>;
-
-  items: T[];
-
-  constructor(init: Partial<CollectionState<T>>) {
-    super(init);
-    this.items = init.items.map(x => new this.itemsCtor(x));
-  }
-
-  clone(): any {
-    const cloneObj = super.clone();
-    cloneObj.items = this.items.map(x => x.clone());
-    return cloneObj;
-  }
-
-}
-
-export abstract class AsyncReducer<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> implements IReducer<T> {
-  abstract readonly stateCtor: IConstructor<T>;
-
-  abstract reduce(state: T, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): T;
-
-  reduceAsync(state: T, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<T> {
-    return Promise.resolve(this.reduce(state, a1, a2, a3, a4, a5, a6));
-  }
-}
-
-export class ReducerTask<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
+export class ReducerTask<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   private deferredTask: DeferredTask<void, A1, A2, A3, A4, A5, A6>;
 
   constructor(

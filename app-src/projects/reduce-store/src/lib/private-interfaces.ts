@@ -5,3 +5,8 @@ export interface IResolve<T> {
 export interface IReject {
   (reason?: any): void;
 }
+
+export interface KeyValuePair<TKey, TValue> {
+  key: TKey;
+  value: TValue;
+}

@@ -1,8 +1,8 @@
-import { IClone } from "./interfaces";
-import { KeyValuePair, LogEventType, LogConfig } from "./classes";
+import { LogEventType, LogConfig } from "./classes";
 import { StateSubscriber, DeferredGetter, DeferredReducer } from "./private-classes";
+import { KeyValuePair } from "./private-interfaces";
 
-export class StateData<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
+export class StateData<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
     state: T;
     subscribers: Array<StateSubscriber<T>> = [];
     isBusy: boolean = false;

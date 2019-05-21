@@ -1,16 +1,16 @@
-import { IClone, IReducer, IDependecyResolver, IConstructor } from "./interfaces";
+import { IReducer, IDependecyResolver, IConstructor } from "./interfaces";
 import { IResolve, IReject } from "./private-interfaces";
 import { Subscriber } from "rxjs";
 import * as logging from "./logging";
 
-export class StateSubscriber<T extends IClone<T>> {
+export class StateSubscriber<T> {
   constructor(
     public readonly subscriber: Subscriber<T>,
     public readonly logger: logging.Logger<T>,
   ) { }
 }
 
-export class DeferredReducer<T extends IClone<T>, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
+export class DeferredReducer<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   constructor(
     public readonly reducer: IReducer<T, A1, A2, A3, A4, A5, A6>,
     public readonly reducerArgs: any[],
@@ -21,7 +21,7 @@ export class DeferredReducer<T extends IClone<T>, A1 = null, A2 = null, A3 = nul
   }
 }
 
-export class DeferredGetter<T extends IClone<T>>{
+export class DeferredGetter<T>{
   constructor(
     public readonly resolve: (value?: T | PromiseLike<T>) => void,
     public readonly logger: logging.DurationLogger<T>,
