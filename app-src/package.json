@@ -1,6 +1,6 @@
 {
   "name": "reduce-store-app",
-  "version": "0.0.0",
+  "version": "1.1.8",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -11,8 +11,7 @@
     "build-lib": "ng build reduce-store",
     "build-lib-prod": "ng build --prod reduce-store",
     "test-lib": "ng test reduce-store",
-    "publish-lib-patch": "npm run build-lib-prod && npm version patch && npm run publish-lib",
-    "publish-lib": "cd dist/reduce-store && npm publish"
+    "publish-lib": "npm run build-lib-prod && cd dist/reduce-store && npm publish"
   },
   "private": true,
   "dependencies": {
