@@ -89,12 +89,14 @@ describe('ReduceStore', () => {
     store.turnLogging('on');
 
     store.lazyReduce(TestStateReducer, 0);
+    store.lazyReduceByDelegate(TestState, s => Promise.resolve(new TestState({ value: 0.25 })));
     const componentA = new Component(store, 'A');
 
     await new Promise(r => setTimeout(r, 1000));
 
     store.reduce(TestStateReducer, 1);
     store.reduce(TestStateReducer, 1.5);
+    store.reduceByDelegate(TestState, s => Promise.resolve(new TestState({ value: 1.75})));
     await store.reduce(TestState2Reducer, 101);
 
     const componentB = new Component(store, 'B');

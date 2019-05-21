@@ -1,4 +1,4 @@
-import { IReducer, IDependecyResolver, IConstructor } from "./interfaces";
+import { IReducer, IDependecyResolver, IConstructor, IReducerDelegate } from "./interfaces";
 import { IResolve, IReject } from "./private-interfaces";
 import { Subscriber } from "rxjs";
 import * as logging from "./logging";
@@ -11,13 +11,15 @@ export class StateSubscriber<T> {
 }
 
 export class DeferredReducer<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
-  constructor(
-    public readonly reducer: IReducer<T, A1, A2, A3, A4, A5, A6>,
-    public readonly reducerArgs: any[],
-    public readonly resolve: IResolve<void>,
-    public readonly reject: IReject,
-    public readonly logger: logging.ReducerLogger<T>,
-  ) {
+  readonly delegate?: IReducerDelegate<T>;
+  readonly reducer?: IReducer<T, A1, A2, A3, A4, A5, A6>;
+  readonly args?: any[];
+  readonly resolve: IResolve<void>;
+  readonly reject: IReject;
+  readonly logger: logging.ReducerLogger<T>;
+
+  constructor(init: Partial<DeferredReducer<T>>) {
+    Object.assign(this, init);
   }
 }
 

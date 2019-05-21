@@ -85,10 +85,12 @@ export enum LogEventType {
   SubscriberAdded = 1 << 3,
   SubscriberRemoved = 1 << 4,
   Reducer = 1 << 5,
-  LazyReducer = 1 << 6,
-  ReducerResolved = 1 << 7,
-  ReducerRejected = 1 << 8,
-  StateSuspended = 1 << 9,
+  ReduceByDelegate = 1 << 6,
+  LazyReducer = 1 << 7,
+  LazyReduceByDelegate = 1 << 8,
+  ReducerResolved = 1 << 9,
+  ReducerRejected = 1 << 10,
+  StateSuspended = 1 << 11,
 }
 export const AllLogEventTypes =
     LogEventType.StateGetter
@@ -97,7 +99,9 @@ export const AllLogEventTypes =
   | LogEventType.SubscriberAdded
   | LogEventType.SubscriberRemoved
   | LogEventType.Reducer
+  | LogEventType.ReduceByDelegate
   | LogEventType.LazyReducer
+  | LogEventType.LazyReduceByDelegate
   | LogEventType.ReducerResolved
   | LogEventType.ReducerRejected
   | LogEventType.StateSuspended

@@ -2,7 +2,7 @@ import { Injectable, Injector, OnDestroy } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
-import { IConstructor, IReducerConstructor } from './interfaces';
+import { IConstructor, IReducerConstructor, IReducerDelegate } from './interfaces';
 import { ReducerTask, LogConfig, LogEventType, AllLogEventTypes, StoreConfig } from './classes';
 import { Store, setDependecyResolver } from './storage';
 
@@ -41,9 +41,17 @@ export class ReduceStore {
     return Store.lazyReduce(reducerCtor, a1, a2, a3, a4, a5, a6);
   }
 
+  lazyReduceByDelegate<T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> {
+    return Store.lazyReduceByDelegate(stateCtor, delegate);
+  }
+
   reduce<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     return Store.reduce(reducerCtor, a1, a2, a3, a4, a5, a6);
+  }
+
+  reduceByDelegate<T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> {
+    return Store.reduceByDelegate(stateCtor, delegate);
   }
 
   createReducerTask<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(

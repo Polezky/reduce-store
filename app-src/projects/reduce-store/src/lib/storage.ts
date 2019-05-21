@@ -3,7 +3,7 @@ import { finalize } from 'rxjs/operators';
 
 import { DeferredGetter, DeferredReducer, SimpleDependecyResolver, StateSubscriber } from './private-classes';
 import { StateData } from "./StateData";
-import { IConstructor, IReducerConstructor, IReducer, IDependecyResolver } from './interfaces';
+import { IConstructor, IReducerConstructor, IReducer, IDependecyResolver, IReducerDelegate } from './interfaces';
 import { ReducerTask, AllLogEventTypes, StoreConfig } from './classes';
 import { LogConfig, LogEventType } from './classes';
 import * as logging from './logging';
@@ -87,6 +87,11 @@ class Storage {
     return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
   }
 
+  lazyReduceByDelegate<T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> {
+    const logger = new logging.Logger(stateCtor);
+    return this.internalReduceByDelegate(stateCtor, delegate, true, logger);
+  }
+
   /**
    * Adds reducer to the queue and executes it in case there is only this reducer in the queue.
    * @param reducerCtor
@@ -100,6 +105,11 @@ class Storage {
   reduce<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     return this.createReducerAndReduce(reducerCtor, false, a1, a2, a3, a4, a5, a6);
+  }
+
+  reduceByDelegate<T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> {
+    const logger = new logging.Logger(stateCtor);
+    return this.internalReduceByDelegate(stateCtor, delegate, false, logger);
   }
 
   createReducerTask<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
@@ -200,6 +210,23 @@ class Storage {
     return this.internalReduce(reducer, isDeferred, logger, a1, a2, a3, a4, a5, a6);
   }
 
+  private internalReduceByDelegate<T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>, isDeferred: boolean, logger: logging.Logger<T>): Promise<void> {
+    const stateData = this.getStateData(stateCtor);
+    const reducerLogger = new logging.ReducerLogger(stateCtor);
+    stateData.isStateInitiated = true;
+    return new Promise<void>((resolve, reject) => {
+      const deferred = new DeferredReducer({ delegate, resolve, reject, logger: reducerLogger });
+      stateData.deferredReducers.push(deferred);
+
+      if (isDeferred) {
+        logger.log(LogEventType.LazyReduceByDelegate, stateData, { state: stateData.state });
+      } else {
+        logger.log(LogEventType.ReduceByDelegate, stateData, { state: stateData.state });
+        this.reduceDeferred(stateCtor, false);
+      }
+    });
+  }
+
   private internalReduce<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducer: IReducer<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, logger: logging.Logger<T>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     const stateData = this.getStateData(reducer.stateCtor);
@@ -207,7 +234,7 @@ class Storage {
     stateData.isStateInitiated = true;
     return new Promise<void>((resolve, reject) => {
       const args = [a1, a2, a3, a4, a5, a6];
-      const deferred = new DeferredReducer(reducer, args, resolve, reject, reducerLogger);
+      const deferred = new DeferredReducer({ reducer, args, resolve, reject, logger: reducerLogger });
       stateData.deferredReducers.push(deferred);
 
       if (isDeferred) {
@@ -249,12 +276,22 @@ class Storage {
 
     let newState: T;
     let error;
-    const args = deferredReducer.reducerArgs;
+    let promise: Promise<any>;
 
-    const promise = deferredReducer.reducer
-      .reduceAsync(stateData.state, ...args)
-      .then(x => newState = x)
-      .catch(e => error = e);
+    if (deferredReducer.reducer) {
+      const args = deferredReducer.args;
+      promise = deferredReducer.reducer
+        .reduceAsync(stateData.state, ...args)
+        .then(x => newState = x)
+        .catch(e => error = e);
+    } else if (deferredReducer.delegate) {
+      promise = deferredReducer
+        .delegate(stateData.state)
+        .then(x => newState = x)
+        .catch(e => error = e);
+    } else {
+      throw new Error('No reducer or delegate');
+    }
 
     deferredReducer.logger.startRunWatches();
     await promise;
@@ -264,10 +301,10 @@ class Storage {
     stateData.state = this.safeClone(newState);
 
     if (error) {
-      deferredReducer.logger.log(LogEventType.ReducerRejected, stateData, { state: stateData.state, args: deferredReducer.reducerArgs })
+      deferredReducer.logger.log(LogEventType.ReducerRejected, stateData, { state: stateData.state, args: deferredReducer.args })
       deferredReducer.reject(error);
     } else {
-      deferredReducer.logger.log(LogEventType.ReducerResolved, stateData, { state: stateData.state, args: deferredReducer.reducerArgs })
+      deferredReducer.logger.log(LogEventType.ReducerResolved, stateData, { state: stateData.state, args: deferredReducer.args })
       deferredReducer.resolve();
     }
 
