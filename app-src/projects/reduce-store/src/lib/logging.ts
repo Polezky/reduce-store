@@ -95,7 +95,7 @@ export class Logger<T extends IClone<T>> {
   };
 
   protected getLogData(data: ILogData<T>): ILogData<T> {
-    const logData = Object.assign({}, data) as ILogData<T>;
+    const logData = JSON.parse(JSON.stringify(data)) as ILogData<T>;
 
     logData.stateCtor = this.stateCtor;
 

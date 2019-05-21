@@ -44,34 +44,34 @@ class TestState2Reducer implements IReducer<TestState2>{
 }
 
 class Component implements OnDestroy {
-  private value = 'zzz';
+  private name = 'zzz';
   private state: TestState;
   private state2: TestState2;
 
-  constructor(private store: ReduceStore, value: string) {
+  constructor(private store: ReduceStore, name: string) {
     this.store.subscribeToState(TestState, this, this.onStateChanged);
     this.store.subscribeToState(TestState2, this, this.onStateChanged2);
-    this.value = value;
-    console.log('Component constructor', this.value);
+    this.name = name;
+    console.log(`Component ${this.name} constructor`);
   }
 
   async updateState(): Promise<void> {
     const state = await this.store.getState(TestState);
-    console.log('Component updateState', this.value, state && state.value);
+    console.log(`Component ${this.name} updateState`, state && state.value);
   }
 
   ngOnDestroy(): void {
-    console.log('Component OnDestroy', this.value);
+    console.log(`Component ${this.name} OnDestroy`);
   }
 
   private onStateChanged(s: TestState): void {
     this.state = s;
-    console.log('Component onStateChanged', this.value, this.state && this.state.value);
+    console.log(`Component ${this.name} onStateChanged`, this.state && this.state.value);
   }
 
   private onStateChanged2(s: TestState2): void {
     this.state2 = s;
-    console.log('Component onStateChanged2', this.value, this.state2 && this.state2.value);
+    console.log(`Component ${this.name} onStateChanged2`, this.state2 && this.state2.value);
   }
 }
 
@@ -89,7 +89,7 @@ describe('ReduceStore', () => {
     store.turnLogging('on');
 
     store.lazyReduce(TestStateReducer, 0);
-    const component1 = new Component(store, 'A');
+    const componentA = new Component(store, 'A');
 
     await new Promise(r => setTimeout(r, 1000));
 
@@ -97,16 +97,16 @@ describe('ReduceStore', () => {
     store.reduce(TestStateReducer, 1.5);
     await store.reduce(TestState2Reducer, 101);
 
-    const component2 = new Component(store, 'B');
+    const componentB = new Component(store, 'B');
     store.getState(TestState);
 
-    await store.suspendState(TestState2);
-    console.log('TestState2 suspendState');
+    await store.suspendState(TestState);
+    console.log('TestState suspendState');
 
     store.getState(TestState2);
-    component1.updateState();
+    componentA.updateState();
 
-    console.log('state is still suspended');
+    //console.log('state is still suspended');
 
     setTimeout(() => {
       store.reduce(TestStateReducer, 2);
@@ -115,11 +115,11 @@ describe('ReduceStore', () => {
 
     console.log('Right after 2');
 
-    component1.ngOnDestroy();
+    componentA.ngOnDestroy();
 
     await new Promise(r => setTimeout(r, 1000));
 
-    component2.ngOnDestroy();
+    componentB.ngOnDestroy();
 
     console.log('end');
 
