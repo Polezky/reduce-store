@@ -7,7 +7,11 @@ export class StoreConfig {
   cloneMethodName?: string;
   disposeMethodName?: string = 'dispose';
 
-  constructor(init?: StoreConfig) {
+  constructor(init?: Partial<StoreConfig>) {
+    Object.assign(this, init);
+  }
+
+  set(init: Partial<StoreConfig>): void {
     Object.assign(this, init);
   }
 }

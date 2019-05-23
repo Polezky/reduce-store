@@ -22,13 +22,10 @@ class Storage {
   private dependecyResolver: IDependecyResolver = SimpleDependecyResolver;
   private store = new Map<IConstructor<any>, StateData<any>>();
   private subscriptionStore = new Map<{}, Subscription>();
-  private config: StoreConfig = new StoreConfig();
+
+  readonly config: StoreConfig = new StoreConfig();
 
   private constructor() { }
-
-  configureStore(config: StoreConfig): void {
-    this.config = new StoreConfig(config);
-  }
 
   getEntries(): { stateCtor: IConstructor<any>, stateData: StateData<any> }[] {
     return Array.from(this.store.entries()).map(x => {
@@ -38,6 +35,18 @@ class Storage {
       };
     });
   }
+
+  state = {
+    get: <T>(stateCtor: IConstructor<T>): Promise<T> => {
+      const stateData = this.getStateData(stateCtor);
+      logging.LogManager.log(stateCtor, LogEventType.StateGetter, stateData, { state: stateData.state });
+
+      const logger = new logging.DurationLogger(stateCtor);
+      return this.internalGetState(stateCtor, logger);
+    },
+
+  };
+
 
   getState<T>(stateCtor: IConstructor<T>): Promise<T> {
     const stateData = this.getStateData(stateCtor);
@@ -130,29 +139,40 @@ class Storage {
     logger.log(LogEventType.StateSuspended, stateData, { state: state });
   }
 
-  configureLogging(stateCtors: IConstructor<any>[], eventType: LogEventType = AllLogEventTypes, config: Partial<LogConfig> = {}): void {
-    const newPairs = logging.getLogConfigPairs(eventType, config);
-    if (stateCtors.length) {
-      stateCtors.forEach(stateCtor => {
-        const stateData = this.getStateData(stateCtor);
-        stateData.logConfigPairs = logging.getUpdatedLogConfigPairs(stateData.logConfigPairs, newPairs);
-      })
-    } else {
-      logging.LogManager.allStatesConfigPairs = logging.getUpdatedLogConfigPairs(logging.LogManager.allStatesConfigPairs, newPairs);
-    }
-  }
+  logging = {
+    turnOn: (): void => {
+      logging.LogManager.isEnabled = true;
+    },
 
-  resetLoggingConfiguration(): void {
-    logging.LogManager.allStatesConfigPairs = [];
-    const stateDataList = Array.from(this.store.values());
-    for (let stateData of stateDataList) {
-      stateData.logConfigPairs = [];
-    }
-  }
+    turnOff: (): void => {
+      logging.LogManager.isEnabled = false;
+    },
 
-  turnLogging(mode: 'on' | 'off'): void {
-    logging.LogManager.isEnabled = mode == 'on';
-  }
+    resetConfiguration: (): void => {
+      logging.LogManager.allStatesConfigPairs = [];
+      const stateDataList = Array.from(this.store.values());
+      for (let stateData of stateDataList) {
+        stateData.logConfigPairs = [];
+      }
+    },
+
+    setConfiguration: (
+      stateCtors: IConstructor<any>[],
+      eventType: LogEventType = AllLogEventTypes,
+      config: Partial<LogConfig> = {}): void => {
+
+      const newPairs = logging.getLogConfigPairs(eventType, config);
+      if (stateCtors.length) {
+        stateCtors.forEach(stateCtor => {
+          const stateData = this.getStateData(stateCtor);
+          stateData.logConfigPairs = logging.getUpdatedLogConfigPairs(stateData.logConfigPairs, newPairs);
+        })
+      } else {
+        logging.LogManager.allStatesConfigPairs = logging.getUpdatedLogConfigPairs(logging.LogManager.allStatesConfigPairs, newPairs);
+      }
+    },
+
+  };
 
   private internalGetState<T>(stateCtor: IConstructor<T>, logger?: logging.DurationLogger<T>): Promise<T> {
     const stateData = this.getStateData(stateCtor);
@@ -343,7 +363,9 @@ class Storage {
   private safeClone(state: any | undefined): any {
     if (state === undefined) return undefined;
     if (state === null) return null;
-    if (!this.config || !this.config.cloneMethodName) return state;
+    if (!this.config || !this.config.cloneMethodName)
+      return state;
+
     return state[this.config.cloneMethodName]();
   }
 
@@ -355,6 +377,7 @@ class Storage {
     this.subscriptionStore.set(componentInstance, subscription);
     return subscription;
   }
+
 }
 
 export const Store: Storage = Storage.instance;

@@ -101,7 +101,7 @@ export class Logger<T> {
     logData.stateCtor = this.stateCtor;
 
     if (data.args)
-      logData.args = data.args.filter(x => x !== undefined);
+      logData.args = data.args;
 
     if (this.logError) {
       logData.stack = this.getCallStack();
@@ -253,7 +253,7 @@ class ErrorParser {
 
     stack = stack.trim();
 
-    const skipLinesCount = stack.indexOf('Error') == 0 ? 4 : 3;
+    const skipLinesCount = stack.indexOf('Error') == 0 ? 3 : 2;
     lines = stack.split('\n')
       .slice(skipLinesCount)
       .map(x => x.trim());

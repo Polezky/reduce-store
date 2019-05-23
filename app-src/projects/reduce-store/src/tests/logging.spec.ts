@@ -1,10 +1,15 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { Clone, IReducer, ReduceStore, LogEventType, AllLogEventTypes } from 'reduce-store';
+import { Clone, IReducer, ReduceStore, LogEventType, AllLogEventTypes, Store } from 'reduce-store';
 import { Injectable, OnDestroy } from '@angular/core';
 
 class TestState extends Clone<TestState> {
   value: number;
+
+  clone(): TestState {
+    console.log('TestState clone');
+    return super.clone();
+  }
 }
 
 @Injectable({ providedIn: 'root' })
@@ -85,8 +90,14 @@ describe('ReduceStore', () => {
   it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
     console.log('store', store);
 
-    store.configureLogging([TestState]);
-    store.turnLogging('on');
+    Store.logging.setConfiguration([TestState]);
+    Store.logging.turnOn();
+
+    Store.config.set({ cloneMethodName: 'clone1' });
+    console.log('Store.config', JSON.parse(JSON.stringify(Store.config)))
+
+    Store.config.set({ cloneMethodName: 'clone' });
+    console.log('Store.config', JSON.parse(JSON.stringify(Store.config)))
 
     store.lazyReduce(TestStateReducer, 0);
     store.lazyReduceByDelegate(TestState, s => Promise.resolve(new TestState({ value: 0.25 })));
@@ -108,8 +119,6 @@ describe('ReduceStore', () => {
     store.getState(TestState2);
     componentA.updateState();
 
-    //console.log('state is still suspended');
-
     setTimeout(() => {
       store.reduce(TestStateReducer, 2);
       store.reduce(TestState2Reducer, 102);
@@ -121,7 +130,9 @@ describe('ReduceStore', () => {
 
     await new Promise(r => setTimeout(r, 1000));
 
-    componentB.ngOnDestroy();
+    await store.reduceByDelegate(TestState, s => Promise.resolve(undefined));
+
+    //componentB.ngOnDestroy();
 
     console.log('end');
 
