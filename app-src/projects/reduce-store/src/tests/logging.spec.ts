@@ -128,11 +128,9 @@ describe('ReduceStore', () => {
 
     componentA.ngOnDestroy();
 
-    await new Promise(r => setTimeout(r, 1000));
-
     await store.reduceByDelegate(TestState, s => Promise.resolve(undefined));
 
-    //componentB.ngOnDestroy();
+    componentB.ngOnDestroy();
 
     console.log('end');
 

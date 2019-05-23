@@ -45,99 +45,84 @@ class Storage {
       return this.internalGetState(stateCtor, logger);
     },
 
+    getObservable: <T>(stateCtor: IConstructor<T>): Observable<T> => {
+      const logger = new logging.Logger(stateCtor);
+      return this.internalGetObservableState(stateCtor, logger);
+    },
+
+    subscribe: <T>(
+      stateCtor: IConstructor<T>,
+      componentInstance: {},
+      next: (value: T) => void,
+      error: (error: any) => void = () => { },
+      complete: () => void = () => { }): void => {
+
+      const logger = new logging.Logger(stateCtor);
+      const observable = this.internalGetObservableState(stateCtor, logger);
+      const newSubscription = observable.subscribe(
+        next.bind(componentInstance),
+        error.bind(componentInstance),
+        complete.bind(componentInstance)
+      );
+
+      if (!this.config || !this.config.disposeMethodName)
+        throw new Error('disposeMethodName is not configured');
+
+      if (typeof componentInstance[this.config.disposeMethodName] !== 'function')
+        throw new Error(`componentInstance does not have method ${this.config.disposeMethodName}`);
+
+      this.getSubscriptionState(componentInstance).add(newSubscription);
+
+      const originalOnDestroy = componentInstance[this.config.disposeMethodName].bind(componentInstance);
+      componentInstance[this.config.disposeMethodName] = (): void => {
+        this.getSubscriptionState(componentInstance).unsubscribe();
+        this.subscriptionStore.delete(componentInstance);
+        originalOnDestroy();
+      };
+    },
+
+    suspend: async<T>(stateCtor: IConstructor<T>): Promise<void> => {
+      const stateData = this.getStateData(stateCtor);
+
+      const logger = new logging.Logger(stateCtor);
+
+      const state = await this.internalGetState(stateCtor);
+      stateData.isStateSuspended = true;
+
+      logger.log(LogEventType.StateSuspended, stateData, { state: state });
+    }
+
   };
 
+  reduce = {
+    byConstructor: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+      reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> => {
+      return this.createReducerAndReduce(reducerCtor, false, a1, a2, a3, a4, a5, a6);
+    },
 
-  getState<T>(stateCtor: IConstructor<T>): Promise<T> {
-    const stateData = this.getStateData(stateCtor);
-    logging.LogManager.log(stateCtor, LogEventType.StateGetter, stateData, { state: stateData.state });
+    byConstructorDeferred: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+      reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> => {
+      return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
+    },
 
-    const logger = new logging.DurationLogger(stateCtor);
-    return this.internalGetState(stateCtor, logger);
-  }
+    byDelegateDeferred: <T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
+      const logger = new logging.Logger(stateCtor);
+      return this.internalReduceByDelegate(stateCtor, delegate, true, logger);
+    },
 
-  getObservableState<T>(stateCtor: IConstructor<T>): Observable<T> {
-    const logger = new logging.Logger(stateCtor);
-    return this.internalGetObservableState(stateCtor, logger);
-  }
+    byDelegate: <T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
+      const logger = new logging.Logger(stateCtor);
+      return this.internalReduceByDelegate(stateCtor, delegate, false, logger);
+    },
 
-  subscribeToState<T>(
-    stateCtor: IConstructor<T>,
-    componentInstance: {},
-    next: (value: T) => void,
-    error: (error: any) => void = () => { },
-    complete: () => void = () => { }): void {
-    const logger = new logging.Logger(stateCtor);
-    const observable = this.internalGetObservableState(stateCtor, logger);
-    const newSubscription = observable.subscribe(
-      next.bind(componentInstance),
-      error.bind(componentInstance),
-      complete.bind(componentInstance)
-    );
+    createDeferredTask: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+      reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>,
+      delayMilliseconds?: number): ReducerTask<T, A1, A2, A3, A4, A5, A6> => {
 
-    if (!this.config || !this.config.disposeMethodName)
-      throw new Error('disposeMethodName is not configured');
+      return new ReducerTask(this.reduce.byConstructor.bind(this), reducerCtor, delayMilliseconds);
+    },
 
-    if (typeof componentInstance[this.config.disposeMethodName] !== 'function')
-      throw new Error(`componentInstance does not have method ${this.config.disposeMethodName}`);
-
-    this.getSubscriptionState(componentInstance).add(newSubscription);
-
-    const originalOnDestroy = componentInstance[this.config.disposeMethodName].bind(componentInstance);
-    componentInstance[this.config.disposeMethodName] = (): void => {
-      this.getSubscriptionState(componentInstance).unsubscribe();
-      this.subscriptionStore.delete(componentInstance);
-      originalOnDestroy();
-    };
-  }
-
-  lazyReduce<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
-    reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
-    return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
-  }
-
-  lazyReduceByDelegate<T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> {
-    const logger = new logging.Logger(stateCtor);
-    return this.internalReduceByDelegate(stateCtor, delegate, true, logger);
-  }
-
-  /**
-   * Adds reducer to the queue and executes it in case there is only this reducer in the queue.
-   * @param reducerCtor
-   * @param a1
-   * @param a2
-   * @param a3
-   * @param a4
-   * @param a5
-   * @param a6
-   */
-  reduce<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
-    reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
-    return this.createReducerAndReduce(reducerCtor, false, a1, a2, a3, a4, a5, a6);
-  }
-
-  reduceByDelegate<T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> {
-    const logger = new logging.Logger(stateCtor);
-    return this.internalReduceByDelegate(stateCtor, delegate, false, logger);
-  }
-
-  createReducerTask<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
-    reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>,
-    delayMilliseconds?: number): ReducerTask<T, A1, A2, A3, A4, A5, A6> {
-
-    return new ReducerTask(this.reduce.bind(this), reducerCtor, delayMilliseconds);
-  }
-
-  async suspendState<T>(stateCtor: IConstructor<T>): Promise<void> {
-    const stateData = this.getStateData(stateCtor);
-
-    const logger = new logging.Logger(stateCtor);
-
-    const state = await this.internalGetState(stateCtor);
-    stateData.isStateSuspended = true;
-
-    logger.log(LogEventType.StateSuspended, stateData, { state: state });
-  }
+  };
 
   logging = {
     turnOn: (): void => {
@@ -321,10 +306,16 @@ class Storage {
     stateData.state = this.safeClone(newState);
 
     if (error) {
-      deferredReducer.logger.log(LogEventType.ReducerRejected, stateData, { state: stateData.state, args: deferredReducer.args })
+      deferredReducer.logger.log(
+        LogEventType.ReducerRejected,
+        stateData,
+        { state: stateData.state, args: deferredReducer.args, reducerDelegate: deferredReducer.delegate })
       deferredReducer.reject(error);
     } else {
-      deferredReducer.logger.log(LogEventType.ReducerResolved, stateData, { state: stateData.state, args: deferredReducer.args })
+      deferredReducer.logger.log(
+        LogEventType.ReducerResolved,
+        stateData,
+        { state: stateData.state, args: deferredReducer.args, reducerDelegate: deferredReducer.delegate })
       deferredReducer.resolve();
     }
 

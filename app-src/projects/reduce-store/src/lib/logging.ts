@@ -1,6 +1,6 @@
 import { LogEventType, LogConfig, LogLevel } from './classes';
 import { StateData } from "./StateData";
-import { IConstructor } from "./interfaces";
+import { IConstructor, IReducerDelegate } from "./interfaces";
 import { KeyValuePair } from "./private-interfaces";
 
 class Manager {
@@ -36,6 +36,7 @@ export interface ILogData<T> {
   stateCtor?: IConstructor<T>;
   args?: any[];
   stack?: string[];
+  reducerDelegate?: IReducerDelegate<T>;
   'duration,ms'?: number;
   'durationFull,ms'?: number;
   'durationRun,ms'?: number;
@@ -161,7 +162,7 @@ export class DurationLogger<T> extends Logger<T> {
     this.watches.start();
   }
 
-  protected getLogData(state: any): ILogData<T> {
+  protected getLogData(state: ILogData<T>): ILogData<T> {
     const logData = super.getLogData(state);
     logData['duration,ms'] = this.watches.duration;
     return logData;
@@ -185,10 +186,15 @@ export class ReducerLogger<T> extends Logger<T> {
     this.runWatches.stop();
   }
 
-  protected getLogData(state: any): ILogData<T> {
+  protected getLogData(state: ILogData<T>): ILogData<T> {
     const logData = super.getLogData(state);
     logData['durationFull,ms'] = this.watches.duration;
     logData['durationRun,ms'] = this.runWatches.duration;
+
+    if (state.reducerDelegate) {
+      logData.reducerDelegate = state.reducerDelegate;
+    }
+
     return logData;
   };
 }
