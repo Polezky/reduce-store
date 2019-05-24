@@ -18,6 +18,12 @@ export class StoreConfig {
   }
 }
 
+/**
+ * The class which could be used to clone the object.
+ * It is common that every state is immutable. The Store supports clonning the state in order to provide immutability.
+ * If cloneMethodName is set in StoreConfig then all state getters and state subscribers receives their own copy of state
+ * One can extend this class to implement simple clonning functionality.
+ * */
 export class Clone<T> {
   constructor(init?: Partial<T>) {
     Object.assign(this, init);
@@ -57,6 +63,10 @@ export class ReducerTask<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = nul
   }
 }
 
+/**
+ * The level of logging. Correspongin methods of console object will be used for logging.
+ * That is for Debug level will be used console.debug method, for Warn will be used console.warn method.
+ * */
 export enum LogLevel {
   Log = 1,
   Info = 2,
@@ -113,6 +123,18 @@ export const AllLogEventTypes =
   | LogEventType.ReducerRejected
   ;
 
+/**
+ * Configuration of logging to be applied for combination of stateCtor and Log Event Type bit
+ *
+ * prefix - optional string which will be written in console in the beginig of the message.
+ * Could be used to distinguish messages of different Log Event Types and stateCtor.
+ * default prefix is empty string
+ *
+ * level - the Log level to use
+ *
+ * css - css style which will be applied to prefix and Log Event Type name
+ * default style is background-color: beige; color: green;
+ * */
 export class LogConfig {
   prefix?: string = loggingDefaultPrefix;
   level?: LogLevel = LogLevel.Log;
