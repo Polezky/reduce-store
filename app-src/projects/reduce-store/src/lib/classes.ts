@@ -1,4 +1,5 @@
-import { IReducerConstructor } from "./interfaces";
+import { IReducerConstructor, IDependecyResolver } from "./interfaces";
+import { DeferredTask, SimpleDependecyResolver } from "./private-classes";
 
 var loggingDefaultPrefix = '';
 var loggingDefaultCss = 'background-color: beige; color: green;';
@@ -6,6 +7,7 @@ var loggingDefaultCss = 'background-color: beige; color: green;';
 export class StoreConfig {
   cloneMethodName?: string;
   disposeMethodName?: string = 'dispose';
+  resolver: IDependecyResolver = SimpleDependecyResolver;
 
   constructor(init?: Partial<StoreConfig>) {
     Object.assign(this, init);
@@ -52,26 +54,6 @@ export class ReducerTask<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = nul
       },
       null,
       this.delayMilliseconds);
-  }
-}
-
-export class DeferredTask<TResult, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
-  private cancelToken: any;
-
-  constructor(
-    private jobToDo: (a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6) => TResult,
-    private taskThisArg: any = null,
-    private delayMilliseconds = 300,
-  ) { }
-
-  execute(a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<TResult> {
-    clearTimeout(this.cancelToken);
-
-    return new Promise<TResult>((resolve, reject) => {
-      this.cancelToken = setTimeout(
-        () => resolve(this.jobToDo.call(this.taskThisArg, a1, a2, a3, a4, a5, a6)),
-        this.delayMilliseconds);
-    });
   }
 }
 

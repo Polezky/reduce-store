@@ -1,9 +1,9 @@
 import { Observable, Subscriber, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
-import { DeferredGetter, DeferredReducer, SimpleDependecyResolver, StateSubscriber } from './private-classes';
+import { DeferredGetter, DeferredReducer, StateSubscriber } from './private-classes';
 import { StateData } from "./StateData";
-import { IConstructor, IReducerConstructor, IReducer, IDependecyResolver, IReducerDelegate } from './interfaces';
+import { IConstructor, IReducerConstructor, IReducer, IReducerDelegate } from './interfaces';
 import { ReducerTask, AllLogEventTypes, StoreConfig } from './classes';
 import { LogConfig, LogEventType } from './classes';
 import * as logging from './logging';
@@ -15,24 +15,22 @@ class Storage {
     return Storage._instance || (Storage._instance = new Storage());
   }
 
-  static setDependecyResolver(resolver: IDependecyResolver): void {
-    Storage.instance.dependecyResolver = resolver;
-  }
-
-  private dependecyResolver: IDependecyResolver = SimpleDependecyResolver;
   private store = new Map<IConstructor<any>, StateData<any>>();
   private subscriptionStore = new Map<{}, Subscription>();
 
+  /**
+   * A set of configuration properties of the Store
+   * See more details in StoreConfig class
+   * */
   readonly config: StoreConfig = new StoreConfig();
 
   private constructor() { }
 
-
   /**
-   * Returns all entries of State map.
+   * Returns all entries of the State map.
    * Every entry has two properties: stateCtor and stateData.
    * stateCtor is the state constructor used as a map key.
-   * stateData is all data stored for particular state constructor including current state object.
+   * stateData is a container for all data stored for particular state constructor including current state object.
    * */
   getEntries(): { stateCtor: IConstructor<any>, stateData: StateData<any> }[] {
     return Array.from(this.store.entries()).map(x => {
@@ -50,13 +48,13 @@ class Storage {
 
     /**
      * Returns a Promise of a State.
-
+     *
      * If there is no pending reducers for the state and state is not suspended, then Promise is resolved immediatelly.
      * A state can be suspended by call of suspend method.
-
+     *
      * If there is pending reducers including deferred reducers, then the Store waits when all reducers are resolved.
      * Then the Store starts to resolve promises of Getters in a queue.
-
+     *
      * param stateCtor - constructor function of a state.
      * */
     get: <T>(stateCtor: IConstructor<T>): Promise<T> => {
@@ -70,13 +68,13 @@ class Storage {
     /**
      * Returns an Observable of a State.
      * This method adds a new Observable subscriber for a given stateCtor.
-
+     *
      * If the state has been initated and is not suspended then the next method of returned Observable subscriber is called right after this method is called.
      * A state is initiated when a reducer or deferred reducer is applied.
      * A state can be suspended by call of suspend method. 
-
+     *
      * The next method of Observable subscriber is called every time when a reducer promise of the state is resolved.
-
+     *
      * param stateCtor - constructor function of the state.
      * */
     getObservable: <T>(stateCtor: IConstructor<T>): Observable<T> => {
@@ -84,6 +82,19 @@ class Storage {
       return this.internalGetObservableState(stateCtor, logger);
     },
 
+    /**
+     * Subscribes component to changes of a state by wrapping component dispose method.
+     * Dispose method name is set in config property of the Store.
+     * Component have to have a function with name equals disposeMethodName of StoreConfig class
+     * The methods gets the observable using getObservable method.
+     * When component dispose method is called then Store unsubscribes the subscription and calls original dispose method.
+     *
+     * param stateCtor - constructor function of the state.
+     * param componentInstance - instance of a component which has dispose method
+     * param next - a function which is called when the state is changed.
+     * param error - a function which is called when error occurs while notificate about the state changes.
+     * param complete - a function which is called when observable of subscription is completed that is before origianl dispose method call.
+     * */
     subscribe: <T>(
       stateCtor: IConstructor<T>,
       componentInstance: {},
@@ -115,6 +126,16 @@ class Storage {
       };
     },
 
+    /**
+     * Returns a Promise which is resolved when the state is suspended.
+     * If the state is suspended then promises of new state getters will not be resolved until any reducer is called. 
+     * If the state is suspended then new state subscribers will not be notified until any reducer promise is resolved or rejected.
+     * New subscribers are added using getObservable and subscribe methods.
+     * If before call of this methods there are pending reducers, getters or subscribers
+     * then this method waits untill all of those a resolved and then make state suspended.
+     *
+     * param stateCtor - constructor function of a state.
+     * */
     suspend: async<T>(stateCtor: IConstructor<T>): Promise<void> => {
       const stateData = this.getStateData(stateCtor);
 
@@ -128,16 +149,65 @@ class Storage {
 
   };
 
+  /**
+   * An object which contains methods to change a state
+  * */
   reduce = {
+
+    /**
+     * Returns a promise which is resolved when the promise of reducer's reduceAsync method is resolved.
+     * This method promise is rejected if the promise of reducer's reduceAsync method is rejected.
+     * If there are pending reducers then this reducer will be executed after these redusers are resolved/rejected
+     * but before any state getters and subscriber notifications
+     *
+     * The reducer instance is created using configured resolver. This is a property of StoreConfig class. The reducer is instantiated during
+     * this method call. So when this method returns a Promise the reducer is created already. This happens before resolve/reject of this
+     * method promise.
+     * 
+     * If state is suspended then state will be un-suspended after the promise of reduceAsync method is resolved or rejectd.
+     *
+     * param reducerCtor is a contructor function of a reducer which reduceAsync method will be executed.
+     * when reduceAsync method is called it receives current state as first argument and upto 6 optional arguments.
+     * param a1 is the second argument which will be passed to reducer's reduceAsync method. 
+     * param a2 is the third argument which will be passed to reducer's reduceAsync method.
+     * param a3 is the fourth argument which will be passed to reducer's reduceAsync method.
+     * param a4 is the fifth argument which will be passed to reducer's reduceAsync method.
+     * param a5 is the sixth argument which will be passed to reducer's reduceAsync method.
+     * param a6 is the seventh argument which will be passed to reducer's reduceAsync method.
+     * */
     byConstructor: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
       reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> => {
       return this.createReducerAndReduce(reducerCtor, false, a1, a2, a3, a4, a5, a6);
     },
 
+    /**
+     * Returns a promise which is resolved when the promise of reducer's reduceAsync method is resolved.
+     *
+     * This method works like byConstructor. The difference is that in case there is no pending reducers then this reducer
+     * will not be executed immediatelly but instead will be put in a reducers queue. So it will be first in the queue.
+     * This reducer will be executed upon call of the following methods: state.get, state.getObservable, state.subscribe and
+     * reduce.byConstructor.
+     * If before this method call there are pending reducers, then this method will be put in a queue and there will be no
+     * difference with byConstructor method.
+     * 
+     * The main purpose of this method to create a method cache on application start. So that in case some state is neededed
+     * then this reducer will be executed to provide the state. It make sense for the data which is changed rarely and is needed
+     * to be loaded once or never.
+     *
+     * param reducerCtor is a contructor function of a reducer which reduceAsync method will be executed.
+     * when reduceAsync method is called it receives current state as first argument and upto 6 optional arguments.
+     * param a1 is the second argument which will be passed to reducer's reduceAsync method. 
+     * param a2 is the third argument which will be passed to reducer's reduceAsync method.
+     * param a3 is the fourth argument which will be passed to reducer's reduceAsync method.
+     * param a4 is the fifth argument which will be passed to reducer's reduceAsync method.
+     * param a5 is the sixth argument which will be passed to reducer's reduceAsync method.
+     * param a6 is the seventh argument which will be passed to reducer's reduceAsync method.
+     * */
     byConstructorDeferred: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
       reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> => {
       return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
     },
+
 
     byDelegateDeferred: <T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
       const logger = new logging.Logger(stateCtor);
@@ -244,7 +314,7 @@ class Storage {
 
   private createReducerAndReduce<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
-    const reducer = this.dependecyResolver.get(reducerCtor);
+    const reducer = this.config.resolver.get(reducerCtor);
     const logger = new logging.Logger(reducer.stateCtor);
     return this.internalReduce(reducer, isDeferred, logger, a1, a2, a3, a4, a5, a6);
   }
@@ -406,7 +476,3 @@ class Storage {
 }
 
 export const Store: Storage = Storage.instance;
-
-export function setDependecyResolver(resolver: IDependecyResolver): void {
-  Storage.setDependecyResolver(resolver);
-}

@@ -4,15 +4,14 @@ import { Observable } from 'rxjs';
 
 import { IConstructor, IReducerConstructor, IReducerDelegate } from './interfaces';
 import { ReducerTask } from './classes';
-import { Store, setDependecyResolver } from './storage';
+import { Store } from './storage';
 
 @Injectable({ providedIn: 'root' })
 export class ReduceStore {
   constructor(
     injector: Injector,
   ) {
-    setDependecyResolver(injector);
-    Store.config.set({ disposeMethodName: 'ngOnDestroy' });
+    Store.config.set({ disposeMethodName: 'ngOnDestroy', resolver: injector });
   }
 
   getEntries(): { stateCtor: IConstructor<any>, stateData: any }[] {
