@@ -56,7 +56,7 @@ export class ReduceStore {
   createReducerTask<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>,
     delayMilliseconds?: number): ReducerTask<T, A1, A2, A3, A4, A5, A6> {
-    return Store.reduce.createDeferredTask(reducerCtor, delayMilliseconds);
+    return Store.reduce.createReducerTask(reducerCtor, delayMilliseconds);
   }
 
   async suspendState<T>(stateCtor: IConstructor<T>): Promise<void> {

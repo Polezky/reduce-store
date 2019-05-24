@@ -297,8 +297,16 @@ class Storage {
     /**
      * Sets logging configuration.
      *
-     * param stateCtors - an array of state constructor functions to be configured.
-     * param eventType - a bit mask of LogEvents to be configured.
+     * Configuration is store by two ways
+     * 1. For all states - in case array of stateCtors is empty
+     * 2. For particular combination of stateCtor and Log Event Type - if there are items in stateCtors array
+     *
+     * In case there are multiple items in  stateCtors array and there are multiple bits in eventType parameter,
+     * then every pair of stateCtor and LogEventType bit will be configured with the given LogConfig.
+     *
+     * param stateCtors - an array of state constructor functions to apply.
+     * param eventType - a bit mask of Log Event Types to apply.
+     * param config - a Partial of LogConfig class to apply.
      * */
     setConfiguration: (
       stateCtors: IConstructor<any>[],
@@ -316,6 +324,10 @@ class Storage {
       }
     },
 
+    /**
+     * Removes all logging configuration. All combinations of stateCtor and LogEventType bit of all states are removed
+     * as well as all combination for all stateCtors.
+     * */
     resetConfiguration: (): void => {
       logging.LogManager.allStatesConfigPairs = [];
       const stateDataList = Array.from(this.store.values());
@@ -391,7 +403,7 @@ class Storage {
       stateData.deferredReducers.push(deferred);
 
       if (isDeferred) {
-        logger.log(LogEventType.LazyReduceByDelegate, stateData, { state: stateData.state });
+        logger.log(LogEventType.ReduceByDelegateDeferred, stateData, { state: stateData.state });
       } else {
         logger.log(LogEventType.ReduceByDelegate, stateData, { state: stateData.state });
         this.reduceDeferred(stateCtor, false);
@@ -410,9 +422,9 @@ class Storage {
       stateData.deferredReducers.push(deferred);
 
       if (isDeferred) {
-        logger.log(LogEventType.LazyReducer, stateData, { state: stateData.state, args });
+        logger.log(LogEventType.ReducerByConstructorDeferred, stateData, { state: stateData.state, args });
       } else {
-        logger.log(LogEventType.Reducer, stateData, { state: stateData.state, args });
+        logger.log(LogEventType.ReduceByConstructor, stateData, { state: stateData.state, args });
         this.reduceDeferred(reducer.stateCtor, false);
       }
     });
