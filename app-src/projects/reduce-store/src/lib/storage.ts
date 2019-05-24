@@ -151,12 +151,15 @@ class Storage {
 
   /**
    * An object which contains methods to change a state
-  * */
+   * All these methods use the same queue of reducers.
+   * */
   reduce = {
 
     /**
      * Returns a promise which is resolved when the promise of reducer's reduceAsync method is resolved.
-     * This method promise is rejected if the promise of reducer's reduceAsync method is rejected.
+     * The value of new state will be the value resolved by reducer's reduceAsync method.
+     * This method promise is rejected if the promise of reducer's reduceAsync method is rejected. In this case state is not changed and
+     * state getter promises will receive current state value and state subscribers will be notified with current state value.
      * If there are pending reducers then this reducer will be executed after these redusers are resolved/rejected
      * but before any state getters and subscriber notifications
      *
@@ -186,7 +189,7 @@ class Storage {
      * This method works like byConstructor. The difference is that in case there is no pending reducers then this reducer
      * will not be executed immediatelly but instead will be put in a reducers queue. So it will be first in the queue.
      * This reducer will be executed upon call of the following methods: state.get, state.getObservable, state.subscribe and
-     * reduce.byConstructor.
+     * all reduce methods.
      * If before this method call there are pending reducers, then this method will be put in a queue and there will be no
      * difference with byConstructor method.
      * 
@@ -208,18 +211,60 @@ class Storage {
       return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
     },
 
-
-    byDelegateDeferred: <T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
-      const logger = new logging.Logger(stateCtor);
-      return this.internalReduceByDelegate(stateCtor, delegate, true, logger);
-    },
-
+    /**
+     * Returns a promise which is resolved when the promise of delegate is resolved.
+     * This method promise is rejected if the promise delegate is rejected.
+     *
+     * The value of new state will be the value resolved by delegate promise.
+     * This method promise is rejected if the delegate promise is rejected. In this case state is not changed and reducers queue process
+     * proceeds.
+     *
+     * This methods works like byConstructor method. The difference is that no reducer instance is created.
+     * The new state equals the resolved value of the delegate
+     *
+     * param stateCtor - constructor function of a state.
+     * param delegate - an implementation of IReducerDelegate<T> interface. That is an anonymous function which accepts current
+     * state and return Promise of new state
+     * */
     byDelegate: <T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
       const logger = new logging.Logger(stateCtor);
       return this.internalReduceByDelegate(stateCtor, delegate, false, logger);
     },
 
-    createDeferredTask: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+    /**
+     * Returns a promise which is resolved when the delegate promise is resolved.
+     *
+     * This method works like byDelegate. The difference is that in case there is no pending reducers then this delegate
+     * will not be executed immediatelly but instead will be put in a reducers queue. So it will be first in the queue.
+     * This delegate will be executed upon call of the following methods: state.get, state.getObservable, state.subscribe and
+     * all reduce methods.
+     * If before this method call there are pending reducers, then the delegate will be put in a queue and there will be no
+     * difference with byDelegate method.
+     * 
+     * The main purpose of this method to create a method cache on application start. So that in case some state is neededed
+     * then the delegate will be executed to provide the state. It make sense for the data which is changed rarely and is needed
+     * to be loaded once or never.
+     *
+     * param stateCtor - constructor function of a state.
+     * param delegate - an implementation of IReducerDelegate<T> interface. That is an anonymous function which accepts current
+     * state and return Promise of new state
+     * */
+    byDelegateDeferred: <T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
+      const logger = new logging.Logger(stateCtor);
+      return this.internalReduceByDelegate(stateCtor, delegate, true, logger);
+    },
+
+    /**
+     * Creates a reducer task. This task executes the given reducer's reduceAsync methods in the given amout of delay milliseconds
+     * This is useful when there is a need to execute one action as a reaction to multiple single-type actions.
+     * This task could be used for example in case there is a need to call server as a reaction for user typing. So one call of
+     * server will be executed if user press key multiple time within 300 milliseconds.
+     * The example of usage:
+     * 1. Implement a reducer which implements IReducer<T> interface
+     * 2. Create an instance of the reducer task calling const task = Store.reduce.createReducerTask(Reducer, delay)
+     * 3. subscribe to multiple single-type actions e.g. window.onmousemove(task.execute)
+     * */
+    createReducerTask: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
       reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>,
       delayMilliseconds?: number): ReducerTask<T, A1, A2, A3, A4, A5, A6> => {
 
