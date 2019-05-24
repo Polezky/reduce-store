@@ -96,6 +96,8 @@ describe('ReduceStore', () => {
     Store.config.set({ cloneMethodName: 'clone1' });
     console.log('Store.config', JSON.parse(JSON.stringify(Store.config)))
 
+    Store.state.get(TestState);
+
     Store.config.set({ cloneMethodName: 'clone' });
     console.log('Store.config', JSON.parse(JSON.stringify(Store.config)))
 

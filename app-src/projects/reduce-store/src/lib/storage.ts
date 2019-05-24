@@ -27,6 +27,13 @@ class Storage {
 
   private constructor() { }
 
+
+  /**
+   * Returns all entries of State map.
+   * Every entry has two properties: stateCtor and stateData.
+   * stateCtor is the state constructor used as a map key.
+   * stateData is all data stored for particular state constructor including current state object.
+   * */
   getEntries(): { stateCtor: IConstructor<any>, stateData: StateData<any> }[] {
     return Array.from(this.store.entries()).map(x => {
       return {
@@ -36,7 +43,22 @@ class Storage {
     });
   }
 
+  /**
+   * An object which contains operations over states
+  * */
   state = {
+
+    /**
+     * Returns a Promise of a State.
+
+     * If there is no pending reducers for the state and state is not suspended, then Promise is resolved immediatelly.
+     * A state can be suspended by call of suspend method.
+
+     * If there is pending reducers including deferred reducers, then the Store waits when all reducers are resolved.
+     * Then the Store starts to resolve promises of Getters in a queue.
+
+     * param stateCtor - constructor function of a state.
+     * */
     get: <T>(stateCtor: IConstructor<T>): Promise<T> => {
       const stateData = this.getStateData(stateCtor);
       logging.LogManager.log(stateCtor, LogEventType.StateGetter, stateData, { state: stateData.state });
@@ -45,6 +67,18 @@ class Storage {
       return this.internalGetState(stateCtor, logger);
     },
 
+    /**
+     * Returns an Observable of a State.
+     * This method adds a new Observable subscriber for a given stateCtor.
+
+     * If the state has been initated and is not suspended then the next method of returned Observable subscriber is called right after this method is called.
+     * A state is initiated when a reducer or deferred reducer is applied.
+     * A state can be suspended by call of suspend method. 
+
+     * The next method of Observable subscriber is called every time when a reducer promise of the state is resolved.
+
+     * param stateCtor - constructor function of the state.
+     * */
     getObservable: <T>(stateCtor: IConstructor<T>): Observable<T> => {
       const logger = new logging.Logger(stateCtor);
       return this.internalGetObservableState(stateCtor, logger);
