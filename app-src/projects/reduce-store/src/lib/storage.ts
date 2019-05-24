@@ -273,23 +273,33 @@ class Storage {
 
   };
 
+  /**
+   * An object which contains operations to configure logging
+  * */
   logging = {
+
+    /**
+     * Turns logging on.
+     * The Store write message to browser console.
+     * Logging is made according configuration. See setConfiguration method.
+     * */
     turnOn: (): void => {
       logging.LogManager.isEnabled = true;
     },
 
+    /**
+     * Turns logging off that is no log message appears in browser console.
+     * */
     turnOff: (): void => {
       logging.LogManager.isEnabled = false;
     },
 
-    resetConfiguration: (): void => {
-      logging.LogManager.allStatesConfigPairs = [];
-      const stateDataList = Array.from(this.store.values());
-      for (let stateData of stateDataList) {
-        stateData.logConfigPairs = [];
-      }
-    },
-
+    /**
+     * Sets logging configuration.
+     *
+     * param stateCtors - an array of state constructor functions to be configured.
+     * param eventType - a bit mask of LogEvents to be configured.
+     * */
     setConfiguration: (
       stateCtors: IConstructor<any>[],
       eventType: LogEventType = AllLogEventTypes,
@@ -303,6 +313,14 @@ class Storage {
         })
       } else {
         logging.LogManager.allStatesConfigPairs = logging.getUpdatedLogConfigPairs(logging.LogManager.allStatesConfigPairs, newPairs);
+      }
+    },
+
+    resetConfiguration: (): void => {
+      logging.LogManager.allStatesConfigPairs = [];
+      const stateDataList = Array.from(this.store.values());
+      for (let stateData of stateDataList) {
+        stateData.logConfigPairs = [];
       }
     },
 
@@ -520,4 +538,7 @@ class Storage {
 
 }
 
+/**
+ * The singletone instance of Storage.
+ * */
 export const Store: Storage = Storage.instance;
