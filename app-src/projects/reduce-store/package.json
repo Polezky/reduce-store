@@ -4,5 +4,17 @@
   "peerDependencies": {
     "rxjs": "^6.0.0",
     "@angular/core": "^6.0.0 || ^7.0.0 "
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Polezky/reduce-store.git"
+  },
+  "keywords": [
+    "store",
+    "reduce",
+    "state",
+    "redux"
+  ],
+  "author": "Oleg Polezky",
+  "license": "MIT"
 }
