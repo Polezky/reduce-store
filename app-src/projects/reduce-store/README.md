@@ -1,4 +1,12 @@
-reduce-store is a library which contains functionality to store and reduce (change) multiple application states.
+reduce-store 
+===========
+
+[![npm install][install-img]][npm-url]
+<br>
+[![Downloads][downloads-img]][stats-url]
+[![License][license-img]][license-url]
+
+This library which contains functionality to store and reduce (change) multiple application states.
 
 The source code can be found https://github.com/Polezky/reduce-store
 
@@ -25,12 +33,23 @@ Basic clone functionality can be found in Clone class. One can extend this class
 In order to turn cloning on a developer should call 
 store.config.set({ cloneMethodName: 'clone' });
 
-Author is Polezky Oleg.
+Author
+------
+Polezky Oleg
+<br/>
+[![Follow on GitHub][github-follow-img]][github-follow-url]
+<br/>
+[![Follow on Stack Overflow][stackexchange-img]][stackoverflow-url]
+
+License
+-------
+MIT License (Expat). See [LICENSE.md](LICENSE.md) for details.
+
 
 Code samples.
 -
 
-/// file: 'test.state.ts'
+file: 'test.state.ts'
 ```js
 class State extends Clone<State> {
   value: number;
@@ -38,56 +57,44 @@ class State extends Clone<State> {
 
 @Injectable({ providedIn: 'root' }) // here the Reducer is an angular service
 class TestStateReducer implements IReducer<State> {
-
   stateCtor = State;
 
   reduceAsync(state: State, newValue: number = new State()): Promise<State> {
     s.value = newValue;
     return Promise.resolve(s);
   };
-
 }
 
 export function TestStateDelegate(s: State = new State()): Promise<State> {
-
   return Promise.resolve(new State({ value: 1.75 }));
-
 } 
 
 ```
 
-/// file: 'test.component.ts'
+file: 'test.component.ts'
 
 ```js
 import * as testState from './test.state.ts';
 
-
 @Component({ selector: 'test' })
 class TestComponent implements OnDestroy {
-
   private state: State;
 
   constructor(private store: StoreService) {
-
     this.store.state.subscribe(testState.State, this, this.onStateChanged);
-
   }
 
-  ngOnDestroy(): void {
-  }
+  ngOnDestroy(): void {}
 
   private onStateChanged(s: testState.State): void {
-
     this.state = s;
-
   }
-
 }
 
 ```
 
 
-/// file: 'app.component.ts'
+file: 'app.component.ts'
 
 ```js
 
@@ -95,20 +102,26 @@ import * as testState from './test.state.ts';
 
 @Component({ template: '<test></test><input (click)="onButtonClick()" />' })
 class AppComponent {
-
   constructor(private store: StoreService) {
-
     this.store.reduce.byConstructor(testState.TestStateReducer, 1);
-
   }
 
   onButtonClick(): void {
-
     this.store.reduce.byDelegate(testState.State, testState.TestStateDelegate);
-
   }
-
 }
 
 ```
 
+[npm-url]: https://www.npmjs.com/package/reduce-store
+[github-url]: https://github.com/Polezky/reduce-store
+[readme-url]: https://github.com/Polezky/reduce-store#readme
+[stats-url]: http://npm-stat.com/charts.html?package=reduce-store
+[github-follow-url]: https://github.com/Polezky/reduce-store
+[github-follow-img]: https://img.shields.io/github/followers/Polezky.svg?style=social&logo=github&label=Follow
+[stackoverflow-url]: https://stackoverflow.com/users/4934063/oleg-polezky
+
+[install-img]: https://nodei.co/npm/reduce-store.png?compact=true
+[downloads-img]: https://img.shields.io/npm/dt/reduce-store.svg
+[license-img]: https://img.shields.io/npm/l/reduce-store.svg
+[stats-url]: http://npm-stat.com/charts.html?package=reduce-store
