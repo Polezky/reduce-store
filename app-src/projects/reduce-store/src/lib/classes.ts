@@ -4,15 +4,42 @@ import { DeferredTask, SimpleDependecyResolver } from "./private-classes";
 var loggingDefaultPrefix = '';
 var loggingDefaultCss = 'background-color: beige; color: green;';
 
+/**
+ * The class which contains configurations for the Store
+ * */
 export class StoreConfig {
+  /**
+   * The name of the method which is used by the Store to provide immutability of states.
+   * When states are immutable it means that every state getter and subscriber gets its own clone of state.
+   * States must provide clone funtionality in a method with this name. Before the Store passes state to a getter or
+   * a subscriber it executes state method with this name to make a clone.
+   * If this property set to Falsy (e.g. undefined), then states are mutable.
+   * */
   cloneMethodName?: string;
+
+  /**
+   * The component which is passed to Store.state.subscribe method must have a method with this name.
+   * If the component doesn't have such a methdod then an exception will be throwen.
+   * This method will be wrapped by the Store and when the component dispose method is called
+   * then Store unsubscribes the subscription and calls original dispose method.
+   * */
   disposeMethodName?: string = 'dispose';
+
+  /**
+   * This class is used to create instances of Reducers. Reducers are created in Store.reduce.byConstructor and
+   * Store.reduce.byConstructorDeferred methods
+   * */
   resolver: IDependecyResolver = SimpleDependecyResolver;
 
   constructor(init?: Partial<StoreConfig>) {
     Object.assign(this, init);
   }
 
+  /**
+   * 
+   * @param init - a partial of StoreConfig. Properties which is set in the partial is the only which is changed it the Store config.
+   * if your partial has cloneMethodName only it means that cloneMethodName is changed and other config properties remains the same.
+   */
   set(init: Partial<StoreConfig>): void {
     Object.assign(this, init);
   }
@@ -21,19 +48,30 @@ export class StoreConfig {
 /**
  * The class which could be used to clone the object.
  * It is common that every state is immutable. The Store supports clonning the state in order to provide immutability.
- * If cloneMethodName is set in StoreConfig then all state getters and state subscribers receives their own copy of state
+ * If cloneMethodName is set in StoreConfig then all state getters and state subscribers receive their own copy of state
  * One can extend this class to implement simple clonning functionality.
  * */
 export class Clone<T> {
+
+  /**
+   * Constructor which accepts partial of itself. This conctructor copies all passed properties to a newly created object
+   * @param init - partial for newly created object.
+   */
   constructor(init?: Partial<T>) {
     Object.assign(this, init);
   }
 
+  /**
+   * Provides basic functionality to clone the object. This methods call the constructor with 'this' as the only argument
+   * */
   clone(): T {
     return new (<any>this.constructor)(this);
   }
 }
 
+/**
+ * 
+ * */
 export class ReducerTask<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   private deferredTask: DeferredTask<void, A1, A2, A3, A4, A5, A6>;
 

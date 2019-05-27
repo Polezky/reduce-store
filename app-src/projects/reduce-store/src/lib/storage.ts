@@ -84,10 +84,10 @@ class Storage {
 
     /**
      * Subscribes component to changes of a state by wrapping component dispose method.
-     * Dispose method name is set in config property of the Store.
+     * Dispose method name is set in Store.config.disposeMethodName.
      * Component have to have a function with name equals disposeMethodName of StoreConfig class
-     * The methods gets the observable using getObservable method.
-     * When component dispose method is called then Store unsubscribes the subscription and calls original dispose method.
+     * This method gets the observable using getObservable method.
+     * When the component dispose method is called then Store unsubscribes the subscription and calls original dispose method.
      *
      * param stateCtor - constructor function of the state.
      * param componentInstance - instance of a component which has dispose method
