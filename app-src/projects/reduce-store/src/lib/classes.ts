@@ -31,6 +31,9 @@ export class StoreConfig {
    * */
   resolver: IDependecyResolver = SimpleDependecyResolver;
 
+  /**
+   * @param init - partial of StoreConfig.
+   */
   constructor(init?: Partial<StoreConfig>) {
     Object.assign(this, init);
   }
@@ -70,11 +73,28 @@ export class Clone<T> {
 }
 
 /**
- * 
+ * Instances of this class is used by Store.reduce.createReducerTask method
+ * This task executes the given reducer's reduceAsync methods in the given amout of delay milliseconds
+ * This is useful when there is a need to execute one action as a reaction to multiple single-type actions.
+ * This task could be used in case there is a need to call server as a reaction for user typing. So one call of
+ * server will be executed if user press key multiple time within 300 milliseconds.
+ * The example of usage:
+ * 1. Implement a reducer which implements IReducer<T> interface
+ * 2. Create an instance of the reducer task by calling Store.reduce.createReducerTask
+ *    e.g. task = Store.reduce.createReducerTask(Reducer, delay)
+ * 3. subscribe to multiple single-type actions
+ *    e.g. window.onresize(task.execute)
  * */
 export class ReducerTask<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   private deferredTask: DeferredTask<void, A1, A2, A3, A4, A5, A6>;
 
+  /**
+   * @param reduce - the method which is used when time to execute a job comes
+   * the Store pass Store.reduce.byConstructor method to this argument
+   * @param reducerCtor is a contructor function of a reducer which reduceAsync method will be executed.
+   * @param delayMilliseconds - milliseconds timeout before execute of reduceAsync method.
+   * If execute method of ReducerTask is called within this timeout, then the timer is reset and new timeout is set
+   */
   constructor(
     private reduce: (reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6) => Promise<void>,
     private reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>,
@@ -83,10 +103,23 @@ export class ReducerTask<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = nul
     this.deferredTask = this.createDeferredTask();
   }
 
+  /**
+   * Start new waiting timeout before a call of reducer's reduceAsync method
+   * Call this methods when a single-type action happens. E.g. window.onresize or input.onkeydown
+   * @param a1 - an argument matches the second reduceAsync method argument of the Reducer, because the first argument is a state
+   * @param a2 - an argument matches the third reduceAsync method argument of the Reducer
+   * @param a3 - an argument matches the fourth reduceAsync method argument of the Reducer
+   * @param a4 - an argument matches the fifth reduceAsync method argument of the Reducer
+   * @param a5 - an argument matches the sixth reduceAsync method argument of the Reducer
+   * @param a6 - an argument matches the seventh reduceAsync method argument of the Reducer
+   */
   execute(a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
     return this.deferredTask.execute(a1, a2, a3, a4, a5, a6);
   }
 
+  /**
+   * Do not use this method. It is needed for typescript compile check
+   * */
   typescriptCheck(): T {
     throw Error('Do not use. It is needed for typescript compile check');
   }
@@ -162,22 +195,28 @@ export const AllLogEventTypes =
   ;
 
 /**
- * Configuration of logging to be applied for combination of stateCtor and Log Event Type bit
- *
- * prefix - optional string which will be written in console in the beginig of the message.
- * Could be used to distinguish messages of different Log Event Types and stateCtor.
- * default prefix is empty string
- *
- * level - the Log level to use
- *
- * css - css style which will be applied to prefix and Log Event Type name
- * default style is background-color: beige; color: green;
+ * Configuration of logging to be applied for a combination of a stateCtor and a Log Event Type bit
  * */
 export class LogConfig {
+  /**
+   * optional string which will be written in console in the beginig of the message.
+   * */
   prefix?: string = loggingDefaultPrefix;
+
+  /**
+   * optional the Log level to use.
+   * */
   level?: LogLevel = LogLevel.Log;
+
+  /**
+   * optional css style which will be applied to prefix and Log Event Type name
+   * default style is background-color: beige; color: green;
+   * */
   css?: string = loggingDefaultCss;
 
+  /**
+   * @param init - optional partial of LogConfig
+   */
   constructor(init?: Partial<LogConfig>) {
     Object.assign(this, init || {});
   }

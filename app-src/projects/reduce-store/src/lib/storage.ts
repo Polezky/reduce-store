@@ -257,12 +257,17 @@ class Storage {
     /**
      * Creates a reducer task. This task executes the given reducer's reduceAsync methods in the given amout of delay milliseconds
      * This is useful when there is a need to execute one action as a reaction to multiple single-type actions.
-     * This task could be used for example in case there is a need to call server as a reaction for user typing. So one call of
+     * This task could be used in case there is a need to call server as a reaction for user typing. So one call of
      * server will be executed if user press key multiple time within 300 milliseconds.
      * The example of usage:
      * 1. Implement a reducer which implements IReducer<T> interface
-     * 2. Create an instance of the reducer task calling const task = Store.reduce.createReducerTask(Reducer, delay)
-     * 3. subscribe to multiple single-type actions e.g. window.onmousemove(task.execute)
+     * 2. Create an instance of the reducer task by calling Store.reduce.createReducerTask
+     *    e.g. task = Store.reduce.createReducerTask(Reducer, delay)
+     * 3. subscribe to multiple single-type actions
+     *    e.g. window.onresize(task.execute)
+     * param reducerCtor is a contructor function of a reducer which reduceAsync method will be executed.
+     * param delayMilliseconds - milliseconds timeout before execute of reduceAsync method.
+     * If execute method of ReducerTask is called within this timeout, then the timer is reset and new timeout is set
      * */
     createReducerTask: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
       reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>,
