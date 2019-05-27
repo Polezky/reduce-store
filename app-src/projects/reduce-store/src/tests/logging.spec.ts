@@ -52,7 +52,6 @@ class TestState2Reducer implements IReducer<TestState2>{
   };
 }
 
-@NgComponent({ template: '<test></test>', selector })
 class Component implements OnDestroy {
   private name = 'zzz';
   private state: TestState;
