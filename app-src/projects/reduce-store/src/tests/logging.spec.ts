@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { Clone, IReducer, ReduceStore, LogEventType, AllLogEventTypes, Store } from 'reduce-store';
+import { Clone, IReducer, ReduceStore, LogEventType, AllLogEventTypes, Store, StoreService } from 'reduce-store';
 import { Injectable, OnDestroy } from '@angular/core';
 
 class TestState extends Clone<TestState> {
@@ -53,15 +53,15 @@ class Component implements OnDestroy {
   private state: TestState;
   private state2: TestState2;
 
-  constructor(private store: ReduceStore, name: string) {
-    this.store.subscribeToState(TestState, this, this.onStateChanged);
-    this.store.subscribeToState(TestState2, this, this.onStateChanged2);
+  constructor(private store: StoreService, name: string) {
+    this.store.state.subscribe(TestState, this, this.onStateChanged);
+    this.store.state.subscribe(TestState2, this, this.onStateChanged2);
     this.name = name;
     console.log(`Component ${this.name} constructor`);
   }
 
   async updateState(): Promise<void> {
-    const state = await this.store.getState(TestState);
+    const state = await this.store.state.get(TestState);
     console.log(`Component ${this.name} updateState`, state && state.value);
   }
 
@@ -83,54 +83,47 @@ class Component implements OnDestroy {
 describe('ReduceStore', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ReduceStore]
+      providers: [StoreService]
     });
   });
 
-  it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
+  it('should be created', inject([StoreService], async (store: StoreService) => {
     console.log('store', store);
 
-    Store.logging.setConfiguration([TestState]);
-    Store.logging.turnOn();
+    store.config.set({ cloneMethodName: 'clone' });
+    store.logging.setConfiguration([TestState]);
+    store.logging.turnOn();
 
-    Store.config.set({ cloneMethodName: 'clone1' });
-    console.log('Store.config', JSON.parse(JSON.stringify(Store.config)))
-
-    Store.state.get(TestState);
-
-    Store.config.set({ cloneMethodName: 'clone' });
-    console.log('Store.config', JSON.parse(JSON.stringify(Store.config)))
-
-    store.lazyReduce(TestStateReducer, 0);
-    store.lazyReduceByDelegate(TestState, s => Promise.resolve(new TestState({ value: 0.25 })));
+    store.reduce.byConstructorDeferred(TestStateReducer, 0);
+    store.reduce.byDelegateDeferred(TestState, s => Promise.resolve(new TestState({ value: 0.25 })));
     const componentA = new Component(store, 'A');
 
     await new Promise(r => setTimeout(r, 1000));
 
-    store.reduce(TestStateReducer, 1);
-    store.reduce(TestStateReducer, 1.5);
-    store.reduceByDelegate(TestState, s => Promise.resolve(new TestState({ value: 1.75})));
-    await store.reduce(TestState2Reducer, 101);
+    store.reduce.byConstructor(TestStateReducer, 1);
+    store.reduce.byConstructor(TestStateReducer, 1.5);
+    store.reduce.byDelegate(TestState, s => Promise.resolve(new TestState({ value: 1.75})));
+    await store.reduce.byConstructor(TestState2Reducer, 101);
 
     const componentB = new Component(store, 'B');
-    store.getState(TestState);
+    store.state.get(TestState);
 
-    await store.suspendState(TestState);
+    await store.state.suspend(TestState);
     console.log('TestState suspendState');
 
-    store.getState(TestState2);
+    store.state.get(TestState2);
     componentA.updateState();
 
     setTimeout(() => {
-      store.reduce(TestStateReducer, 2);
-      store.reduce(TestState2Reducer, 102);
+      store.reduce.byConstructor(TestStateReducer, 2);
+      store.reduce.byConstructor(TestState2Reducer, 102);
     }, 1000);
 
     console.log('Right after 2');
 
     componentA.ngOnDestroy();
 
-    await store.reduceByDelegate(TestState, s => Promise.resolve(undefined));
+    await store.reduce.byDelegate(TestState, s => Promise.resolve(undefined));
 
     componentB.ngOnDestroy();
 

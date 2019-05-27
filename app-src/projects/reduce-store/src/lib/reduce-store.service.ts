@@ -3,9 +3,46 @@ import { Injectable, Injector, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { IConstructor, IReducerConstructor, IReducerDelegate } from './interfaces';
-import { ReducerTask } from './classes';
+import { ReducerTask, StoreConfig } from './classes';
 import { Store } from './storage';
 
+/**
+ * This service is a wrapper for the main Store singletone. See docs for Storage class
+ * */
+@Injectable({ providedIn: 'root' })
+export class StoreService {
+  constructor(
+    injector: Injector,
+  ) {
+    Store.config.set({ disposeMethodName: 'ngOnDestroy', resolver: injector });
+  }
+
+  /**
+   * This is a wrapper for the Store.config. See docs for Storage class
+   * */
+  get config(): StoreConfig { return Store.config; }
+  /**
+   * This is a wrapper for the Store.getEntries. See docs for Storage class
+   * */
+  getEntries = Store.getEntries.bind(Store);
+  /**
+   * This is a wrapper for the Store.state. See docs for Storage class
+   * */
+  get state() { return Store.state; }
+  /**
+   * This is a wrapper for the Store.reduce. See docs for Storage class
+   * */
+  get reduce() { return Store.reduce; }
+  /**
+   * This is a wrapper for the Store.logging. See docs for Storage class
+   * */
+  get logging() { return Store.logging; }
+}
+
+/**
+ * Obsolete, will be remove on the next major version
+ * This service is a wrapper for the main Store singletone. See docs for Storage class
+ * */
 @Injectable({ providedIn: 'root' })
 export class ReduceStore {
   constructor(

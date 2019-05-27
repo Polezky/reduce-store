@@ -556,6 +556,7 @@ class Storage {
 }
 
 /**
- * The singletone instance of Storage.
+ * This class provides functionality to store and change applicatin states
+ * It is Singletone instance of Storage class.
  * */
 export const Store: Storage = Storage.instance;
