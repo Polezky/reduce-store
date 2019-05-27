@@ -1,7 +1,7 @@
 import { TestBed, inject } from '@angular/core/testing';
 
 import { Clone, IReducer, ReduceStore, LogEventType, AllLogEventTypes, Store, StoreService } from 'reduce-store';
-import { Injectable, OnDestroy } from '@angular/core';
+import { Component as NgComponent, OnDestroy, Injectable } from '@angular/core';
 
 class TestState extends Clone<TestState> {
   value: number;
@@ -11,6 +11,10 @@ class TestState extends Clone<TestState> {
     return super.clone();
   }
 }
+
+export function testStateDelegate(s: TestState = new TestState()): Promise<TestState> {
+  return Promise.resolve(new TestState({ value: 1.75 }));
+} 
 
 @Injectable({ providedIn: 'root' })
 class TestStateReducer implements IReducer<TestState>{
@@ -48,6 +52,7 @@ class TestState2Reducer implements IReducer<TestState2>{
   };
 }
 
+@NgComponent({ template: '<test></test>', selector })
 class Component implements OnDestroy {
   private name = 'zzz';
   private state: TestState;
@@ -95,7 +100,7 @@ describe('ReduceStore', () => {
     store.logging.turnOn();
 
     store.reduce.byConstructorDeferred(TestStateReducer, 0);
-    store.reduce.byDelegateDeferred(TestState, s => Promise.resolve(new TestState({ value: 0.25 })));
+    store.reduce.byDelegateDeferred(TestState, testStateDelegate);
     const componentA = new Component(store, 'A');
 
     await new Promise(r => setTimeout(r, 1000));
