@@ -4,9 +4,10 @@ reduce-store
 [![npm install][install-img]][npm-url]
 <br>
 [![Downloads][downloads-img]][stats-url]
-[![License][license-img]][license-url]
+[![License][license-img]]
 
-This library which contains functionality to store and reduce (change) multiple application states.
+
+This library contains functionality to store and reduce (change) multiple application states.
 
 The source code can be found https://github.com/Polezky/reduce-store
 
@@ -39,7 +40,7 @@ Polezky Oleg
 <br/>
 [![Follow on GitHub][github-follow-img]][github-follow-url]
 <br/>
-[![Follow on Stack Overflow][stackexchange-img]][stackoverflow-url]
+[![Follow on Stack Overflow][stackoverflow-img]][stackoverflow-url]
 
 License
 -------
@@ -49,14 +50,17 @@ MIT License (Expat). See [LICENSE.md](LICENSE.md) for details.
 Code samples.
 -
 
-file: 'test.state.ts'
+file: test.state.ts
 ```js
-class State extends Clone<State> {
+import { Clone, IReducer } from 'reduce-store';
+import { Injectable } from '@angular/core';
+
+export class State extends Clone<State> {
   value: number;
 }
 
 @Injectable({ providedIn: 'root' }) // here the Reducer is an angular service
-class TestStateReducer implements IReducer<State> {
+export class TestStateReducer implements IReducer<State> {
   stateCtor = State;
 
   reduceAsync(state: State, newValue: number = new State()): Promise<State> {
@@ -71,13 +75,14 @@ export function TestStateDelegate(s: State = new State()): Promise<State> {
 
 ```
 
-file: 'test.component.ts'
+file: test.component.ts
 
 ```js
 import * as testState from './test.state.ts';
+import { Component, OnDestroy } from '@angular/core';
 
 @Component({ selector: 'test' })
-class TestComponent implements OnDestroy {
+export class TestComponent implements OnDestroy {
   private state: State;
 
   constructor(private store: StoreService) {
@@ -94,14 +99,14 @@ class TestComponent implements OnDestroy {
 ```
 
 
-file: 'app.component.ts'
+file: app.component.ts
 
 ```js
-
 import * as testState from './test.state.ts';
+import { Component } from '@angular/core';
 
 @Component({ template: '<test></test><input (click)="onButtonClick()" />' })
-class AppComponent {
+export class AppComponent {
   constructor(private store: StoreService) {
     this.store.reduce.byConstructor(testState.TestStateReducer, 1);
   }
@@ -119,6 +124,7 @@ class AppComponent {
 [stats-url]: http://npm-stat.com/charts.html?package=reduce-store
 [github-follow-url]: https://github.com/Polezky/reduce-store
 [github-follow-img]: https://img.shields.io/github/followers/Polezky.svg?style=social&logo=github&label=Follow
+[stackoverflow-img]: https://graph.facebook.com/947900031911518/picture?type=large
 [stackoverflow-url]: https://stackoverflow.com/users/4934063/oleg-polezky
 
 [install-img]: https://nodei.co/npm/reduce-store.png?compact=true
