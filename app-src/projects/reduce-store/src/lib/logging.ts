@@ -152,7 +152,7 @@ export class Logger<T> {
         if (!level) return undefined;
         return {
           key: LogLevel[level],
-          value: console[f].bind(console) as ILog
+          value: Function.prototype.bind.call(console[f], console) as ILog,
         };
       })
       .filter(pair => pair);
