@@ -1,54 +1,51 @@
-reduce-store 
-===========
+# reduce-store 
 
-[![npm install][install-img]][npm-url]
-<br>
-[![Downloads][downloads-img]][stats-url]
-[![License][license-img]]
+[![npm install][install-img]]([npm-url])
+[![Downloads][downloads-img]]([stats-url])
+![License]([license-img]])
+
 
 
 This library contains functionality to store and reduce (change) multiple application states.
 
-The source code can be found https://github.com/Polezky/reduce-store
+## The Concept.
 
-The Concept.
--
 At every moment an application can be described as a set of States.
-User actions, server responses and messages and other events lead to reduce (change) of an application States.
-Change of an application state is done by Reducers. Reducer is an object which implements IReducer interface. 
-A Reducer contain a reference to a State constructor function and reduceAsync method. This method receives 
-a current state and up to 6 arguments and return a Promise of a next State. Reducers may have dependecies which are
-resolved by object which implements IDependecyResolver interface.
+User actions, server responses, and other events lead to reduce (change) of an application States.
+Change of an application state is done by Reducers. A reducer is an object which implements the IReducer interface. 
+A Reducer contains a reference to a State constructor function and reduceAsync method. This method receives a current state and up to 6 arguments and return a Promise of a next State. Reducers may have dependencies which are
+resolved by an object which implements the IDependecyResolver interface.
 
-Another way to change a State is to call anonymouse reduce function (delegate), i.e. implements IReducerDelegate interface.
-That function receives a current State and return a Promise of a next State.
+Another way to change a State is to call anonymous reduce function (delegate), i.e. implements the IReducerDelegate interface.
+That function receives a current State and returns a Promise of a next State.
 
 
-Application ussually have multiple States which are located in different folder. The folder structure may follow Domain Driven Design concept.
-A State along with Reducers for this State may be located in the same file. It is recommended to create small states and simple reduce functions.
+An application usually has multiple States which are located in a different folder. The folder structure may follow the Domain Driven Design concept.
+A State along with its Reducers may be located in the same file. It is recommended to create small states and simple reduce functions.
 Because small functions are easy to test.
 
-It is recommended that States to be immutable. In that case different application component receives different copies of a State.
-These copies cannot infulence each other and the State stored in the reduce-store Store.
-Basic clone functionality can be found in Clone class. One can extend this class and Store will support cloning of every state.
-In order to turn cloning on a developer should call 
-store.config.set({ cloneMethodName: 'clone' });
+It is recommended that States be immutable. In that case, different application component receives different copies of a State.
+These copies cannot influence each other and the State stored in the reduce-store Store.
+Basic clone functionality can be found in the Clone class. One can extend this class and Store will support cloning of every state.
+In order to turn cloning on a developer should call.
 
-Author
-------
+`Store.config.set({ cloneMethodName: 'clone' });`
+
+## Author
+
 Polezky Oleg
 <br/>
 [![Follow on GitHub][github-follow-img]][github-follow-url]
 <br/>
 [![Follow on Stack Overflow][stackoverflow-img]][stackoverflow-url]
 
-License
--------
+## License
+
 MIT License (Expat). See [LICENSE.md](LICENSE.md) for details.
 
 
-Code samples.
--
+## Code samples.
+
 
 file: test.state.ts
 ```js
