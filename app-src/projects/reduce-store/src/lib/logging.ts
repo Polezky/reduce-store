@@ -2,6 +2,7 @@ import { LogEventType, LogConfig, LogLevel } from './classes';
 import { StateData } from "./StateData";
 import { IConstructor, IReducerDelegate } from "./interfaces";
 import { KeyValuePair } from "./private-interfaces";
+import { parse, stringify } from 'flatted/esm';
 
 class Manager {
   private static _instance: Manager;
@@ -100,12 +101,9 @@ export class Logger<T> {
   protected getLogData(data: ILogData<T>): ILogData<T> {
     let logData: ILogData<T>;
     try {
-      logData = JSON.parse(JSON.stringify(data)) as ILogData<T>;
+      logData = parse(stringify(data)) as ILogData<T>;
     } catch (e) {
-      logData = {
-        state: undefined,
-        logError: e,
-      };
+      logData = { state: undefined, logError: e, };
     }
 
     logData.stateCtor = this.stateCtor;

@@ -3,8 +3,13 @@ import { TestBed, inject } from '@angular/core/testing';
 import { Clone, IReducer, ReduceStore, LogEventType, AllLogEventTypes, Store, StoreService } from 'reduce-store';
 import { Component as NgComponent, OnDestroy, Injectable } from '@angular/core';
 
+var circularObj: any = {};
+circularObj.circularRef = circularObj;
+circularObj.list = [circularObj, circularObj];
+
 class TestState extends Clone<TestState> {
   value: number;
+  circular = circularObj;
 
   clone(): TestState {
     console.log('TestState clone');
@@ -14,7 +19,7 @@ class TestState extends Clone<TestState> {
 
 export function testStateDelegate(s: TestState = new TestState()): Promise<TestState> {
   return Promise.resolve(new TestState({ value: 1.75 }));
-} 
+}
 
 @Injectable({ providedIn: 'root' })
 class TestStateReducer implements IReducer<TestState>{
@@ -106,7 +111,7 @@ describe('ReduceStore', () => {
 
     store.reduce.byConstructor(TestStateReducer, 1);
     store.reduce.byConstructor(TestStateReducer, 1.5);
-    store.reduce.byDelegate(TestState, s => Promise.resolve(new TestState({ value: 1.75})));
+    store.reduce.byDelegate(TestState, s => Promise.resolve(new TestState({ value: 1.75 })));
     await store.reduce.byConstructor(TestState2Reducer, 101);
 
     const componentB = new Component(store, 'B');
