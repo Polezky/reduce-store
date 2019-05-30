@@ -33,6 +33,7 @@ export interface ILog {
 
 export interface ILogData<T> {
   state: T;
+  logError?: Error;
   stateCtor?: IConstructor<T>;
   args?: any[];
   stack?: string[];
@@ -84,7 +85,7 @@ export class Logger<T> {
 
   constructor(
     protected readonly stateCtor: IConstructor<T>
-  ) {}
+  ) { }
 
   log(eventType: LogEventType, stateData: StateData<T>, logData: ILogData<T>): void {
     if (!LogManager.isEnabled) return;
@@ -97,7 +98,15 @@ export class Logger<T> {
   };
 
   protected getLogData(data: ILogData<T>): ILogData<T> {
-    const logData = JSON.parse(JSON.stringify(data)) as ILogData<T>;
+    let logData: ILogData<T>;
+    try {
+      logData = JSON.parse(JSON.stringify(data)) as ILogData<T>;
+    } catch (e) {
+      logData = {
+        state: undefined,
+        logError: e,
+      };
+    }
 
     logData.stateCtor = this.stateCtor;
 
