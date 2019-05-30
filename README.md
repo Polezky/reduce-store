@@ -2,9 +2,7 @@
 
 [![npm install][install-img]]([npm-url])
 [![Downloads][downloads-img]]([stats-url])
-![License]([license-img]])
-
-
+[![License][license-img]]
 
 This library contains functionality to store and reduce (change) multiple application states.
 
@@ -27,9 +25,7 @@ Because small functions are easy to test.
 It is recommended that States be immutable. In that case, different application component receives different copies of a State.
 These copies cannot influence each other and the State stored in the reduce-store Store.
 Basic clone functionality can be found in the Clone class. One can extend this class and Store will support cloning of every state.
-In order to turn cloning on a developer should call.
-
-`Store.config.set({ cloneMethodName: 'clone' });`
+In order to turn cloning on a developer should call `Store.config.set({ cloneMethodName: 'clone' });`
 
 ## Author
 
@@ -41,13 +37,13 @@ Polezky Oleg
 
 ## License
 
-MIT License (Expat). See [LICENSE.md](LICENSE.md) for details.
+MIT License (Expat).
 
 
 ## Code samples.
 
 
-file: test.state.ts
+file: **test.state.ts**
 ```js
 import { Clone, IReducer } from 'reduce-store';
 import { Injectable } from '@angular/core';
@@ -72,7 +68,7 @@ export function TestStateDelegate(s: State = new State()): Promise<State> {
 
 ```
 
-file: test.component.ts
+file: **test.component.ts**
 
 ```js
 import * as testState from './test.state.ts';
@@ -95,7 +91,7 @@ export class TestComponent implements OnDestroy {
 
 ```
 
-file: app.component.ts
+file: **app.component.ts**
 
 ```js
 import * as testState from './test.state.ts';
@@ -120,7 +116,7 @@ export class AppComponent {
 [stats-url]: http://npm-stat.com/charts.html?package=reduce-store
 [github-follow-url]: https://github.com/Polezky/reduce-store
 [github-follow-img]: https://img.shields.io/github/followers/Polezky.svg?style=social&logo=github&label=Follow
-[stackoverflow-img]: https://graph.facebook.com/947900031911518/picture?type=large
+[stackoverflow-img]: https://graph.facebook.com/947900031911518/picture?type=small
 [stackoverflow-url]: https://stackoverflow.com/users/4934063/oleg-polezky
 
 [install-img]: https://nodei.co/npm/reduce-store.png?compact=true
