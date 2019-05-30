@@ -2,7 +2,7 @@
 
 [![npm install][install-img]]([npm-url])
 [![Downloads][downloads-img]]([stats-url])
-[![License][license-img]]
+![License][license-img]
 
 This library contains functionality to store and reduce (change) multiple application states.
 
