@@ -48,108 +48,131 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
-    <Content Include="app-src\.gitignore" />
-    <Content Include="app-src\e2e\tsconfig.e2e.json" />
+    <Content Include="app-src\e2e\protractor.conf.js" />
+    <Content Include="app-src\karma.conf.js" />
     <Content Include="app-src\projects\reduce-store\karma.conf.js" />
+    <Content Include="app-src\src\app\app.component.html" />
     <Content Include="app-src\src\favicon.ico" />
     <Content Include="app-src\src\index.html" />
-    <Content Include="app-src\src\karma.conf.js" />
-    <Content Include="app-src\src\styles.css" />
-    <Content Include="app-src\src\assets\.gitkeep" />
-    <Content Include="app-src\src\browserslist" />
-    <Content Include="app-src\src\tsconfig.app.json" />
-    <Content Include="app-src\src\tsconfig.spec.json" />
-    <Content Include="app-src\src\tslint.json" />
-    <Content Include="app-src\.editorconfig" />
-    <Content Include="app-src\angular.json" />
-    <Content Include="app-src\package-lock.json" />
-    <Content Include="app-src\package.json" />
-    <Content Include="app-src\README.md" />
-    <Content Include="app-src\tsconfig.json" />
-    <Content Include="app-src\tslint.json" />
-    <Content Include="app-src\projects\reduce-store\ng-package.json" />
-    <Content Include="app-src\projects\reduce-store\ng-package.prod.json" />
-    <Content Include="app-src\projects\reduce-store\package.json" />
-    <Content Include="app-src\projects\reduce-store\tsconfig.lib.json" />
-    <Content Include="app-src\projects\reduce-store\tsconfig.spec.json" />
-    <Content Include="app-src\projects\reduce-store\tslint.json" />
-    <Content Include="app-src\projects\reduce-store\package-lock.json" />
+    <Content Include="app-src3\.gitignore" />
+    <Content Include="app-src3\e2e\tsconfig.e2e.json" />
+    <Content Include="app-src3\projects\reduce-store\karma.conf.js" />
+    <Content Include="app-src3\src\favicon.ico" />
+    <Content Include="app-src3\src\index.html" />
+    <Content Include="app-src3\src\karma.conf.js" />
+    <Content Include="app-src3\src\styles.css" />
+    <Content Include="app-src3\src\assets\.gitkeep" />
+    <Content Include="app-src3\src\browserslist" />
+    <Content Include="app-src3\src\tsconfig.app.json" />
+    <Content Include="app-src3\src\tsconfig.spec.json" />
+    <Content Include="app-src3\src\tslint.json" />
+    <Content Include="app-src3\.editorconfig" />
+    <Content Include="app-src3\angular.json" />
+    <Content Include="app-src3\package-lock.json" />
+    <Content Include="app-src3\package.json" />
+    <Content Include="app-src3\README.md" />
+    <Content Include="app-src3\tsconfig.json" />
+    <Content Include="app-src3\tslint.json" />
+    <Content Include="app-src3\projects\reduce-store\ng-package.json" />
+    <Content Include="app-src3\projects\reduce-store\ng-package.prod.json" />
+    <Content Include="app-src3\projects\reduce-store\package.json" />
+    <Content Include="app-src3\projects\reduce-store\tsconfig.lib.json" />
+    <Content Include="app-src3\projects\reduce-store\tsconfig.spec.json" />
+    <Content Include="app-src3\projects\reduce-store\tslint.json" />
+    <Content Include="app-src3\projects\reduce-store\package-lock.json" />
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="app-src\src\app\books\guards\" />
-    <Folder Include="app-src\src\app\material\" />
-    <Folder Include="app-src\src\app\shared\pipes\" />
+    <Folder Include="app-src3\src\app\shared\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app-src\e2e\protractor.conf.js" />
+    <Content Include="app-src3\e2e\protractor.conf.js" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app-src\e2e\src\app.e2e-spec.ts" />
     <TypeScriptCompile Include="app-src\e2e\src\app.po.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\classes.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\interfaces.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\logging.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-classes.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-interfaces.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.module.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.service.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\StateData.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\storage.ts" />
-    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\logging.spec.ts" />
-    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\suspend-state.spec.ts" />
-    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\subscribe-to-state.spec.ts" />
-    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\general.spec.ts" />
-    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\classes.ts" />
-    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\interfaces.ts" />
-    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.service.ts" />
-    <TypeScriptCompile Include="app-src\projects\reduce-store\src\index.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\public-api.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\test.ts" />
-    <TypeScriptCompile Include="app-src\src\app\app-routing.module.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\general.spec.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\logging.spec.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\subscribe-to-state.spec.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\suspend-state.spec.ts" />
+    <TypeScriptCompile Include="app-src\src\app\app.component.spec.ts" />
+    <TypeScriptCompile Include="app-src\src\app\app.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.module.ts" />
-    <TypeScriptCompile Include="app-src\src\app\auth\auth-routing.module.ts" />
-    <TypeScriptCompile Include="app-src\src\app\auth\auth.module.ts" />
-    <TypeScriptCompile Include="app-src\src\app\auth\components\login-form.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\auth\models\user.ts" />
-    <TypeScriptCompile Include="app-src\src\app\auth\services\auth-guard.service.ts" />
-    <TypeScriptCompile Include="app-src\src\app\auth\services\auth.service.ts" />
-    <TypeScriptCompile Include="app-src\src\app\auth\containers\login-page.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\auth\states.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\books-routing.module.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\books.module.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\components\book-authors.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\components\book-detail.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\components\book-preview-list.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\components\book-preview.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\components\book-search.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\components\index.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\containers\collection-page.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\containers\find-book-page.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\containers\search-book-state.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\containers\selected-book-page.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\containers\collection-state.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\containers\selected-book-state.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\containers\view-book-page.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\books\models\book.ts" />
-    <TypeScriptCompile Include="app-src\src\app\core\components\layout.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\core\components\nav-item.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\core\components\sidenav.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\core\components\toolbar.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\core\containers\app.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\core\containers\not-found-page.component.ts" />
-    <TypeScriptCompile Include="app-src\src\app\core\containers\states.ts" />
-    <TypeScriptCompile Include="app-src\src\app\core\core.module.ts" />
-    <TypeScriptCompile Include="app-src\src\app\core\services\google-books.service.ts" />
-    <TypeScriptCompile Include="app-src\src\app\db.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.prod.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.ts" />
     <TypeScriptCompile Include="app-src\src\main.ts" />
     <TypeScriptCompile Include="app-src\src\polyfills.ts" />
     <TypeScriptCompile Include="app-src\src\test.ts" />
+    <TypeScriptCompile Include="app-src3\e2e\src\app.e2e-spec.ts" />
+    <TypeScriptCompile Include="app-src3\e2e\src\app.po.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\logging.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\private-classes.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\private-interfaces.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\reduce-store.module.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\StateData.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\storage.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\tests\logging.spec.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\tests\suspend-state.spec.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\tests\subscribe-to-state.spec.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\tests\general.spec.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\classes.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\interfaces.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\reduce-store.service.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\index.ts" />
+    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\test.ts" />
+    <TypeScriptCompile Include="app-src3\src\app\app.module.ts" />
+    <TypeScriptCompile Include="app-src3\src\environments\environment.prod.ts" />
+    <TypeScriptCompile Include="app-src3\src\environments\environment.ts" />
+    <TypeScriptCompile Include="app-src3\src\main.ts" />
+    <TypeScriptCompile Include="app-src3\src\polyfills.ts" />
+    <TypeScriptCompile Include="app-src3\src\test.ts" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app-src3\projects\reduce-store\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app-src\e2e\tsconfig.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app-src\projects\reduce-store\ng-package.json" />
+    <Content Include="app-src\projects\reduce-store\package.json" />
     <Content Include="app-src\projects\reduce-store\README.md" />
+    <Content Include="app-src\projects\reduce-store\tsconfig.lib.json" />
+    <Content Include="app-src\projects\reduce-store\tsconfig.spec.json" />
+    <Content Include="app-src\projects\reduce-store\tslint.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app-src\src\app\app.component.scss" />
+    <Content Include="app-src\src\assets\.gitkeep" />
+    <Content Include="app-src\src\styles.scss" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app-src\.editorconfig" />
+    <Content Include="app-src\.gitignore" />
+    <Content Include="app-src\angular.json" />
+    <Content Include="app-src\browserslist" />
+    <Content Include="app-src\package-lock.json" />
+    <Content Include="app-src\package.json" />
+    <Content Include="app-src\README.md" />
+    <Content Include="app-src\tsconfig.app.json" />
+    <Content Include="app-src\tsconfig.json" />
+    <Content Include="app-src\tsconfig.spec.json" />
+    <Content Include="app-src\tslint.json" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
