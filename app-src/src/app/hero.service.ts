@@ -5,7 +5,9 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { Hero } from './hero';
-import { MessageService } from './message.service';
+
+import { Store } from 'reduce-store';
+import * as messages from '@app/messages/messages.state';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -17,8 +19,7 @@ export class HeroService {
   private heroesUrl = 'api/heroes';  // URL to web api
 
   constructor(
-    private http: HttpClient,
-    private messageService: MessageService) { }
+    private http: HttpClient) { }
 
   /** GET heroes from the server */
   getHeroes (): Observable<Hero[]> {
@@ -115,6 +116,7 @@ export class HeroService {
 
   /** Log a HeroService message with the MessageService */
   private log(message: string) {
-    this.messageService.add(`HeroService: ${message}`);
+    const fullMessage = `HeroService: ${message}`;
+    Store.reduce.byDelegate(messages.State, s => messages.addMessageReducer(s, fullMessage));
   }
 }

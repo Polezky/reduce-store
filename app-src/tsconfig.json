@@ -24,7 +24,8 @@
       ],
       "reduce-store/*": [
         "dist/reduce-store/*"
-      ]
+      ],
+      "@app/*": [ "src/app/*" ]
     }
   }
 }

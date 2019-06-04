@@ -90,6 +90,7 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\suspend-state.spec.ts" />
     <TypeScriptCompile Include="app-src\src\app\app-routing.module.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\app.initializer.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.module.ts" />
     <TypeScriptCompile Include="app-src\src\app\dashboard\dashboard.component.spec.ts" />
     <TypeScriptCompile Include="app-src\src\app\dashboard\dashboard.component.ts" />
@@ -101,10 +102,9 @@
     <TypeScriptCompile Include="app-src\src\app\heroes\heroes.component.spec.ts" />
     <TypeScriptCompile Include="app-src\src\app\heroes\heroes.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\in-memory-data.service.ts" />
-    <TypeScriptCompile Include="app-src\src\app\message.service.spec.ts" />
-    <TypeScriptCompile Include="app-src\src\app\message.service.ts" />
     <TypeScriptCompile Include="app-src\src\app\messages\messages.component.spec.ts" />
     <TypeScriptCompile Include="app-src\src\app\messages\messages.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\messages\messages.state.ts" />
     <TypeScriptCompile Include="app-src\src\app\mock-heroes.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.prod.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.ts" />
