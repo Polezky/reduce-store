@@ -65,40 +65,10 @@
     <Content Include="app-src\src\app\messages\messages.component.html" />
     <Content Include="app-src\src\favicon.ico" />
     <Content Include="app-src\src\index.html" />
-    <Content Include="app-src3\.gitignore" />
-    <Content Include="app-src3\e2e\tsconfig.e2e.json" />
-    <Content Include="app-src3\projects\reduce-store\karma.conf.js" />
-    <Content Include="app-src3\src\favicon.ico" />
-    <Content Include="app-src3\src\index.html" />
-    <Content Include="app-src3\src\karma.conf.js" />
-    <Content Include="app-src3\src\styles.css" />
-    <Content Include="app-src3\src\assets\.gitkeep" />
-    <Content Include="app-src3\src\browserslist" />
-    <Content Include="app-src3\src\tsconfig.app.json" />
-    <Content Include="app-src3\src\tsconfig.spec.json" />
-    <Content Include="app-src3\src\tslint.json" />
-    <Content Include="app-src3\.editorconfig" />
-    <Content Include="app-src3\angular.json" />
-    <Content Include="app-src3\package-lock.json" />
-    <Content Include="app-src3\package.json" />
-    <Content Include="app-src3\README.md" />
-    <Content Include="app-src3\tsconfig.json" />
-    <Content Include="app-src3\tslint.json" />
-    <Content Include="app-src3\projects\reduce-store\ng-package.json" />
-    <Content Include="app-src3\projects\reduce-store\ng-package.prod.json" />
-    <Content Include="app-src3\projects\reduce-store\package.json" />
-    <Content Include="app-src3\projects\reduce-store\tsconfig.lib.json" />
-    <Content Include="app-src3\projects\reduce-store\tsconfig.spec.json" />
-    <Content Include="app-src3\projects\reduce-store\tslint.json" />
-    <Content Include="app-src3\projects\reduce-store\package-lock.json" />
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="app-src3\src\app\shared\" />
     <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="app-src3\e2e\protractor.conf.js" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app-src\e2e\src\app.e2e-spec.ts" />
@@ -141,35 +111,9 @@
     <TypeScriptCompile Include="app-src\src\main.ts" />
     <TypeScriptCompile Include="app-src\src\polyfills.ts" />
     <TypeScriptCompile Include="app-src\src\test.ts" />
-    <TypeScriptCompile Include="app-src3\e2e\src\app.e2e-spec.ts" />
-    <TypeScriptCompile Include="app-src3\e2e\src\app.po.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\logging.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\private-classes.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\private-interfaces.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\reduce-store.module.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\StateData.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\storage.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\tests\logging.spec.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\tests\suspend-state.spec.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\tests\subscribe-to-state.spec.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\tests\general.spec.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\classes.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\interfaces.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\lib\reduce-store.service.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\index.ts" />
-    <TypeScriptCompile Include="app-src3\projects\reduce-store\src\test.ts" />
-    <TypeScriptCompile Include="app-src3\src\app\app.module.ts" />
-    <TypeScriptCompile Include="app-src3\src\environments\environment.prod.ts" />
-    <TypeScriptCompile Include="app-src3\src\environments\environment.ts" />
-    <TypeScriptCompile Include="app-src3\src\main.ts" />
-    <TypeScriptCompile Include="app-src3\src\polyfills.ts" />
-    <TypeScriptCompile Include="app-src3\src\test.ts" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="app-src3\projects\reduce-store\README.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="app-src\e2e\tsconfig.json" />
