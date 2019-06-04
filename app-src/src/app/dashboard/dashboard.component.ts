@@ -1,23 +1,23 @@
-import { Component, OnInit } from '@angular/core';
-import { Hero } from '../hero';
-import { HeroService } from '../hero.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Store } from 'reduce-store';
+import * as dashboard from '@app/dashboard/dashboard.state';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: [ './dashboard.component.css' ]
+  styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
-  heroes: Hero[] = [];
+export class DashboardComponent implements OnInit, OnDestroy {
+  state: dashboard.State;
 
-  constructor(private heroService: HeroService) { }
-
-  ngOnInit() {
-    this.getHeroes();
+  constructor() {
+    Store.state.subscribe(dashboard.State, this, s => this.state = s);
   }
 
-  getHeroes(): void {
-    this.heroService.getHeroes()
-      .subscribe(heroes => this.heroes = heroes.slice(1, 5));
+  ngOnInit() {
+    Store.reduce.byConstructor(dashboard.LoadReducer);
+  }
+
+  ngOnDestroy(): void {
   }
 }
