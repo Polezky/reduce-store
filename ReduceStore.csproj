@@ -51,7 +51,18 @@
     <Content Include="app-src\e2e\protractor.conf.js" />
     <Content Include="app-src\karma.conf.js" />
     <Content Include="app-src\projects\reduce-store\karma.conf.js" />
+    <Content Include="app-src\src\app\app.component.css" />
     <Content Include="app-src\src\app\app.component.html" />
+    <Content Include="app-src\src\app\dashboard\dashboard.component.css" />
+    <Content Include="app-src\src\app\dashboard\dashboard.component.html" />
+    <Content Include="app-src\src\app\hero-detail\hero-detail.component.css" />
+    <Content Include="app-src\src\app\hero-detail\hero-detail.component.html" />
+    <Content Include="app-src\src\app\hero-search\hero-search.component.css" />
+    <Content Include="app-src\src\app\hero-search\hero-search.component.html" />
+    <Content Include="app-src\src\app\heroes\heroes.component.css" />
+    <Content Include="app-src\src\app\heroes\heroes.component.html" />
+    <Content Include="app-src\src\app\messages\messages.component.css" />
+    <Content Include="app-src\src\app\messages\messages.component.html" />
     <Content Include="app-src\src\favicon.ico" />
     <Content Include="app-src\src\index.html" />
     <Content Include="app-src3\.gitignore" />
@@ -107,9 +118,24 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\logging.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\subscribe-to-state.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\suspend-state.spec.ts" />
-    <TypeScriptCompile Include="app-src\src\app\app.component.spec.ts" />
+    <TypeScriptCompile Include="app-src\src\app\app-routing.module.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.module.ts" />
+    <TypeScriptCompile Include="app-src\src\app\dashboard\dashboard.component.spec.ts" />
+    <TypeScriptCompile Include="app-src\src\app\dashboard\dashboard.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\hero-detail\hero-detail.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\hero-search\hero-search.component.spec.ts" />
+    <TypeScriptCompile Include="app-src\src\app\hero-search\hero-search.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\hero.service.ts" />
+    <TypeScriptCompile Include="app-src\src\app\hero.ts" />
+    <TypeScriptCompile Include="app-src\src\app\heroes\heroes.component.spec.ts" />
+    <TypeScriptCompile Include="app-src\src\app\heroes\heroes.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\in-memory-data.service.ts" />
+    <TypeScriptCompile Include="app-src\src\app\message.service.spec.ts" />
+    <TypeScriptCompile Include="app-src\src\app\message.service.ts" />
+    <TypeScriptCompile Include="app-src\src\app\messages\messages.component.spec.ts" />
+    <TypeScriptCompile Include="app-src\src\app\messages\messages.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\mock-heroes.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.prod.ts" />
     <TypeScriptCompile Include="app-src\src\environments\environment.ts" />
     <TypeScriptCompile Include="app-src\src\main.ts" />
@@ -157,7 +183,6 @@
     <Content Include="app-src\projects\reduce-store\tslint.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app-src\src\app\app.component.scss" />
     <Content Include="app-src\src\assets\.gitkeep" />
     <Content Include="app-src\src\styles.scss" />
   </ItemGroup>
