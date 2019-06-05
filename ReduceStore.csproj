@@ -94,10 +94,13 @@
     <TypeScriptCompile Include="app-src\src\app\app.module.ts" />
     <TypeScriptCompile Include="app-src\src\app\dashboard\dashboard.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\dashboard\dashboard.state.ts" />
+    <TypeScriptCompile Include="app-src\src\app\hero-detail\hero-detail.state.ts" />
     <TypeScriptCompile Include="app-src\src\app\hero-detail\hero-detail.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\hero-search\hero-search.component.ts" />
+    <TypeScriptCompile Include="app-src\src\app\hero-search\hero-search.state.ts" />
     <TypeScriptCompile Include="app-src\src\app\hero.service.ts" />
     <TypeScriptCompile Include="app-src\src\app\hero.ts" />
+    <TypeScriptCompile Include="app-src\src\app\heroes\heroes.state.ts" />
     <TypeScriptCompile Include="app-src\src\app\heroes\heroes.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\in-memory-data.service.ts" />
     <TypeScriptCompile Include="app-src\src\app\messages\messages.component.ts" />

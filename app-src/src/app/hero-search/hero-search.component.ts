@@ -1,40 +1,28 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
-import { Observable, Subject } from 'rxjs';
-
-import {
-   debounceTime, distinctUntilChanged, switchMap
- } from 'rxjs/operators';
-
-import { Hero } from '../hero';
-import { HeroService } from '../hero.service';
+import * as heroSearch from '@app/hero-search/hero-search.state';
+import { Store, ReducerTask } from 'reduce-store';
 
 @Component({
   selector: 'app-hero-search',
   templateUrl: './hero-search.component.html',
-  styleUrls: [ './hero-search.component.css' ]
+  styleUrls: ['./hero-search.component.css']
 })
-export class HeroSearchComponent implements OnInit {
-  heroes$: Observable<Hero[]>;
-  private searchTerms = new Subject<string>();
+export class HeroSearchComponent implements OnDestroy {
+  private searchTask: ReducerTask<heroSearch.State, string>;
 
-  constructor(private heroService: HeroService) {}
+  state: heroSearch.State;
 
-  // Push a search term into the observable stream.
-  search(term: string): void {
-    this.searchTerms.next(term);
+  constructor() {
+    this.searchTask = Store.reduce.createReducerTask(heroSearch.SearhReducer, 300);
+    Store.state.subscribe(heroSearch.State, this, s => this.state = s);
   }
 
-  ngOnInit(): void {
-    this.heroes$ = this.searchTerms.pipe(
-      // wait 300ms after each keystroke before considering the term
-      debounceTime(300),
+  search(term: string): void {
+    this.searchTask.execute(term);
+  }
 
-      // ignore new term if same as previous term
-      distinctUntilChanged(),
-
-      // switch to new search observable each time the term changes
-      switchMap((term: string) => this.heroService.searchHeroes(term)),
-    );
+  ngOnDestroy(): void {
+    Store.reduce.byDelegate(heroSearch.State, s => Promise.resolve(undefined));
   }
 }

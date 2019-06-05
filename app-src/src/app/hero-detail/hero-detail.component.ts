@@ -1,40 +1,42 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 
-import { Hero }         from '../hero';
-import { HeroService }  from '../hero.service';
+import * as heroDetail from '@app/hero-detail/hero-detail.state';
+import { Store } from 'reduce-store';
 
 @Component({
   selector: 'app-hero-detail',
   templateUrl: './hero-detail.component.html',
-  styleUrls: [ './hero-detail.component.css' ]
+  styleUrls: ['./hero-detail.component.css']
 })
-export class HeroDetailComponent implements OnInit {
-  @Input() hero: Hero;
+export class HeroDetailComponent implements OnInit, OnDestroy {
+  state: heroDetail.State;
 
   constructor(
     private route: ActivatedRoute,
-    private heroService: HeroService,
-    private location: Location
-  ) {}
-
-  ngOnInit(): void {
-    this.getHero();
+    private location: Location,
+    private loadReducer: heroDetail.LoadReducer,
+    private saveReducer: heroDetail.SaveReducer,
+  ) {
+    Store.state.subscribe(heroDetail.State, this, s => this.state = s);
   }
 
-  getHero(): void {
+  ngOnInit(): void {
     const id = +this.route.snapshot.paramMap.get('id');
-    this.heroService.getHero(id)
-      .subscribe(hero => this.hero = hero);
+    Store.reduce.byDelegate(heroDetail.State, s => this.loadReducer.reduceAsync(s, id));
+  }
+
+  ngOnDestroy(): void {
+    Store.reduce.byDelegate(heroDetail.State, heroDetail.clear);
   }
 
   goBack(): void {
     this.location.back();
   }
 
- save(): void {
-    this.heroService.updateHero(this.hero)
-      .subscribe(() => this.goBack());
+  async save(): Promise<void> {
+    await Store.reduce.byDelegate(heroDetail.State, s => this.saveReducer.reduceAsync(s));
+    this.goBack();
   }
 }

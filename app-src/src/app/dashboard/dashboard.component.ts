@@ -19,5 +19,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    Store.reduce.byDelegate(dashboard.State, s => Promise.resolve(undefined));
   }
 }
