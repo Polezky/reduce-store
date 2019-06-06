@@ -27,6 +27,10 @@ These copies cannot influence each other and the State stored in the reduce-stor
 Basic clone functionality can be found in the Clone class. One can extend this class and Store will support cloning of every state.
 In order to turn cloning on a developer should call `Store.config.set({ cloneMethodName: 'clone' });`
 
+## Demo application
+Below is the link to a sample application that shows main usages of reduce-store library.
+[Tour of Heroes with reduce-store](https://stackblitz.com/edit/reduce-store-tour-of-heroes)
+
 ## Author
 
 Polezky Oleg
