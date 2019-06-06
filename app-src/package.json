@@ -9,9 +9,8 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "build-lib": "ng build reduce-store",
-    "build-lib-prod": "ng build --prod reduce-store",
     "test-lib": "ng test reduce-store",
-    "publish-lib": "npm run build-lib-prod && cd dist/reduce-store && npm publish"
+    "publish-lib": "npm run build-lib && cd dist/reduce-store && npm publish"
   },
   "private": true,
   "dependencies": {
