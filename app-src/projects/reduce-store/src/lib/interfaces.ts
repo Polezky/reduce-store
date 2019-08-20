@@ -6,15 +6,15 @@ export interface IConstructor<T> {
 }
 
 /**
- * The delegate function which changes a state
+ * The delegate function that changes a state
  * */
 export interface IReducerDelegate<T> {
   (state: T) : Promise<T>;
 }
 
 /**
- * The interface for Reducer. A Reducer class changes state in its reduceAsync method
- * Reducer references a state Constructor function in its readonly stateCtor property.
+ * The interface for the Reducer. The Reducer changes state in its reduceAsync method
+ * The Reducer references a state Constructor function in its readonly stateCtor property.
  * */
 export interface IReducer<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   /**

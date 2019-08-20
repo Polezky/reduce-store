@@ -4,8 +4,7 @@ import { finalize } from 'rxjs/operators';
 import { DeferredGetter, DeferredReducer, StateSubscriber } from './private-classes';
 import { StateData } from "./StateData";
 import { IConstructor, IReducerConstructor, IReducer, IReducerDelegate } from './interfaces';
-import { ReducerTask, AllLogEventTypes, StoreConfig } from './classes';
-import { LogConfig, LogEventType } from './classes';
+import { ReducerTask, AllLogEventTypes, StoreConfig, LogConfig, LogEventType, BrowserStorageConfig  } from './classes';
 import * as logging from './logging';
 
 class Storage {
@@ -116,11 +115,11 @@ class Storage {
       if (typeof componentInstance[this.config.disposeMethodName] !== 'function')
         throw new Error(`componentInstance does not have method ${this.config.disposeMethodName}`);
 
-      this.getSubscriptionState(componentInstance).add(newSubscription);
+      this.getStateSubscription(componentInstance).add(newSubscription);
 
       const originalOnDestroy = componentInstance[this.config.disposeMethodName].bind(componentInstance);
       componentInstance[this.config.disposeMethodName] = (): void => {
-        this.getSubscriptionState(componentInstance).unsubscribe();
+        this.getStateSubscription(componentInstance).unsubscribe();
         this.subscriptionStore.delete(componentInstance);
         originalOnDestroy();
       };
@@ -279,7 +278,65 @@ class Storage {
   };
 
   /**
-   * An object which contains operations to configure logging
+   * An object which contains methods to configure browser storage.
+   * */
+  browserStorage = {
+    /**
+     * After this method has been call the Store begins to save a copy of the given state in the browser storage.
+     * If there is no copy of the state in the browser storage or the value is expired then the given state is created
+     * by the given delegate.
+     * If there is a copy of the state in the browser storage and it is not expired then the given state is created with this copy.
+     * In both cases state is created like reduce.byDelegateDeferred method.
+     * The state value may expire according expirationDate property of BrowserStorageConfig
+     * */
+    configureByDelegateDeferred: <T>(config: Partial<BrowserStorageConfig>, stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
+      const stateData = this.getStateData(stateCtor);
+      stateData.browserStorageConfig = new BrowserStorageConfig(config);
+
+      const hasState = stateData.hasStateInBrowserStorage();
+      if (hasState) {
+        const state = stateData.getStateFromBrowserStorage();
+        const logger = new logging.Logger(stateCtor);
+        return this.internalReduceByDelegate(stateCtor, s => Promise.resolve(state), true, logger);
+      }
+
+      const logger = new logging.Logger(stateCtor);
+      return this.internalReduceByDelegate(stateCtor, delegate, true, logger);
+    },
+
+    /**
+     * After this method has been call the Store begins to save a copy of the given state in the browser storage.
+     * If there is no copy of the state in the browser storage or the value is expired then the given state is created
+     * by the given reducerCtor. In this case the state is created like reduce.byConstructorDeferred method.
+     * If there is a copy of the state in the browser storage and it is not expired then the given state is created with this copy.
+     * In this case the state is created like reduce.byDelegateDeferred method.
+     * The state value may expire according expirationDate property of BrowserStorageConfig.
+     * */
+    configureByConstructorDeferred: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+      config: Partial<BrowserStorageConfig>,
+      reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>,
+      a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6
+      ): Promise<void> => {
+
+      const reducer = this.config.resolver.get(reducerCtor);
+      const stateCtor = reducer.stateCtor;
+
+      const stateData = this.getStateData(stateCtor);
+      stateData.browserStorageConfig = new BrowserStorageConfig(config);
+
+      const hasState = stateData.hasStateInBrowserStorage();
+      if (hasState) {
+        const state = stateData.getStateFromBrowserStorage();
+        const logger = new logging.Logger(stateCtor);
+        return this.internalReduceByDelegate(stateCtor, s => Promise.resolve(state), true, logger);
+      }
+
+      return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
+    }
+  };
+
+  /**
+   * An object that contains operations to configure logging
   * */
   logging = {
 
@@ -418,6 +475,7 @@ class Storage {
 
   private internalReduce<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
     reducer: IReducer<T, A1, A2, A3, A4, A5, A6>, isDeferred: boolean, logger: logging.Logger<T>, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6): Promise<void> {
+
     const stateData = this.getStateData(reducer.stateCtor);
     const reducerLogger = new logging.ReducerLogger(reducer.stateCtor);
     stateData.isStateInitiated = true;
@@ -487,7 +545,6 @@ class Storage {
     deferredReducer.logger.stopRunWatches();
 
     stateData.isStateSuspended = false;
-    stateData.state = this.safeClone(newState);
 
     if (error) {
       deferredReducer.logger.log(
@@ -496,6 +553,10 @@ class Storage {
         { state: stateData.state, args: deferredReducer.args, reducerDelegate: deferredReducer.delegate })
       deferredReducer.reject(error);
     } else {
+      stateData.state = this.safeClone(newState);
+
+      stateData.saveStateToBrowserStorage();
+
       deferredReducer.logger.log(
         LogEventType.ReducerResolved,
         stateData,
@@ -535,7 +596,7 @@ class Storage {
     });
   }
 
-  private safeClone(state: any | undefined): any {
+  private safeClone<T>(state: T | undefined): T | null | undefined {
     if (state === undefined) return undefined;
     if (state === null) return null;
     if (!this.config || !this.config.cloneMethodName)
@@ -544,7 +605,7 @@ class Storage {
     return state[this.config.cloneMethodName]();
   }
 
-  private getSubscriptionState(componentInstance: {}): Subscription {
+  private getStateSubscription(componentInstance: {}): Subscription {
     let subscription = this.subscriptionStore.get(componentInstance);
     if (subscription) return subscription;
 
@@ -557,6 +618,6 @@ class Storage {
 
 /**
  * This class provides functionality to store and change applicatin states
- * It is Singletone instance of Storage class.
+ * It is a Singletone instance of Storage class.
  * */
 export const Store: Storage = Storage.instance;

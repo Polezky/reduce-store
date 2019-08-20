@@ -176,8 +176,8 @@ export enum LogEventType {
 }
 
 /**
- * A bit mask which contains all bits of LogEventType
- * Is exported because it is common to log all Log Event Types.
+ * A bit mask that contains all bits of LogEventType
+ * It is exported because it is common to log all Log Event Types.
  * */
 export const AllLogEventTypes =
     LogEventType.StateGetter
@@ -222,3 +222,30 @@ export class LogConfig {
   }
 }
 
+/**
+ * Configuration of the browser storage.
+* */
+export class BrowserStorageConfig {
+  readonly storage: Storage;
+
+  /**
+   * The type of the browser storage: session or local.
+   * */
+  type: 'sessionStorage' | 'localStorage';
+
+  /**
+   * The key to store the state value. A state must have its own unique key.
+   * */
+  key: string;
+
+  /**
+   * The date when the state value stored in the browser storage is expired.
+   * If this date is undefined then the state value will never expired.
+   * */
+  expirationDate?: Date;
+
+  constructor(init: Partial<BrowserStorageConfig>) {
+    Object.assign(this, init);
+    this.storage = window[this.type];
+  }
+}
