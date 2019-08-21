@@ -7,7 +7,7 @@ import { ReducerTask, StoreConfig } from './classes';
 import { Store } from './storage';
 
 /**
- * This service is a wrapper for the main Store singletone. See docs for Storage class
+ * This service is a wrapper for the main Store singletone. See docs of Storage class
  * */
 @Injectable({ providedIn: 'root' })
 export class StoreService {
@@ -18,25 +18,30 @@ export class StoreService {
   }
 
   /**
-   * This is a wrapper for the Store.config. See docs for Storage class
+   * This is a wrapper for the Store.config. See docs of Storage class
    * */
   get config(): StoreConfig { return Store.config; }
   /**
-   * This is a wrapper for the Store.getEntries. See docs for Storage class
+   * This is a wrapper for the Store.getEntries. See docs of Storage class
    * */
   getEntries = Store.getEntries.bind(Store);
   /**
-   * This is a wrapper for the Store.state. See docs for Storage class
+   * This is a wrapper for the Store.state. See docs of Storage class
    * */
   get state() { return Store.state; }
   /**
-   * This is a wrapper for the Store.reduce. See docs for Storage class
+   * This is a wrapper for the Store.reduce. See docs of Storage class
    * */
   get reduce() { return Store.reduce; }
   /**
-   * This is a wrapper for the Store.logging. See docs for Storage class
+   * This is a wrapper for the Store.logging. See docs of Storage class
    * */
   get logging() { return Store.logging; }
+
+  /**
+   * This is a wrapper for the Store.browserStorage. See docs of Storage class
+   * */
+  get browserStorage() { return Store.browserStorage; }
 }
 
 /**

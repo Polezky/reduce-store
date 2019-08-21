@@ -4,7 +4,7 @@ import { finalize } from 'rxjs/operators';
 import { DeferredGetter, DeferredReducer, StateSubscriber } from './private-classes';
 import { StateData } from "./StateData";
 import { IConstructor, IReducerConstructor, IReducer, IReducerDelegate } from './interfaces';
-import { ReducerTask, AllLogEventTypes, StoreConfig, LogConfig, LogEventType, BrowserStorageConfig  } from './classes';
+import { ReducerTask, AllLogEventTypes, StoreConfig, LogConfig, LogEventType, BrowserStorageConfig } from './classes';
 import * as logging from './logging';
 
 class Storage {
@@ -282,7 +282,7 @@ class Storage {
    * */
   browserStorage = {
     /**
-     * After this method has been call the Store begins to save a copy of the given state in the browser storage.
+     * After this method has been called the Store begins to save a copy of the given state in the browser storage.
      * If there is no copy of the state in the browser storage or the value is expired then the given state is created
      * by the given delegate.
      * If there is a copy of the state in the browser storage and it is not expired then the given state is created with this copy.
@@ -305,7 +305,7 @@ class Storage {
     },
 
     /**
-     * After this method has been call the Store begins to save a copy of the given state in the browser storage.
+     * After this method has been called the Store begins to save a copy of the given state in the browser storage.
      * If there is no copy of the state in the browser storage or the value is expired then the given state is created
      * by the given reducerCtor. In this case the state is created like reduce.byConstructorDeferred method.
      * If there is a copy of the state in the browser storage and it is not expired then the given state is created with this copy.
@@ -316,7 +316,7 @@ class Storage {
       config: Partial<BrowserStorageConfig>,
       reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>,
       a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6
-      ): Promise<void> => {
+    ): Promise<void> => {
 
       const reducer = this.config.resolver.get(reducerCtor);
       const stateCtor = reducer.stateCtor;
@@ -332,7 +332,8 @@ class Storage {
       }
 
       return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
-    }
+    },
+
   };
 
   /**

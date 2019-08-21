@@ -240,7 +240,7 @@ export class BrowserStorageConfig {
 
   /**
    * The date when the state value stored in the browser storage is expired.
-   * If this date is undefined then the state value will never expired.
+   * If this date is undefined then the state value will never expire.
    * */
   expirationDate?: Date;
 

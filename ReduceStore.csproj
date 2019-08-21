@@ -84,6 +84,7 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\storage.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\public-api.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\test.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\browser-storage.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\general.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\logging.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\subscribe-to-state.spec.ts" />
