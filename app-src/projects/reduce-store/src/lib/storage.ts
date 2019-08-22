@@ -4,7 +4,7 @@ import { finalize } from 'rxjs/operators';
 import { DeferredGetter, DeferredReducer, StateSubscriber } from './private-classes';
 import { StateData } from "./StateData";
 import { IConstructor, IReducerConstructor, IReducer, IReducerDelegate, IFromBrowserStorageCtor } from './interfaces';
-import { ReducerTask, AllLogEventTypes, StoreConfig, LogConfig, LogEventType, BrowserStorageConfig } from './classes';
+import { ReducerTask, AllLogEventTypes, StoreConfig, LogConfig, LogEventType, BrowserStorage } from './classes';
 import * as logging from './logging';
 
 class Storage {
@@ -284,57 +284,35 @@ class Storage {
     /**
      * After this method has been called the Store begins to save a copy of the given state in the browser storage.
      * If there is no copy of the state in the browser storage or the value is expired then the given state is created
-     * by the given delegate.
-     * If there is a copy of the state in the browser storage and it is not expired then the given state is created with this copy.
-     * In both cases state is created like reduce.byDelegateDeferred method.
-     * The state value may expire according expirationDate property of BrowserStorageConfig
-     * */
-    configureByDelegateDeferred: <T>(
-      config: BrowserStorageConfig<T> | Partial<BrowserStorageConfig<T>>,
-      stateCtor: IFromBrowserStorageCtor<T>,
-      delegate: IReducerDelegate<T>): Promise<void> => {
-
-      const stateData = this.getStateData(stateCtor);
-      stateData.setBrowserConfig(config);
-
-      const hasState = stateData.hasStateInBrowserStorage();
-      if (hasState) {
-        const state = stateData.getStateFromBrowserStorage();
-        const logger = new logging.Logger(stateCtor);
-        return this.internalReduceByDelegate(stateCtor, s => Promise.resolve(state), true, logger);
-      }
-
-      const logger = new logging.Logger(stateCtor);
-      return this.internalReduceByDelegate(stateCtor, delegate, true, logger);
-    },
-
-    /**
-     * After this method has been called the Store begins to save a copy of the given state in the browser storage.
-     * If there is no copy of the state in the browser storage or the value is expired then the given state is created
      * by the given reducerCtor. In this case the state is created like reduce.byConstructorDeferred method.
      * If there is a copy of the state in the browser storage and it is not expired then the given state is created with this copy.
      * In this case the state is created like reduce.byDelegateDeferred method.
      * The state value may expire according expirationDate property of BrowserStorageConfig.
      * */
-    configureByConstructorDeferred: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
-      config: BrowserStorageConfig<T> | Partial<BrowserStorageConfig<T>>,
-      reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>,
+    configure: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
+      config: BrowserStorage<T> | Partial<BrowserStorage<T>>,
       a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6
     ): Promise<void> => {
 
-      const reducer = this.config.resolver.get(reducerCtor);
-      const stateCtor = reducer.stateCtor;
-
+      const stateCtor = config.stateCtor;
       const stateData = this.getStateData(stateCtor);
-      stateData.setBrowserConfig(config);
+      stateData.setBrowserStorage(config);
 
-      const hasState = stateData.hasStateInBrowserStorage();
+      const hasState = stateData.browserStorage.hasState();
       if (hasState) {
-        const state = stateData.getStateFromBrowserStorage();
+        const state = stateData.browserStorage.getState();
         const logger = new logging.Logger(stateCtor);
         return this.internalReduceByDelegate(stateCtor, s => Promise.resolve(state), true, logger);
       }
 
+      const isByDelegate = stateData.browserStorage.deferredDelegate !== undefined;
+      if (isByDelegate) {
+        const logger = new logging.Logger(stateCtor);
+        const delegate = stateData.browserStorage.deferredDelegate;
+        return this.internalReduceByDelegate(stateCtor, delegate, true, logger);
+      } 
+
+      const reducerCtor = stateData.browserStorage.deferredReducerCtor;
       return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
     },
 
@@ -560,7 +538,7 @@ class Storage {
     } else {
       stateData.state = this.safeClone(newState);
 
-      stateData.saveStateToBrowserStorage();
+      stateData.browserStorage.saveState(stateData.state);
 
       deferredReducer.logger.log(
         LogEventType.ReducerResolved,

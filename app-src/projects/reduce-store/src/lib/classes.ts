@@ -1,4 +1,4 @@
-import { IReducerConstructor, IDependecyResolver, IFromBrowserStorageCtor } from "./interfaces";
+import { IReducerConstructor, IDependecyResolver, IConstructor, IReducerDelegate, IFromBrowserStorageReducerConstructor } from "./interfaces";
 import { DeferredTask, SimpleDependecyResolver } from "./private-classes";
 import { stringify, parse } from 'flatted/esm';
 
@@ -224,10 +224,23 @@ export class LogConfig {
 }
 
 /**
- * Configuration of the browser storage.
+* This calss implements functionality to store a state in the browser storage.
 * */
-export class BrowserStorageConfig<T> {
-  readonly storage: Storage;
+export class BrowserStorage<T> {
+  /**
+   * The key to store the state value. A state must have its own unique key.
+   * */
+  readonly key: string;
+
+  readonly stateCtor: IConstructor<T>;
+
+  readonly deferredDelegate?: IReducerDelegate<T>;
+
+  readonly deferredReducerCtor?: IFromBrowserStorageReducerConstructor<T>;
+
+  get storage(): Storage {
+    return window[this.type];
+  }
 
   /**
    * The type of the browser storage: session or local.
@@ -236,33 +249,45 @@ export class BrowserStorageConfig<T> {
   readonly type?: 'sessionStorage' | 'localStorage' = 'localStorage';
 
   /**
-   * The key to store the state value. A state must have its own unique key.
-   * */
-  readonly key: string;
-
-  /**
    * The date when the state value stored in the browser storage is expired.
    * If this date is undefined then the state value will never expire.
    * */
   readonly expirationDate?: Date;
 
-  isEnabled: boolean = true;
+  isEnabled?: boolean = true;
 
-  constructor(init: Partial<BrowserStorageConfig<T>>) {
+  constructor(init: Partial<BrowserStorage<T>>) {
     Object.assign(this, init);
-    this.storage = window[this.type];
   }
 
-  save(state: T): void {
+  saveState(state: T): void {
     if (!this.isEnabled) return;
 
     this.storage.setItem(this.key, stringify(state));
   }
 
-  getStateFromStorage(stateCtor: IFromBrowserStorageCtor<T>): T {
+  getState(): T {
     if (!this.isEnabled) throw new Error('Browser storage is not enabled');
 
     const statePartial = parse(this.storage.getItem(this.key));
-    return new stateCtor(statePartial);
+    return this.createState(statePartial);
   }
+
+  createState(statePartial: Partial<T>): T {
+    return new this.stateCtor(statePartial);
+  }
+
+  hasState(): boolean {
+    if (!this.isEnabled) return false;
+
+    const isExpired = this.expirationDate && this.expirationDate.getTime() < new Date().getTime();
+
+    if (isExpired) {
+      return false;
+    }
+
+    const item = this.storage.getItem(this.key);
+    return item !== null;
+  }
+
 }

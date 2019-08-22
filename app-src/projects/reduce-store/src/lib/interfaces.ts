@@ -46,3 +46,12 @@ export interface IFromBrowserStorageCtor<T> {
   new(init: Partial<T>): T;
 }
 
+export interface IFromBrowserStorageReducer<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
+  readonly stateCtor: IFromBrowserStorageCtor<T>;
+
+  reduceAsync: (state: T, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6) => Promise<T>;
+}
+
+export interface IFromBrowserStorageReducerConstructor<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
+  new(...args: any[]): IFromBrowserStorageReducer<T, A1, A2, A3, A4, A5, A6>;
+}
