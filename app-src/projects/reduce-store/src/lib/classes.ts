@@ -1,5 +1,6 @@
-import { IReducerConstructor, IDependecyResolver } from "./interfaces";
+import { IReducerConstructor, IDependecyResolver, IFromBrowserStorageCtor } from "./interfaces";
 import { DeferredTask, SimpleDependecyResolver } from "./private-classes";
+import { stringify, parse } from 'flatted/esm';
 
 var loggingDefaultPrefix = '';
 var loggingDefaultCss = 'background-color: beige; color: green;';
@@ -180,7 +181,7 @@ export enum LogEventType {
  * It is exported because it is common to log all Log Event Types.
  * */
 export const AllLogEventTypes =
-    LogEventType.StateGetter
+  LogEventType.StateGetter
   | LogEventType.StateGetterResolved
   | LogEventType.SubscriberAdded
   | LogEventType.SubscriberNotification
@@ -225,27 +226,43 @@ export class LogConfig {
 /**
  * Configuration of the browser storage.
 * */
-export class BrowserStorageConfig {
+export class BrowserStorageConfig<T> {
   readonly storage: Storage;
 
   /**
    * The type of the browser storage: session or local.
+   * Optional, default type is localStorage.
    * */
-  type: 'sessionStorage' | 'localStorage';
+  readonly type?: 'sessionStorage' | 'localStorage' = 'localStorage';
 
   /**
    * The key to store the state value. A state must have its own unique key.
    * */
-  key: string;
+  readonly key: string;
 
   /**
    * The date when the state value stored in the browser storage is expired.
    * If this date is undefined then the state value will never expire.
    * */
-  expirationDate?: Date;
+  readonly expirationDate?: Date;
 
-  constructor(init: Partial<BrowserStorageConfig>) {
+  isEnabled: boolean = true;
+
+  constructor(init: Partial<BrowserStorageConfig<T>>) {
     Object.assign(this, init);
     this.storage = window[this.type];
+  }
+
+  save(state: T): void {
+    if (!this.isEnabled) return;
+
+    this.storage.setItem(this.key, stringify(state));
+  }
+
+  getStateFromStorage(stateCtor: IFromBrowserStorageCtor<T>): T {
+    if (!this.isEnabled) throw new Error('Browser storage is not enabled');
+
+    const statePartial = parse(this.storage.getItem(this.key));
+    return new stateCtor(statePartial);
   }
 }

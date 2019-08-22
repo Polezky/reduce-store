@@ -2,6 +2,7 @@ import { TestBed, inject } from '@angular/core/testing';
 
 import { StoreService } from '../lib/reduce-store.service';
 import { Clone, BrowserStorageConfig } from 'reduce-store';
+import { stringify, parse } from 'flatted/esm';
 
 class TestState extends Clone<TestState> {
   static storageConfig: Partial<BrowserStorageConfig> = { key: 'TestState', type: 'localStorage' };
@@ -21,7 +22,17 @@ describe('ReduceStore', () => {
   });
 
   it('should be created', inject([StoreService], async (store: StoreService) => {
+    window['parse'] = parse;
+    window['stringify'] = stringify;
+
+    const testState = { value: -1 };
+    const stringified = stringify(testState);
+    const parsed = parse(stringified);
+    console.log(stringified, parsed);
+
     store.browserStorage.configureByDelegateDeferred(TestState.storageConfig, TestState, s => createTestState(-1));
+    store.browserStorage.configureByDelegateDeferred(TestState2.storageConfig, TestState2, s => createTestState2(-1));
+    store.state.get(TestState2);
 
     //store.state.getObservable(TestState).subscribe(x => {
     //  console.log({ TestState: x });

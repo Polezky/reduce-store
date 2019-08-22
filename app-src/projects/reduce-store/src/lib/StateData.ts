@@ -13,7 +13,7 @@ export class StateData<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null,
   suspendedGetters: Array<DeferredGetter<T>> = []; // getters that came after state was suspended
   deferredReducers: Array<DeferredReducer<T, A1, A2, A3, A4, A5, A6>> = [];
   logConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
-  browserStorageConfig: BrowserStorageConfig;
+  browserStorageConfig: BrowserStorageConfig<T> = new BrowserStorageConfig<T>({ isEnabled: false });
 
   saveStateToBrowserStorage(): void {
     if (!this.browserStorageConfig) return;
@@ -44,6 +44,14 @@ export class StateData<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null,
 
     const item = config.storage.getItem(config.key);
     return item !== null;
+  }
+
+  setBrowserConfig(config: BrowserStorageConfig<T> | Partial<BrowserStorageConfig<T>>): void {
+    if (config instanceof BrowserStorageConfig) {
+      this.browserStorageConfig = config;
+    } else {
+      this.browserStorageConfig = new BrowserStorageConfig(config);
+    }
   }
 
 }

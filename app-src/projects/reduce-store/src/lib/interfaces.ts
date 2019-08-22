@@ -41,3 +41,8 @@ export interface IReducerConstructor<T, A1 = null, A2 = null, A3 = null, A4 = nu
 export interface IDependecyResolver {
   get<T>(ctor: IConstructor<T>): T;
 }
+
+export interface IFromBrowserStorageCtor<T> {
+  new(init: Partial<T>): T;
+}
+

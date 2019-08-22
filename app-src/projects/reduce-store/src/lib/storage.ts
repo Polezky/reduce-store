@@ -3,7 +3,7 @@ import { finalize } from 'rxjs/operators';
 
 import { DeferredGetter, DeferredReducer, StateSubscriber } from './private-classes';
 import { StateData } from "./StateData";
-import { IConstructor, IReducerConstructor, IReducer, IReducerDelegate } from './interfaces';
+import { IConstructor, IReducerConstructor, IReducer, IReducerDelegate, IFromBrowserStorageCtor } from './interfaces';
 import { ReducerTask, AllLogEventTypes, StoreConfig, LogConfig, LogEventType, BrowserStorageConfig } from './classes';
 import * as logging from './logging';
 
@@ -289,9 +289,13 @@ class Storage {
      * In both cases state is created like reduce.byDelegateDeferred method.
      * The state value may expire according expirationDate property of BrowserStorageConfig
      * */
-    configureByDelegateDeferred: <T>(config: Partial<BrowserStorageConfig>, stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
+    configureByDelegateDeferred: <T>(
+      config: BrowserStorageConfig<T> | Partial<BrowserStorageConfig<T>>,
+      stateCtor: IFromBrowserStorageCtor<T>,
+      delegate: IReducerDelegate<T>): Promise<void> => {
+
       const stateData = this.getStateData(stateCtor);
-      stateData.browserStorageConfig = new BrowserStorageConfig(config);
+      stateData.setBrowserConfig(config);
 
       const hasState = stateData.hasStateInBrowserStorage();
       if (hasState) {
@@ -313,7 +317,7 @@ class Storage {
      * The state value may expire according expirationDate property of BrowserStorageConfig.
      * */
     configureByConstructorDeferred: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
-      config: Partial<BrowserStorageConfig>,
+      config: BrowserStorageConfig<T> | Partial<BrowserStorageConfig<T>>,
       reducerCtor: IReducerConstructor<T, A1, A2, A3, A4, A5, A6>,
       a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6
     ): Promise<void> => {
@@ -322,7 +326,7 @@ class Storage {
       const stateCtor = reducer.stateCtor;
 
       const stateData = this.getStateData(stateCtor);
-      stateData.browserStorageConfig = new BrowserStorageConfig(config);
+      stateData.setBrowserConfig(config);
 
       const hasState = stateData.hasStateInBrowserStorage();
       if (hasState) {
