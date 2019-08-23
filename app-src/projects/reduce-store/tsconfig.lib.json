@@ -5,6 +5,11 @@
     "target": "es2015",
     "declaration": true,
     "inlineSources": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "types": [],
     "lib": [
       "dom",

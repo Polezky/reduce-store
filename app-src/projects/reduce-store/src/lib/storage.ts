@@ -3,7 +3,7 @@ import { finalize } from 'rxjs/operators';
 
 import { DeferredGetter, DeferredReducer, StateSubscriber } from './private-classes';
 import { StateData } from "./StateData";
-import { IConstructor, IReducerConstructor, IReducer, IReducerDelegate, IFromBrowserStorageCtor } from './interfaces';
+import { IConstructor, IReducerConstructor, IReducer, IReducerDelegate, IFromBrowserStorageCtor, IBrowserStorage } from './interfaces';
 import { ReducerTask, AllLogEventTypes, StoreConfig, LogConfig, LogEventType, BrowserStorage } from './classes';
 import * as logging from './logging';
 
@@ -290,7 +290,7 @@ class Storage {
      * The state value may expire according expirationDate property of BrowserStorageConfig.
      * */
     configure: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
-      config: BrowserStorage<T> | Partial<BrowserStorage<T>>,
+      config: BrowserStorage<T> | IBrowserStorage<T>,
       a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6
     ): Promise<void> => {
 
@@ -468,7 +468,7 @@ class Storage {
       stateData.deferredReducers.push(deferred);
 
       if (isDeferred) {
-        logger.log(LogEventType.ReducerByConstructorDeferred, stateData, { state: stateData.state, args });
+        logger.log(LogEventType.ReduceByConstructorDeferred, stateData, { state: stateData.state, args });
       } else {
         logger.log(LogEventType.ReduceByConstructor, stateData, { state: stateData.state, args });
         this.reduceDeferred(reducer.stateCtor, false);

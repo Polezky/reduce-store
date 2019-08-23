@@ -1,14 +1,14 @@
 import { TestBed, inject } from '@angular/core/testing';
 
 import { StoreService } from '../lib/reduce-store.service';
-import { Clone, BrowserStorage } from 'reduce-store';
+import { Clone, IBrowserStorage } from 'reduce-store';
 import { parse } from 'flatted/esm';
 
 class TestState extends Clone<TestState> {
   value: number;
 }
 
-const storageConfig: Partial<BrowserStorage<TestState>> = {
+const storageConfig: IBrowserStorage<TestState> = {
   key: 'TestState',
   deferredDelegate: s => createTestState(-1),
   stateCtor: TestState,

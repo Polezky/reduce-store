@@ -9,7 +9,7 @@ export interface IConstructor<T> {
  * The delegate function that changes a state
  * */
 export interface IReducerDelegate<T> {
-  (state: T) : Promise<T>;
+  (state: T): Promise<T>;
 }
 
 /**
@@ -55,3 +55,15 @@ export interface IFromBrowserStorageReducer<T, A1 = null, A2 = null, A3 = null, 
 export interface IFromBrowserStorageReducerConstructor<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   new(...args: any[]): IFromBrowserStorageReducer<T, A1, A2, A3, A4, A5, A6>;
 }
+
+export interface IBrowserStorageBase<T> {
+  key: string;
+  stateCtor: IFromBrowserStorageCtor<T>;
+  isEnabled?: boolean;
+}
+
+export type IBrowserStorage<T> =
+  IBrowserStorageBase<T> & { deferredDelegate: IReducerDelegate<T> }
+  | IBrowserStorageBase<T> & { deferredReducerCtor: IFromBrowserStorageReducerConstructor<T> };
+
+

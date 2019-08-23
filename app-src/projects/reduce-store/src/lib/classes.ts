@@ -1,4 +1,4 @@
-import { IReducerConstructor, IDependecyResolver, IConstructor, IReducerDelegate, IFromBrowserStorageReducerConstructor } from "./interfaces";
+import { IReducerConstructor, IDependecyResolver, IConstructor, IReducerDelegate, IFromBrowserStorageReducerConstructor, IBrowserStorage, IReducer } from "./interfaces";
 import { DeferredTask, SimpleDependecyResolver } from "./private-classes";
 import { stringify, parse } from 'flatted/esm';
 
@@ -170,7 +170,7 @@ export enum LogEventType {
   StateSuspended = 1 << 5,
   ReduceByConstructor = 1 << 6,
   ReduceByDelegate = 1 << 7,
-  ReducerByConstructorDeferred = 1 << 8,
+  ReduceByConstructorDeferred = 1 << 8,
   ReduceByDelegateDeferred = 1 << 9,
   ReducerResolved = 1 << 10,
   ReducerRejected = 1 << 11,
@@ -189,7 +189,7 @@ export const AllLogEventTypes =
   | LogEventType.StateSuspended
   | LogEventType.ReduceByConstructor
   | LogEventType.ReduceByDelegate
-  | LogEventType.ReducerByConstructorDeferred
+  | LogEventType.ReduceByConstructorDeferred
   | LogEventType.ReduceByDelegateDeferred
   | LogEventType.ReducerResolved
   | LogEventType.ReducerRejected
@@ -256,7 +256,7 @@ export class BrowserStorage<T> {
 
   isEnabled?: boolean = true;
 
-  constructor(init: Partial<BrowserStorage<T>>) {
+  constructor(init: IBrowserStorage<T>) {
     Object.assign(this, init);
   }
 
