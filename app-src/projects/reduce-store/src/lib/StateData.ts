@@ -20,7 +20,7 @@ export class StateData<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null,
     deferredDelegate: undefined
   });
 
-  setBrowserStorage(config: BrowserStorage<T> | IBrowserStorage<T>): void {
+  setBrowserStorage(config: IBrowserStorage<T> | BrowserStorage<T>): void {
     if (config instanceof BrowserStorage) {
       this.browserStorage = config;
     } else {

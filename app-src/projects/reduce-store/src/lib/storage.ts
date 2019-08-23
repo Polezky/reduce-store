@@ -223,7 +223,7 @@ class Storage {
      *
      * param stateCtor - constructor function of a state.
      * param delegate - an implementation of IReducerDelegate<T> interface. That is an anonymous function which accepts current
-     * state and return Promise of new state
+     * states and return Promise of new state
      * */
     byDelegate: <T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
       const logger = new logging.Logger(stateCtor);
@@ -283,14 +283,14 @@ class Storage {
   browserStorage = {
     /**
      * After this method has been called the Store begins to save a copy of the given state in the browser storage.
-     * If there is no copy of the state in the browser storage or the value is expired then the given state is created
-     * by the given reducerCtor. In this case the state is created like reduce.byConstructorDeferred method.
      * If there is a copy of the state in the browser storage and it is not expired then the given state is created with this copy.
-     * In this case the state is created like reduce.byDelegateDeferred method.
-     * The state value may expire according expirationDate property of BrowserStorageConfig.
+     * If there is no copy of the state in the browser storage or the value is expired then the given state is created
+     * by the given IReducerDelegate or IFromBrowserStorageReducerConstructor.
+     * In all cases the state creation is deferred untill state.get or state.getObservable is called.
+     * The state value may expire according expirationDate property of BrowserStorage.
      * */
     configure: <T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null>(
-      config: BrowserStorage<T> | IBrowserStorage<T>,
+      config: IBrowserStorage<T> | BrowserStorage<T>,
       a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6
     ): Promise<void> => {
 

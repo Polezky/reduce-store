@@ -42,26 +42,44 @@ export interface IDependecyResolver {
   get<T>(ctor: IConstructor<T>): T;
 }
 
+/**
+ * The interface for states that is stored in the browser storage
+ * A state of that kind must be able to construct itself from anonymous object that have properties of that state
+ * */
 export interface IFromBrowserStorageCtor<T> {
   new(init: Partial<T>): T;
 }
 
-export interface IFromBrowserStorageReducer<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
+interface IFromBrowserStorageReducer<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   readonly stateCtor: IFromBrowserStorageCtor<T>;
 
   reduceAsync: (state: T, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6) => Promise<T>;
 }
 
+/**
+ * The interface for reducers that chage states that is stored in the browser storage
+ * */
 export interface IFromBrowserStorageReducerConstructor<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   new(...args: any[]): IFromBrowserStorageReducer<T, A1, A2, A3, A4, A5, A6>;
 }
 
-export interface IBrowserStorageBase<T> {
+interface IBrowserStorageBase<T> {
+  /**
+   * The key to store the state value. A state must have its own unique key.
+   * */
   key: string;
+
+  /**
+   * The constructor function of a state.
+   * */
   stateCtor: IFromBrowserStorageCtor<T>;
+
   isEnabled?: boolean;
 }
 
+/**
+ * The interface to configure browser storage functionality
+ * */
 export type IBrowserStorage<T> =
   IBrowserStorageBase<T> & { deferredDelegate: IReducerDelegate<T> }
   | IBrowserStorageBase<T> & { deferredReducerCtor: IFromBrowserStorageReducerConstructor<T> };

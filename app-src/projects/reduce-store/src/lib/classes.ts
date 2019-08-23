@@ -1,4 +1,4 @@
-import { IReducerConstructor, IDependecyResolver, IConstructor, IReducerDelegate, IFromBrowserStorageReducerConstructor, IBrowserStorage, IReducer } from "./interfaces";
+import { IReducerConstructor, IDependecyResolver, IConstructor, IReducerDelegate, IFromBrowserStorageReducerConstructor, IBrowserStorage, IReducer, IFromBrowserStorageCtor } from "./interfaces";
 import { DeferredTask, SimpleDependecyResolver } from "./private-classes";
 import { stringify, parse } from 'flatted/esm';
 
@@ -232,15 +232,22 @@ export class BrowserStorage<T> {
    * */
   readonly key: string;
 
-  readonly stateCtor: IConstructor<T>;
+  /**
+   * The constructor function of a state.
+   * */
+  readonly stateCtor: IFromBrowserStorageCtor<T>;
 
+  /**
+   * The delegate that will be used to create a new state if it is not exist in the browser storage
+   * State creation will be deferred until. state is asked
+   * */
   readonly deferredDelegate?: IReducerDelegate<T>;
 
+  /**
+   * The reducer constructor that will be used to create a new state if it is not exist in the browser storage
+   * State creation will be deferred until. state is asked
+   * */
   readonly deferredReducerCtor?: IFromBrowserStorageReducerConstructor<T>;
-
-  get storage(): Storage {
-    return window[this.type];
-  }
 
   /**
    * The type of the browser storage: session or local.
@@ -254,10 +261,20 @@ export class BrowserStorage<T> {
    * */
   readonly expirationDate?: Date;
 
+  /**
+   * If this property is true, then the state is saved to the browser storage every time a reducer is applied
+   * If this property is true and the state has not been intitiate, then either deferredDelegate or deferredReducerCtor
+   * will be applied to create the state. State creation will be deferred until. state is asked.
+   * If this property is false, then the browser storage functionality is not used.
+   * */
   isEnabled?: boolean = true;
 
   constructor(init: IBrowserStorage<T>) {
     Object.assign(this, init);
+  }
+
+  get storage(): Storage {
+    return window[this.type];
   }
 
   saveState(state: T): void {
@@ -289,5 +306,4 @@ export class BrowserStorage<T> {
     const item = this.storage.getItem(this.key);
     return item !== null;
   }
-
 }
