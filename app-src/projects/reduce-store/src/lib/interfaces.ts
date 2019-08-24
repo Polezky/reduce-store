@@ -50,20 +50,26 @@ export interface IFromBrowserStorageCtor<T> {
   new(init: Partial<T>): T;
 }
 
-interface IFromBrowserStorageReducer<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
+/**
+ * The interface for reducers that chage states that is stored in the browser storage
+ * */
+export interface IFromBrowserStorageReducer<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   readonly stateCtor: IFromBrowserStorageCtor<T>;
 
   reduceAsync: (state: T, a1?: A1, a2?: A2, a3?: A3, a4?: A4, a5?: A5, a6?: A6) => Promise<T>;
 }
 
 /**
- * The interface for reducers that chage states that is stored in the browser storage
+ * The interface for a reducer constructor that chage states that is stored in the browser storage
  * */
 export interface IFromBrowserStorageReducerConstructor<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = null, A6 = null> {
   new(...args: any[]): IFromBrowserStorageReducer<T, A1, A2, A3, A4, A5, A6>;
 }
 
-interface IBrowserStorageBase<T> {
+/**
+ * The interface to configure required properties of browser storage functionality
+ * */
+export interface IBrowserStorageBase<T> {
   /**
    * The key to store the state value. A state must have its own unique key.
    * */

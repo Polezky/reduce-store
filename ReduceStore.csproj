@@ -89,7 +89,7 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\logging.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\subscribe-to-state.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\suspend-state.spec.ts" />
-    <TypeScriptCompile Include="app-src\src\app\app-routing.module.ts" />
+    <TypeScriptCompile Include="app-src\src\app\routes.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.component.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.initializer.ts" />
     <TypeScriptCompile Include="app-src\src\app\app.module.ts" />

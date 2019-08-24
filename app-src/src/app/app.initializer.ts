@@ -1,8 +1,9 @@
 import { APP_INITIALIZER, Injector } from '@angular/core';
-import { Store, StoreConfig, AllLogEventTypes, StoreService } from 'reduce-store';
+import { Store, AllLogEventTypes, StoreService } from 'reduce-store';
 import { environment } from '../environments/environment';
 
 import * as messages from '@app/messages/messages.state';
+import * as route from './routes';
 
 export const AppInitializer = {
   provide: APP_INITIALIZER,
@@ -14,7 +15,12 @@ export const AppInitializer = {
 export function initializeFactory(injector: Injector, store: StoreService) {
   return () => {
     Store.config.set({ cloneMethodName: 'clone' });
-    Store.logging.setConfiguration([]);
+
+    Store.browserStorage.configure(route.storageConfig);
+
+    //Store.logging.setConfiguration([]);
+    Store.logging.setConfiguration([route.State], AllLogEventTypes, { css: 'color: red;' });
+
     Store.logging.turnOn();
 
     if (!environment.production) {
