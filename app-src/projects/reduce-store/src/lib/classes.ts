@@ -24,7 +24,7 @@ export class StoreConfig {
    * This method will be wrapped by the Store and when the component dispose method is called
    * then Store unsubscribes the subscription and calls original dispose method.
    * */
-  disposeMethodName?: string = 'dispose';
+  disposeMethodName?: string;
 
   /**
    * This class is used to create instances of Reducers. Reducers are created in Store.reduce.byConstructor and
