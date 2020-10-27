@@ -78,8 +78,7 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\logging.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-classes.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\private-interfaces.ts" />
-    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.module.ts" />
-    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\reduce-store.service.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\store.service.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\StateData.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\lib\storage.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\public-api.ts" />
@@ -87,6 +86,7 @@
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\browser-storage.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\general.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\logging.spec.ts" />
+    <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\NgStoreService.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\subscribe-to-state.spec.ts" />
     <TypeScriptCompile Include="app-src\projects\reduce-store\src\tests\suspend-state.spec.ts" />
     <TypeScriptCompile Include="app-src\src\app\routes.ts" />

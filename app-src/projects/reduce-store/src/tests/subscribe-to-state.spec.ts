@@ -1,8 +1,8 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { ReduceStore } from '../lib/reduce-store.service';
 import { Clone, IReducer } from 'reduce-store';
 import { Injectable, OnDestroy } from '@angular/core';
+import { NgStoreService } from './NgStoreService';
 
 class TestState extends Clone<TestState> {
   value: number;
@@ -28,8 +28,8 @@ class Component implements OnDestroy {
   private value = 'zzz';
   private state: TestState;
 
-  constructor(private store: ReduceStore, value: string) {
-    this.store.subscribeToState(TestState, this, this.onStateChanged);
+  constructor(private store: NgStoreService, value: string) {
+    this.store.state.subscribe(TestState, this, this.onStateChanged);
     this.value = value;
   }
 
@@ -46,11 +46,11 @@ class Component implements OnDestroy {
 describe('ReduceStore', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ReduceStore]
+      providers: [NgStoreService]
     });
   });
 
-  it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
+  it('should be created', inject([NgStoreService], async (store: NgStoreService) => {
     console.log('store', store);
 
     //store.logType = LogType.Reducer;// | LogType.ReducerData;
@@ -62,16 +62,16 @@ describe('ReduceStore', () => {
 
     await new Promise(r => setTimeout(r, 1000));
 
-    await store.reduce(TestStateReducer, 2);
+    await store.reduce.byConstructor(TestStateReducer, 2);
 
     component1.ngOnDestroy();
 
-    await store.reduce(TestStateReducer, 3);
+    await store.reduce.byConstructor(TestStateReducer, 3);
 
     component2.ngOnDestroy();
 
     setTimeout(() => {
-      store.reduce(TestStateReducer, 4);
+      store.reduce.byConstructor(TestStateReducer, 4);
     }, 1000);
 
     await new Promise(r => setTimeout(r, 1000));

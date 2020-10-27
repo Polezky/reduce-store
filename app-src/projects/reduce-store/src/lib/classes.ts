@@ -1,4 +1,4 @@
-import { IReducerConstructor, IDependecyResolver, IConstructor, IReducerDelegate, IFromBrowserStorageReducerConstructor, IBrowserStorage, IReducer, IFromBrowserStorageCtor } from "./interfaces";
+import { IReducerConstructor, IDependecyResolver, IStateConstructor, IReducerDelegate, IFromBrowserStorageReducerConstructor, IBrowserStorage, IReducer, IFromBrowserStorageCtor } from "./interfaces";
 import { DeferredTask, SimpleDependecyResolver } from "./private-classes";
 import { stringify, parse } from 'flatted/esm';
 

@@ -1,8 +1,8 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { StoreService } from '../lib/reduce-store.service';
 import { Clone, IBrowserStorage } from 'reduce-store';
 import { parse } from 'flatted/esm';
+import { NgStoreService } from './NgStoreService';
 
 class TestState extends Clone<TestState> {
   value: number;
@@ -18,14 +18,14 @@ function createTestState(value: number): Promise<TestState> {
   return Promise.resolve(new TestState({ value }));
 }
 
-describe('ReduceStore: Browser storage functionality', () => {
+describe('StoreService: Browser storage functionality', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [StoreService]
+      providers: [NgStoreService]
     });
   });
 
-  it('should be created', inject([StoreService], async (store: StoreService) => {
+  it('should be created', inject([NgStoreService], async (store: NgStoreService) => {
     store.browserStorage.configure(storageConfig);
 
     let state = await store.state.get(TestState);

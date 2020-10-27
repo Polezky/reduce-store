@@ -3,7 +3,7 @@ import { finalize } from 'rxjs/operators';
 
 import { DeferredGetter, DeferredReducer, StateSubscriber } from './private-classes';
 import { StateData } from "./StateData";
-import { IConstructor, IReducerConstructor, IReducer, IReducerDelegate, IFromBrowserStorageCtor, IBrowserStorage } from './interfaces';
+import { IConstructor, IStateConstructor, IReducerConstructor, IReducer, IReducerDelegate, IBrowserStorage } from './interfaces';
 import { ReducerTask, AllLogEventTypes, StoreConfig, LogConfig, LogEventType, BrowserStorage } from './classes';
 import * as logging from './logging';
 
@@ -14,7 +14,7 @@ class Storage {
     return Storage._instance || (Storage._instance = new Storage());
   }
 
-  private store = new Map<IConstructor<any>, StateData<any>>();
+  private store = new Map<IConstructor<any> | string, StateData<any>>();
   private subscriptionStore = new Map<{}, Subscription>();
 
   /**
@@ -31,7 +31,7 @@ class Storage {
    * stateCtor is the state constructor used as a map key.
    * stateData is a container for all data stored for particular state constructor including current state object.
    * */
-  getEntries(): { stateCtor: IConstructor<any>, stateData: StateData<any> }[] {
+  getEntries(): { stateCtor: IConstructor<any> | string, stateData: StateData<any> }[] {
     return Array.from(this.store.entries()).map(x => {
       return {
         stateCtor: x[0],
@@ -56,7 +56,7 @@ class Storage {
      *
      * param stateCtor - constructor function of a state.
      * */
-    get: <T>(stateCtor: IConstructor<T>): Promise<T> => {
+    get: <T>(stateCtor: IStateConstructor<T>): Promise<T> => {
       const stateData = this.getStateData(stateCtor);
       logging.LogManager.log(stateCtor, LogEventType.StateGetter, stateData, { state: stateData.state });
 
@@ -76,7 +76,7 @@ class Storage {
      *
      * param stateCtor - constructor function of the state.
      * */
-    getObservable: <T>(stateCtor: IConstructor<T>): Observable<T> => {
+    getObservable: <T>(stateCtor: IStateConstructor<T>): Observable<T> => {
       const logger = new logging.Logger(stateCtor);
       return this.internalGetObservableState(stateCtor, logger);
     },
@@ -95,7 +95,7 @@ class Storage {
      * param complete - a function which is called when observable of subscription is completed that is before origianl dispose method call.
      * */
     subscribe: <T>(
-      stateCtor: IConstructor<T>,
+      stateCtor: IStateConstructor<T>,
       componentInstance: {},
       next: (value: T) => void,
       error: (error: any) => void = () => { },
@@ -135,7 +135,7 @@ class Storage {
      *
      * param stateCtor - constructor function of a state.
      * */
-    suspend: async<T>(stateCtor: IConstructor<T>): Promise<void> => {
+    suspend: async<T>(stateCtor: IStateConstructor<T>): Promise<void> => {
       const stateData = this.getStateData(stateCtor);
 
       const logger = new logging.Logger(stateCtor);
@@ -225,7 +225,7 @@ class Storage {
      * param delegate - an implementation of IReducerDelegate<T> interface. That is an anonymous function which accepts current
      * states and return Promise of new state
      * */
-    byDelegate: <T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
+    byDelegate: <T>(stateCtor: IStateConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
       const logger = new logging.Logger(stateCtor);
       return this.internalReduceByDelegate(stateCtor, delegate, false, logger);
     },
@@ -248,7 +248,7 @@ class Storage {
      * param delegate - an implementation of IReducerDelegate<T> interface. That is an anonymous function which accepts current
      * state and return Promise of new state
      * */
-    byDelegateDeferred: <T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
+    byDelegateDeferred: <T>(stateCtor: IStateConstructor<T>, delegate: IReducerDelegate<T>): Promise<void> => {
       const logger = new logging.Logger(stateCtor);
       return this.internalReduceByDelegate(stateCtor, delegate, true, logger);
     },
@@ -354,7 +354,7 @@ class Storage {
      * param config - a Partial of LogConfig class to apply.
      * */
     setConfiguration: (
-      stateCtors: IConstructor<any>[],
+      stateCtors: IStateConstructor<any>[],
       eventType: LogEventType = AllLogEventTypes,
       config: Partial<LogConfig> = {}): void => {
 
@@ -383,7 +383,7 @@ class Storage {
 
   };
 
-  private internalGetState<T>(stateCtor: IConstructor<T>, logger?: logging.DurationLogger<T>): Promise<T> {
+  private internalGetState<T>(stateCtor: IStateConstructor<T>, logger?: logging.DurationLogger<T>): Promise<T> {
     const stateData = this.getStateData(stateCtor);
     return new Promise<T>((resolve, reject) => {
       const deferred = new DeferredGetter(resolve, logger);
@@ -399,7 +399,7 @@ class Storage {
     });
   }
 
-  private internalGetObservableState<T>(stateCtor: IConstructor<T>, logger: logging.Logger<T>): Observable<T> {
+  private internalGetObservableState<T>(stateCtor: IStateConstructor<T>, logger: logging.Logger<T>): Observable<T> {
     const stateData = this.getStateData(stateCtor);
     const isNeedToNotifySubcriber = stateData.isStateInitiated && !stateData.isStateSuspended;
 
@@ -439,7 +439,7 @@ class Storage {
     return this.internalReduce(reducer, isDeferred, logger, a1, a2, a3, a4, a5, a6);
   }
 
-  private internalReduceByDelegate<T>(stateCtor: IConstructor<T>, delegate: IReducerDelegate<T>, isDeferred: boolean, logger: logging.Logger<T>): Promise<void> {
+  private internalReduceByDelegate<T>(stateCtor: IStateConstructor<T>, delegate: IReducerDelegate<T>, isDeferred: boolean, logger: logging.Logger<T>): Promise<void> {
     const stateData = this.getStateData(stateCtor);
     const reducerLogger = new logging.ReducerLogger(stateCtor);
     stateData.isStateInitiated = true;
@@ -485,16 +485,27 @@ class Storage {
     }
   }
 
-  private getStateData<T>(stateCtor: IConstructor<T>): StateData<T> {
-    let stateData = this.store.get(stateCtor) as StateData<T>;
+  private getStateData<T>(stateCtor: IStateConstructor<T>): StateData<T> {
+    console.log('rs: stateCtor', stateCtor);
+    let stateData: StateData<T>;
+    if (stateCtor.key) {
+      stateData = this.store.get(stateCtor.key) as StateData<T>;
+    } else {
+      stateData = this.store.get(stateCtor) as StateData<T>;
+    }
     if (stateData) return stateData;
 
     stateData = new StateData();
-    this.store.set(stateCtor, stateData);
+    if (stateCtor.key) {
+      this.store.set(stateCtor.key, stateData);
+    } else {
+      this.store.set(stateCtor, stateData);
+    }
+
     return stateData;
   }
 
-  private async reduceDeferred<T>(stateCtor: IConstructor<T>, isForced: boolean): Promise<void> {
+  private async reduceDeferred<T>(stateCtor: IStateConstructor<T>, isForced: boolean): Promise<void> {
     const stateData = this.getStateData(stateCtor);
 
     if (stateData.isBusy && !isForced) return;
@@ -559,7 +570,7 @@ class Storage {
     stateData.isBusy = false;
   }
 
-  private resolveDefferedGetters<T>(stateCtor: IConstructor<T>): void {
+  private resolveDefferedGetters<T>(stateCtor: IStateConstructor<T>): void {
     const stateData = this.getStateData(stateCtor);
     let getters = stateData.deferredGetters;
     stateData.deferredGetters = [];

@@ -1,10 +1,10 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { ReduceStore } from '../lib/reduce-store.service';
-import { Clone, IReducer } from 'reduce-store';
-import { Injectable } from '@angular/core';
+import { Clone, IReducer, Store } from 'reduce-store';
+import { Injectable, Injector } from '@angular/core';
 
 class TestState extends Clone<TestState> {
+  static key: 'TestStateKey';
   value: number;
 }
 
@@ -50,35 +50,45 @@ class TestStateErrorReducer implements IReducer<TestState>{
   };
 }
 
-describe('ReduceStore', () => {
+describe('StoreService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ReduceStore]
+      providers: [TestService]
     });
   });
 
-  it('should be created', inject([ReduceStore], (store: ReduceStore) => {
-    store.lazyReduce(TestStateReducer, 1);
+  it('should be created', inject([Injector], (injector) => {
+    Store.config.set({
+      cloneMethodName: 'clone',
+      disposeMethodName: 'ngOnDestroy',
+      resolver: injector
+    });
 
-    store.getObservableState(TestState).subscribe(x => {
+    const store = Store;
+
+    console.log('general.spec', store);
+
+    store.reduce.byConstructorDeferred(TestStateReducer, 1);
+
+    store.state.getObservable(TestState).subscribe(x => {
       console.log('getObservableState 1', x);
     });
 
-    store.reduce(TestStateReducer, 2);
+    store.reduce.byConstructor(TestStateReducer, 2);
 
-    store.getState(TestState).then(x => {
+    store.state.get(TestState).then(x => {
       console.log('getState 1', x);
     });
 
     //store.reduce(TestStateErrorReducer, "-1");
 
-    store.reduce(TestStateReducer, 3);
+    store.reduce.byConstructor(TestStateReducer, 3);
 
-    store.getObservableState(TestState).subscribe(x => {
+    store.state.getObservable(TestState).subscribe(x => {
       console.log('getObservableState 2', x);
     });
 
-    store.getState(TestState)
+    store.state.get(TestState)
       .then(x => {
         console.log('getState 2', x);
       })

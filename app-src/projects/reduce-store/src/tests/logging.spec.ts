@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { Clone, IReducer, ReduceStore, LogEventType, AllLogEventTypes, Store, StoreService } from 'reduce-store';
+import { Clone, IReducer, LogEventType, AllLogEventTypes, Store } from 'reduce-store';
 import { Component as NgComponent, OnDestroy, Injectable } from '@angular/core';
 
 var circularObj: any = {};
@@ -58,11 +58,13 @@ class TestState2Reducer implements IReducer<TestState2>{
 }
 
 class Component implements OnDestroy {
+  store = Store;
   private name = 'zzz';
   private state: TestState;
   private state2: TestState2;
 
-  constructor(private store: StoreService, name: string) {
+  constructor(name: string) {
+
     this.store.state.subscribe(TestState, this, this.onStateChanged);
     this.store.state.subscribe(TestState2, this, this.onStateChanged2);
     this.name = name;
@@ -92,11 +94,12 @@ class Component implements OnDestroy {
 describe('ReduceStore', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [StoreService]
+      providers: []
     });
   });
 
-  it('should be created', inject([StoreService], async (store: StoreService) => {
+  it('should be created', inject([], async () => {
+    const store = Store;
     console.log('store', store);
 
     store.config.set({ cloneMethodName: 'clone' });
@@ -105,7 +108,7 @@ describe('ReduceStore', () => {
 
     store.reduce.byConstructorDeferred(TestStateReducer, 0);
     store.reduce.byDelegateDeferred(TestState, testStateDelegate);
-    const componentA = new Component(store, 'A');
+    const componentA = new Component('A');
 
     await new Promise(r => setTimeout(r, 1000));
 
@@ -114,7 +117,7 @@ describe('ReduceStore', () => {
     store.reduce.byDelegate(TestState, s => Promise.resolve(new TestState({ value: 1.75 })));
     await store.reduce.byConstructor(TestState2Reducer, 101);
 
-    const componentB = new Component(store, 'B');
+    const componentB = new Component('B');
     store.state.get(TestState);
 
     await store.state.suspend(TestState);

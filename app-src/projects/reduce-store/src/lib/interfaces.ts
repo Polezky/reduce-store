@@ -5,6 +5,10 @@ export interface IConstructor<T> {
   new(...args: any[]): T;
 }
 
+export interface IStateConstructor<T> extends IConstructor<T> {
+  key?: string;
+}
+
 /**
  * The delegate function that changes a state
  * */
@@ -20,7 +24,7 @@ export interface IReducer<T, A1 = null, A2 = null, A3 = null, A4 = null, A5 = nu
   /**
    * a reference to a state constructor function
    * */
-  readonly stateCtor: IConstructor<T>;
+  readonly stateCtor: IStateConstructor<T>;
 
   /**
    * is used to change state from one to the other
@@ -39,7 +43,7 @@ export interface IReducerConstructor<T, A1 = null, A2 = null, A3 = null, A4 = nu
  * The interface of resolving dependencies of Reducers
  * */
 export interface IDependecyResolver {
-  get<T>(ctor: IConstructor<T>): T;
+  get<T>(ctor: IStateConstructor<T>): T;
 }
 
 /**

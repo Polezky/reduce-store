@@ -1,4 +1,4 @@
-import { IReducer, IDependecyResolver, IConstructor, IReducerDelegate } from "./interfaces";
+import { IReducer, IDependecyResolver, IStateConstructor, IReducerDelegate } from "./interfaces";
 import { IResolve, IReject } from "./private-interfaces";
 import { Subscriber } from "rxjs";
 import * as logging from "./logging";
@@ -52,7 +52,7 @@ export class DeferredGetter<T>{
 }
 
 export const SimpleDependecyResolver: IDependecyResolver = {
-  get<T>(ctor: IConstructor<T>): T {
+  get<T>(ctor: IStateConstructor<T>): T {
     return new ctor();
   }
 };

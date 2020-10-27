@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { Clone, IReducer, ReduceStore } from 'reduce-store';
+import { Clone, IReducer, Store } from 'reduce-store';
 import { Injectable, OnDestroy } from '@angular/core';
 
 class TestState extends Clone<TestState> {
@@ -26,15 +26,16 @@ class TestStateReducer implements IReducer<TestState>{
 class Component implements OnDestroy {
   private value = 'zzz';
   private state: TestState;
+  store = Store;
 
-  constructor(private store: ReduceStore, value: string) {
-    this.store.subscribeToState(TestState, this, this.onStateChanged);
+  constructor(value: string) {
+    this.store.state.subscribe(TestState, this, this.onStateChanged);
     this.value = value;
     console.log('Component constructor', this.value);
   }
 
   async updateState(): Promise<void> {
-    const state = await this.store.getState(TestState);
+    const state = await this.store.state.get(TestState);
     console.log('Component updateState', this.value, state && state.value);
   }
 
@@ -48,32 +49,33 @@ class Component implements OnDestroy {
   }
 }
 
-describe('ReduceStore', () => {
+describe('StoreService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ReduceStore]
+      providers: []
     });
   });
 
-  it('should be created', inject([ReduceStore], async (store: ReduceStore) => {
+  it('should be created', inject([], async () => {
+    const store = Store;
     console.log('store', store);
 
-    const component1 = new Component(store, 'A');
+    const component1 = new Component('A');
 
     await new Promise(r => setTimeout(r, 1000));
 
-    await store.reduce(TestStateReducer, 1);
+    await store.reduce.byConstructor(TestStateReducer, 1);
 
-    await store.suspendState(TestState);
+    await store.state.suspend(TestState);
     console.log('suspendState');
 
-    const component2 = new Component(store, 'B');
+    const component2 = new Component('B');
     component1.updateState();
 
     console.log('state is still suspended');
 
     setTimeout(() => {
-      store.reduce(TestStateReducer, 2);
+      store.reduce.byConstructor(TestStateReducer, 2);
     }, 1000);
 
     console.log('Right after 2');

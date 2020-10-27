@@ -1,6 +1,6 @@
 import { LogEventType, LogConfig, LogLevel } from './classes';
 import { StateData } from "./StateData";
-import { IConstructor, IReducerDelegate } from "./interfaces";
+import { IStateConstructor, IReducerDelegate } from "./interfaces";
 import { KeyValuePair } from "./private-interfaces";
 import { parse, stringify } from 'flatted/esm';
 
@@ -17,7 +17,7 @@ class Manager {
   allStatesConfigPairs: KeyValuePair<LogEventType, LogConfig>[] = [];
 
   log<T>(
-    stateCtor: IConstructor<T>,
+    stateCtor: IStateConstructor<T>,
     eventType: LogEventType,
     stateData: StateData<T>,
     logData: ILogData<T>): void {
@@ -35,7 +35,7 @@ export interface ILog {
 export interface ILogData<T> {
   state: T;
   logError?: Error;
-  stateCtor?: IConstructor<T>;
+  stateCtor?: IStateConstructor<T>;
   args?: any[];
   stack?: string[];
   reducerDelegate?: IReducerDelegate<T>;
@@ -85,7 +85,7 @@ export class Logger<T> {
   private readonly logError: Error = LogManager.isEnabled ? new Error() : undefined;
 
   constructor(
-    protected readonly stateCtor: IConstructor<T>
+    protected readonly stateCtor: IStateConstructor<T>
   ) { }
 
   log(eventType: LogEventType, stateData: StateData<T>, logData: ILogData<T>): void {
@@ -164,7 +164,7 @@ export class Logger<T> {
 export class DurationLogger<T> extends Logger<T> {
   private watches = new StopWatch();
 
-  constructor(stateCtor: IConstructor<T>) {
+  constructor(stateCtor: IStateConstructor<T>) {
     super(stateCtor);
     this.watches.start();
   }
@@ -180,7 +180,7 @@ export class ReducerLogger<T> extends Logger<T> {
   private watches = new StopWatch();
   private runWatches = new StopWatch();
 
-  constructor(stateCtor: IConstructor<T>) {
+  constructor(stateCtor: IStateConstructor<T>) {
     super(stateCtor);
     this.watches.start();
   }
