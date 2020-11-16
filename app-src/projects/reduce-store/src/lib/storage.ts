@@ -486,7 +486,6 @@ class Storage {
   }
 
   private getStateData<T>(stateCtor: IStateConstructor<T>): StateData<T> {
-    console.log('rs: stateCtor', stateCtor);
     let stateData: StateData<T>;
     if (stateCtor.key) {
       stateData = this.store.get(stateCtor.key) as StateData<T>;

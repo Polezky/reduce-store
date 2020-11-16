@@ -1,6 +1,6 @@
 {
   "name": "reduce-store",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "peerDependencies": {
     "rxjs": "^6.0.0",
     "flatted": "^2.0.0"
