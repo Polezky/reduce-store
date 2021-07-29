@@ -1,5 +1,5 @@
-import { Observable, Subscriber, Subscription } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { Observable, Subject, Subscriber, Subscription } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 
 import { DeferredGetter, DeferredReducer, StateSubscriber } from './private-classes';
 import { StateData } from "./StateData";
@@ -15,7 +15,6 @@ class Storage {
   }
 
   private store = new Map<IConstructor<any> | string, StateData<any>>();
-  private subscriptionStore = new Map<{}, Subscription>();
 
   /**
    * A set of configuration properties of the Store
@@ -101,26 +100,29 @@ class Storage {
       error: (error: any) => void = () => { },
       complete: () => void = () => { }): void => {
 
-      const logger = new logging.Logger(stateCtor);
-      const observable = this.internalGetObservableState(stateCtor, logger);
-      const newSubscription = observable.subscribe(
-        next.bind(componentInstance),
-        error.bind(componentInstance),
-        complete.bind(componentInstance)
-      );
-
       if (!this.config || !this.config.disposeMethodName)
         throw new Error('disposeMethodName is not configured');
 
       if (typeof componentInstance[this.config.disposeMethodName] !== 'function')
         throw new Error(`componentInstance does not have method ${this.config.disposeMethodName}`);
 
-      this.getStateSubscription(componentInstance).add(newSubscription);
+      const logger = new logging.Logger(stateCtor);
+      const observable = this.internalGetObservableState(stateCtor, logger);
+
+      const unsubsciribe$ = new Subject<void>();
+
+      observable
+        .pipe(takeUntil(unsubsciribe$))
+        .subscribe(
+          next.bind(componentInstance),
+          error.bind(componentInstance),
+          complete.bind(componentInstance)
+        );
 
       const originalOnDestroy = componentInstance[this.config.disposeMethodName].bind(componentInstance);
       componentInstance[this.config.disposeMethodName] = (): void => {
-        this.getStateSubscription(componentInstance).unsubscribe();
-        this.subscriptionStore.delete(componentInstance);
+        unsubsciribe$.next();
+        unsubsciribe$.complete();
         originalOnDestroy();
       };
     },
@@ -310,7 +312,7 @@ class Storage {
         const logger = new logging.Logger(stateCtor);
         const delegate = stateData.browserStorage.deferredDelegate;
         return this.internalReduceByDelegate(stateCtor, delegate, true, logger);
-      } 
+      }
 
       const reducerCtor = stateData.browserStorage.deferredReducerCtor;
       return this.createReducerAndReduce(reducerCtor, true, a1, a2, a3, a4, a5, a6);
@@ -597,16 +599,6 @@ class Storage {
 
     return state[this.config.cloneMethodName]();
   }
-
-  private getStateSubscription(componentInstance: {}): Subscription {
-    let subscription = this.subscriptionStore.get(componentInstance);
-    if (subscription) return subscription;
-
-    subscription = new Subscription();
-    this.subscriptionStore.set(componentInstance, subscription);
-    return subscription;
-  }
-
 }
 
 /**

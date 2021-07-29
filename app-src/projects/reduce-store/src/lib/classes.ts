@@ -1,9 +1,9 @@
-import { IReducerConstructor, IDependecyResolver, IStateConstructor, IReducerDelegate, IFromBrowserStorageReducerConstructor, IBrowserStorage, IReducer, IFromBrowserStorageCtor } from "./interfaces";
-import { DeferredTask, SimpleDependecyResolver } from "./private-classes";
+import { IReducerConstructor, IDependecyResolver, IStateConstructor, IReducerDelegate, IFromBrowserStorageReducerConstructor, IBrowserStorage, IReducer, IFromBrowserStorageCtor } from './interfaces';
+import { DeferredTask, SimpleDependecyResolver } from './private-classes';
 import { stringify, parse } from 'flatted/esm';
 
-var loggingDefaultPrefix = '';
-var loggingDefaultCss = 'background-color: beige; color: green;';
+const loggingDefaultPrefix = '';
+const loggingDefaultCss = 'background-color: beige; color: green;';
 
 /**
  * The class which contains configurations for the Store
@@ -40,7 +40,7 @@ export class StoreConfig {
   }
 
   /**
-   * 
+   *
    * @param init - a partial of StoreConfig. Properties which is set in the partial is the only which is changed it the Store config.
    * if your partial has cloneMethodName only it means that cloneMethodName is changed and other config properties remains the same.
    */
@@ -69,7 +69,7 @@ export class Clone<T> {
    * Provides basic functionality to clone the object. This methods call the constructor with 'this' as the only argument
    * */
   clone(): T {
-    return new (<any>this.constructor)(this);
+    return new (this.constructor as any)(this);
   }
 }
 
@@ -144,7 +144,7 @@ export enum LogLevel {
   Info = 2,
   Debug = 3,
   Warn = 4
-};
+}
 
 /**
  * StateGetter                  when state.get method is executed
@@ -267,7 +267,7 @@ export class BrowserStorage<T> {
    * will be applied to create the state. State creation will be deferred until. state is asked.
    * If this property is false, then the browser storage functionality is not used.
    * */
-  isEnabled?: boolean = true;
+  isEnabled = true;
 
   constructor(init: IBrowserStorage<T>) {
     Object.assign(this, init);
@@ -278,13 +278,13 @@ export class BrowserStorage<T> {
   }
 
   saveState(state: T): void {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled) { return; }
 
     this.storage.setItem(this.key, stringify(state));
   }
 
   getState(): T {
-    if (!this.isEnabled) throw new Error('Browser storage is not enabled');
+    if (!this.isEnabled) { throw new Error('Browser storage is not enabled'); }
 
     const statePartial = parse(this.storage.getItem(this.key));
     return this.createState(statePartial);
@@ -295,7 +295,7 @@ export class BrowserStorage<T> {
   }
 
   hasState(): boolean {
-    if (!this.isEnabled) return false;
+    if (!this.isEnabled) { return false; }
 
     const isExpired = this.expirationDate && this.expirationDate.getTime() < new Date().getTime();
 
