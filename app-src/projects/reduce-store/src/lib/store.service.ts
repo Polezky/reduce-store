@@ -10,7 +10,7 @@ export class StoreService {
   constructor(
     resolver: IDependecyResolver = SimpleDependecyResolver,
   ) {
-    Store.config.set({ disposeMethodName: 'ngOnDestroy', resolver });
+    Store.config.set({ resolver });
   }
 
   /**

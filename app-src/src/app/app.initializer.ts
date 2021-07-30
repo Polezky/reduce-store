@@ -24,7 +24,6 @@ export function initializeFactory(injector: Injector) {
     Store.config.set({
       resolver: injector,
       cloneMethodName: 'clone',
-      disposeMethodName: 'ngOnDestroy'
     });
 
     Store.browserStorage.configure(route.storageConfig);

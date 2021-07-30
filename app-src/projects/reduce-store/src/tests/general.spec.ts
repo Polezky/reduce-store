@@ -60,7 +60,6 @@ describe('StoreService', () => {
   it('should be created', inject([Injector], (injector) => {
     Store.config.set({
       cloneMethodName: 'clone',
-      disposeMethodName: 'ngOnDestroy',
       resolver: injector
     });
 

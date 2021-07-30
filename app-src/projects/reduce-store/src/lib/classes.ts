@@ -19,14 +19,6 @@ export class StoreConfig {
   cloneMethodName?: string;
 
   /**
-   * The component which is passed to Store.state.subscribe method must have a method with this name.
-   * If the component doesn't have such a methdod then an exception will be throwen.
-   * This method will be wrapped by the Store and when the component dispose method is called
-   * then Store unsubscribes the subscription and calls original dispose method.
-   * */
-  disposeMethodName?: string;
-
-  /**
    * This class is used to create instances of Reducers. Reducers are created in Store.reduce.byConstructor and
    * Store.reduce.byConstructorDeferred methods
    * */

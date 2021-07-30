@@ -35,6 +35,7 @@ class Component implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    Store.state.unsubscribe(this);
     console.log('Component OnDestroy', this.value, this);
   }
 
@@ -57,7 +58,6 @@ describe('ReduceStore', () => {
     Store.config.set({
       resolver: injector,
       cloneMethodName: 'clone',
-      disposeMethodName: 'ngOnDestroy'
     });
 
     const component1 = new Component('A');
